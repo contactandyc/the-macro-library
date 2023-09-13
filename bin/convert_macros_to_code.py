@@ -1,0 +1,416 @@
+# Copyright 2023 Andy Curtis
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import re
+import sys
+import copy
+from pprint import pprint
+import os
+
+macro_keyword = 'macro_'
+
+# A dictionary of files to prevent files from being processed more than once
+files = {}
+
+# A dictionary of macros based upon the included files
+macros = {}
+
+# Create a macro out of all of the non-macro code
+final_lines = ['#define final_code()']
+
+def strip_cpp_comments(file_contents):
+    """
+    This function removes C++ style comments ('//' and '/* */') from a given string containing C++ code.
+    It ensures that comments within quotes are not removed. The function returns the modified C++ code as a string.
+
+    Parameters:
+        file_contents (str): The original C++ code containing comments.
+
+    Returns:
+        str: The modified C++ code with comments stripped.
+    """
+
+    # Flags to track whether we are inside a comment or inside quotes
+    in_comment = False
+    in_quote = False
+
+    # List to hold individual characters for the resulting stripped code
+    output = []
+
+    # Initialize loop variables
+    i = 0
+    n = len(file_contents)
+
+    # Loop through each character in the original code
+    while i < n:
+        if not in_comment and not in_quote:
+            # Detect single-line comment '//'
+            if file_contents[i:i + 2] == "//":
+                i = file_contents.find("\n", i) + 1
+                if i == 0:
+                    break  # End of file, exit loop
+
+            # Detect multi-line comment '/*'
+            elif file_contents[i:i + 2] == "/*":
+                in_comment = True
+                i += 2  # Skip '/*'
+
+            # Detect quotes '"'
+            elif file_contents[i] == '"':
+                in_quote = True
+                output.append('"')
+                i += 1  # Skip '"'
+
+            # Add all other characters to output
+            else:
+                output.append(file_contents[i])
+                i += 1
+
+        elif in_comment:
+            # End of multi-line comment '*/'
+            if file_contents[i:i + 2] == "*/":
+                in_comment = False
+                i += 2  # Skip '*/'
+
+            # Move to the next character
+            else:
+                i += 1
+
+        elif in_quote:
+            # End of quotes '"'
+            if file_contents[i] == '"':
+                in_quote = False
+
+            # Add the character within quotes to output
+            output.append(file_contents[i])
+            i += 1  # Move to the next character
+
+    # Combine list into a single string
+    return ''.join(output)
+
+def count_trailing_spaces_after_newline(text):
+    """
+    This function counts the number of spaces that directly follow the last newline character
+    in the given text, if any.
+
+    Parameters:
+        text (str): The input text where spaces following the last newline are to be counted.
+
+    Returns:
+        int: The number of spaces following the last newline character; 0 if none are found.
+    """
+
+    # Search for a pattern where a newline is followed by one or more spaces at the end of the string
+    match = re.search(r'\n[ ]+$', text)
+
+    # If such a pattern is found, return the count of spaces; otherwise, return 0
+    if match:
+        return len(match.group()) - 1  # Subtract 1 to exclude the newline character from the count
+    return 0
+
+def parse_cpp_code(code):
+    """
+    This function tokenizes the given C++ code based on a pre-defined regular expression pattern for tokens.
+    The function returns a list of dictionaries where each dictionary represents either a token or non-token
+    part of the code. Tokens are identified based on language syntax for identifiers, operators, literals,
+    and special symbols. Non-token parts typically consist of white spaces and other delimiters.
+
+    Parameters:
+        code (str): The C++ code to tokenize.
+
+    Returns:
+        list: A list of dictionaries, each containing a 'isToken' flag and the actual 'text' of the token or non-token.
+    """
+    # Regular expression pattern for identifying tokens in C++ code
+    token_pattern = r'''[A-Za-z_]\w*|[-+*/=><&|!]+|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\(|\)|\{|\}|\;|\,|[0-9]+'''
+
+    # Initialize the list to hold tokens and non-tokens
+    tokens = []
+
+    # Initialize position tracker
+    last_pos = 0
+
+    # Iterate through each regex match in the code
+    for match in re.finditer(token_pattern, code, re.VERBOSE):
+        start, end = match.span()
+
+        # Save any non-token text that appears before the current match
+        if start > last_pos:
+            if len(tokens) > 0 and tokens[-1]['isToken'] == False:
+                tokens[-1]['text'] += code[last_pos:start]
+            else:
+                tokens.append({
+                    'isToken': False,
+                    'text': code[last_pos:start]
+                })
+
+        # Save the identified token
+        tokens.append({
+            'isToken': True,
+            'text': match.group()
+        })
+
+        # Update the position tracker
+        last_pos = end
+
+    # Append any trailing non-token parts
+    if last_pos < len(code):
+        if len(tokens) > 0 and tokens[-1]['isToken'] == False:
+            tokens[-1]['text'] += code[last_pos:]
+        else:
+            tokens.append({
+                'isToken': False,
+                'text': code[last_pos:]
+            })
+
+    return tokens
+
+def add_macro(name, macro):
+    """
+    This function parses a given macro definition and stores it in a global dictionary 'macros'.
+    It will not overwrite an existing macro with the same name. The function extracts the argument list
+    and the code block of the macro, then stores these along with tokenized code for later use.
+
+    Parameters:
+        name (str): The name of the macro.
+        macro (str): The full text of the macro definition.
+
+    Returns:
+        None
+    """
+
+    # Check if a macro with the given name already exists; if so, return immediately
+    if macros.get(name):
+        return
+
+    # Extract arguments from the macro using regex
+    args_match = re.search(r"[^(]*\(([^)]*)\)", macro)
+    args = args_match.group(1)
+
+    # Split arguments into a list, removing any extra spaces or newlines
+    arg_list = re.split('[, \n]+', args)
+
+    # Extract the code part of the macro using regex
+    code_match = re.search(r"[^)]*\)[ ]*([^\0]*)", macro)
+    code = code_match.group(1)
+
+    # Store the parsed macro information in the global dictionary 'macros'
+    macros[name] = {
+        'tokens': parse_cpp_code(code),  # Tokenize the code for later parsing
+        'code': code,  # The actual code as a string
+        'args': arg_list  # List of arguments
+    }
+
+main_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), '../include/'))
+
+def process_macro_file(filename):
+    # Get the absolute path of the given filename
+    abs_filename = os.path.abspath(filename)
+
+    # Check if this file has already been processed, if yes, return immediately
+    if files.get(abs_filename):
+        return
+
+    # Mark this file as processed
+    files[abs_filename] = 1
+
+    # Open the file and read its contents
+    with open(filename, 'r', encoding='utf-8') as file:
+        file_contents = file.read()
+
+    # Remove C++ comments and split the content by lines
+    lines = strip_cpp_comments(file_contents).split('\n')
+
+    # Number of lines in the file
+    num_lines = len(lines)
+    line_no = 0  # Line counter
+
+    # Iterate through each line in the file
+    while line_no < num_lines:
+        line = lines[line_no]
+
+        # Check for #include statements
+        if line.startswith('#include'):
+            match = re.search(r'#include "(.*)"', line)
+            if match:
+                matched_filename = match.group(1)
+
+                # Look for macro keyword in the included filename
+                if macro_keyword in matched_filename:
+                    new_filename = None
+                    # Check if the file exists at various locations
+                    new_filename = None
+                    if os.path.exists(matched_filename):
+                        new_filename = matched_filename
+                    elif os.path.exists(os.path.join(os.path.dirname(filename), matched_filename)):
+                        new_filename = os.path.join(os.path.dirname(filename), matched_filename)
+                    elif len(sys.argv) > 2:
+                        for arg_no in range(2, len(sys.argv)):
+                            if os.path.exists(os.path.join(sys.argv[arg_no], matched_filename)):
+                                new_filename = os.path.join(sys.argv[arg_no], matched_filename)
+                                break
+                    else:
+                        if os.path.exists(os.path.join(main_path, matched_filename)):
+                            new_filename = os.path.join(main_path, matched_filename)
+
+                    # If new_filename is found, process it recursively
+                    if new_filename:
+                        process_macro_file(new_filename)
+                        line_no += 1
+                        continue
+
+        # Check for #define macros
+        elif line.startswith('#define') and '(' in line:
+            match = re.search(r'#define *([^ (]*)', line)
+            if match:
+                macro_name = match.group(1)
+
+                # Look for macro keyword in the macro name
+                if macro_keyword in macro_name:
+                    macro = []
+                    cur = line_no
+
+                    # Capture the entire macro definition
+                    while lines[cur][-1:] == '\\':
+                        macro.append(lines[cur][0:-1].rstrip())
+                        cur = cur + 1
+                    macro.append(lines[cur].rstrip())
+
+                    # Store the macro using the add_macro function
+                    add_macro(macro_name, '\n'.join(macro))
+                    line_no = cur + 1
+                    continue
+
+        # Append any other lines to the final_lines list
+        final_lines.append(lines[line_no])
+
+        # Move to the next line
+        line_no += 1
+
+
+def evaluate_macro(macro, macros):
+    evaluated_code = ''
+    i = 0
+    while i < len(macro['tokens']):
+        token = macro['tokens'][i]
+
+        if token.get('isMacro'):
+            called_macro_name = token['text']
+            called_macro = macros[called_macro_name]
+            args = []
+
+
+            i += 1  # Skip macro name token
+            if macro['tokens'][i]['text'] == '(':
+                i += 1  # Skip '(' token
+                arg = ''
+                paren_count = 0  # Counter to keep track of nesting level of parentheses
+
+                while True:
+                    token_text = macro['tokens'][i]['text']
+
+                    if token_text == '(':
+                        paren_count += 1
+                    elif token_text == ')':
+                        if paren_count == 0:
+                            break
+                        paren_count -= 1
+                    elif token_text == ',' and paren_count == 0:
+                        args.append(arg.strip())
+                        arg = ''
+                        i += 1
+                        continue  # Skip appending the comma to the argument
+
+                    arg += token_text
+                    i += 1
+
+                args.append(arg.strip())
+
+            # Evaluate the called macro
+            spaces = count_trailing_spaces_after_newline(evaluated_code)
+            evaluated_code += evaluate_macro_with_args(called_macro_name, args, spaces, macros)
+        else:
+            evaluated_code += token['text']
+
+        i += 1
+
+    needs_parsed = False
+
+    tokens = parse_cpp_code(evaluated_code)
+    for idx in range(0, len(tokens)):
+        token = tokens[idx]
+        if token['isToken'] is True and token['text'] in macros:
+            token['isMacro'] = True
+            needs_parsed = True
+            break
+
+    if needs_parsed:
+        return evaluate_macro({
+            'code': evaluated_code,
+            'tokens': tokens,
+            'args': []
+        }, macros)
+
+    return evaluated_code
+
+def evaluate_macro_with_args(name, args, spaces, macros):
+    tokens = copy.deepcopy(macros[name]['tokens'])
+    for token in tokens:
+        if token.get('arg') is not None:
+            token['text'] = args[token['arg']]
+
+    code = ''
+    for t in range(0, len(tokens)):
+        if tokens[t].get('concat'):
+            continue
+        code += tokens[t]['text']
+
+    if spaces > 4:
+        code = code.replace("\n", "\n" + " " * (spaces-4))
+
+    code = code.lstrip(' \n')
+
+    return code
+
+if len(sys.argv) < 2:
+    print('')
+    print('  convert_macros_to_code.py <c++ file> [path-to-search] [path2-to-search] [...]')
+    print('')
+    print('Macros are hard to debug.  This converter un-macrofies the code')
+    print('')
+    print('This will look for any macro or include which has the string \"' + macro_keyword + '\"')
+    print('in it.  The included files and macros will be unpacked into code and inlined in the ')
+    print('output.  The macro files must be included using the #include "filename.h" style and')
+    print('not the #include <filename.h> approach.  Also, the extensions must be present.')
+    print('')
+    sys.exit(0)
+
+process_macro_file(sys.argv[1])
+
+add_macro('macro_final_code', '\n'.join(final_lines))
+
+for name,macro in macros.items():
+    tokens = macro['tokens']
+    for idx in range(0, len(tokens)):
+        token = tokens[idx]
+        if token['isToken'] is True:
+            if token['text'] in macro['args']:
+                token['arg'] = macro['args'].index(token['text'])
+            elif token['text'] in macros:
+                token['isMacro'] = True
+        else:
+            if token['text'].strip() == '##':
+                token['concat'] = True
+
+print(evaluate_macro(macros['macro_final_code'], macros))
