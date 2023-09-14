@@ -215,8 +215,8 @@ void name(type *base, size_t n, void *arg) {        \
     __macro_introsort_code(style, type, cmp);       \
 }
 
-#define macro_introsort_cmp_no_arg_h(name, type)     \
-void name(type *base, size_t n,                      \
+#define macro_introsort_cmp_no_arg_h(name, type)    \
+void name(type *base, size_t n,                     \
           int (*cmp)(const type *a, const type *b))
 
 #define macro_introsort_cmp_no_arg(name, type)           \
