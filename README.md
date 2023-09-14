@@ -380,61 +380,102 @@ Consider the following array
 ### bsearch
 Finds any instance of a key or return NULL if none exist.
 
-| key | response | index                    | reason              |
-| --- | --- |--------------------------|---------------------|
-| 0 | NULL | none | 0 is not in the array |
-| 1 | 1 | 0 | 1 is found in the first index |
-| 3 | 3 | 1 or 2 | it is valid for either 3 to be returned |
+| key | response | index                    | reason                                  |
+|-----| --- |--------------------------|-----------------------------------------|
+| 0   | NULL | none | 0 is not in the array                   |
+| 1   | 1 | 0 | 1 is found in the first index           |
+| 2   | NULL | none | 2 is not in the array                   |
+| 3   | 3 | 1 or 2 | it is valid for either 3 to be returned |
+| 4   | NULL | none | 4 is not in the array                   |
+| 5   | 5 | 3 | 5 is found in the last index            |
+| 6   | NULL | none | 6 is not in the array                   |
 
 ### bsearch_first
 Finds the first instance of a key or return NULL if none exist.
 
-| key | response | index                    | reason                                                                                   |
-|-----| --- |--------------------------|------------------------------------------------------------------------------------------|
+| key | response | index | reason                                           |
+|-----| --- |---|--------------------------------------------------|
+| 0   | NULL | none | 0 is not in the array                            |
+| 1   | 1 | 0 | 1 is found in the first index                    |
+| 2   | NULL | none | 2 is not in the array                            |
 | 3   | 3 | 1 | The 3 in the 2nd slot is the first instance of 3 |
+| 4   | NULL | none | 4 is not in the array                            |
+| 5   | 5 | 3 | 5 is found in the last index                     |
+| 6   | NULL | none | 6 is not in the array                            |
 
 ### bsearch_last
 Finds the last instance of a key or return NULL if none exist.
 
 | key | response | index | reason                                          |
 |-----| --- |-------|-------------------------------------------------|
+| 0   | NULL | none  | 0 is not in the array                           |
+| 1   | 1 | 0     | 1 is found in the first index                   |
+| 2   | NULL | none  | 2 is not in the array                           |
 | 3   | 3 | 2     | The 3 in the 3rd slot is the last instance of 3 |
+| 4   | NULL | none  | 4 is not in the array                           |
+| 5   | 5 | 3     | 5 is found in the last index                    |
+| 6   | NULL | none  | 6 is not in the array                           |
 
 ### bsearch_floor
-Finds the first instance of a key or the value less than that.  NULL is returned if the key is less than any item in the array.
+Finds the first instance of a key or the value less than.  NULL is returned if the key is less than any item in the array.
 
-| key | response | index | reason                             |
-|-----| ---| --- | ---------------------------------------- |
-| 2   | 1        | 0 | 2 is less than 3 in the 2nd slot, returning 1 |
-| 3   | 3        | 1 | 3 is found, see bsearch_first |
-| 0   | NULL        | none | 0 is less than any value in the array |
+| key | response | index | reason                                         |
+|-----|----------|-------|------------------------------------------------|
+| 0   | NULL     | none  | 0 is less than any value in the array          |
+| 1   | 1        | 0     | 1 is found, see bsearch_first                  |
+| 2   | 2        | 0     | 2 is not in the array, 1 is less               |
+| 3   | 3        | 1     | 3 is found, see bsearch_first                  |
+| 4   | 3        | 2     | 4 is not found, the last 3 is less             |
+| 5   | 5        | 3     | 5 is found, see bsearch_first                  |
+| 6   | 5        | 3     | 6 is not found, the last 5 is less |
 
 ### bsearch_ceiling
 Finds the last instance of a key or the value less than.  NULL is returned if the key is less than any item in the array.
 
-| key | response | index | reason                             |
-|-----| ---| --- | ---------------------------------------- |
-| 3   | 3        | 2 | 3 is found, see bsearch_last |
-| 6   | 5        | 3 | 6 is not found and 5 is before it |
-| 0   | NULL        | none | 0 is less than any value in the array |
+| key | response | index | reason                                        |
+|-----| ---|-------|-----------------------------------------------|
+| 0   | NULL     | none  | 0 is less than any value in the array         |
+| 1   | 1        | 0     | 1 is found, see bsearch_last                  |
+| 2   | 2        | 0     | 2 is less than 3 in the 2nd slot, returning 1 |
+| 3   | 3        | 2     | 3 is found, see bsearch_last                  |
+| 4   | 3        | 2     | 4 is less than 5 in the 4th slot, returning 3 |
+| 5   | 5        | 3     | 5 is found, see bsearch_last                  |
+| 6   | 5        | 3     | 6 is greater than all items, return last one  |
 
 ### bsearch_lower_bound
 Finds the first instance of a key or the value greater.  NULL is returned if the key is greater than any item in the array.
 
-| key | response | index | reason                             |
-|-----|----------|-------| ---------------------------------------- |
-| 3   | 3        | 1     | 3 is found, see bsearch_first |
-| 6   | NULL     | none  | 6 is greater than any value in the array |
-| 0   | 1     | 0     | 0 is less than any value in the array, return 1st value |
+success(bsearch_lower_bound): key(1) 1 at position 0 returned
+success(bsearch_lower_bound): key(2) 3 at position 1 returned
+success(bsearch_lower_bound): key(3) 3 at position 1 returned
+success(bsearch_lower_bound): key(4) 5 at position 3 returned
+success(bsearch_lower_bound): key(5) 5 at position 3 returned
+success(bsearch_lower_bound): key(6) NULL returned
+
+| key | response | index | reason                                                  |
+|-----|----------|-------|---------------------------------------------------------|
+| 0   | 1        | 0     | 0 is less than any value in the array, return 1st value |
+| 1   | 1        | 0     | 1 is found, see bsearch_first                           |
+| 2   | 3        | 1     | 3 is the greater value than 2                           |
+| 3   | 3        | 1     | 3 is found, see bsearch_first                           |
+| 4   | 5        | 3     | 5 is the greater value than 4                           |
+| 5   | 5        | 3     | 5 is found, see bsearch_first                           |
+| 6   | NULL     | none  | 6 is greater than all items, return NULL                |
 
 ### bsearch_upper_bound
 This is different than the others in that the response is always one greater than the key.  It is possible for this to extend beyond the array.  The purpose of upper_bound is to be used in conjunction with lower_bound to form a range.
 
-| key | response  | index | reason                                                                        |
-|-----|-----------|-------|-------------------------------------------------------------------------------|
-| 3   | 5         | 3     | 3 is found in 3rd slot, return 4th value                                      |
-| 6   | undefined | 4     | 6 is greater than any value in the array, return a pointer to just past the array |
-| 0   | 1         | 0     | 0 is less than any value in the array, return 1st value                         |
+| key | response  | index | reason                                                  |
+|-----|-----------|-------|---------------------------------------------------------|
+| 0   | 1         | 0     | 0 is less than any value in the array, return 1st value |
+| 1   | 3         | 1     | 1 is found, return next value (3)                       |
+| 2   | 3         | 1     | 2 is greater than 1, return next value (3)              |
+| 3   | 5         | 3     | 3 is found, return next value (5)                       |
+| 4   | 5         | 3     | 4 is greater than 3, return next value (5)              |
+| 5   | undefined | 4     | 5 is found, return past array                           |
+| 6   | undefined | 4     | 6 is greater than all items, return past array          |
+
+See examples/demo/search_ints.c 
 
 ## More to come soon
 
