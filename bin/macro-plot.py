@@ -35,7 +35,7 @@ plt.bar(br3, sort3, color='b', width=barWidth, edgecolor='grey', label=rows[3][0
 
 # Adding Xticks and labels
 plt.xlabel(xlabel, fontweight='bold', fontsize=15)
-plt.ylabel('Seconds', fontweight='bold', fontsize=15)
+plt.ylabel('Milliseconds', fontweight='bold', fontsize=15)
 plt.xticks([r + barWidth for r in range(len(test_names))], test_names, rotation=45, ha='right')
 
 plt.subplots_adjust(left=0.125, right=0.98, bottom=0.3, top=0.98)

@@ -19,6 +19,15 @@ limitations under the License.
 
 #include "macro_cmp.h"
 
+/*
+    This macro defines an insertion sort algorithm for an array of elements
+
+    * style, type, cmp are used by the macro_less for comparing elements
+    * base, n is the array to be sorted and the number of elements
+    * ep, curp, p are used internally and are pointers to type
+    * tmp is used internally and is an instance of type
+*/
+
 #define macro_isort(style, type, cmp, base, n,                   \
                     ep, curp, p, tmp)                            \
     ep = base + n;                                               \

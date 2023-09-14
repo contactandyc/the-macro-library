@@ -134,7 +134,7 @@ limitations under the License.
     sv = start.tv_sec * 1000000LL + start.tv_usec;                                          \
     ev = end.tv_sec * 1000000LL + end.tv_usec;                                              \
     ev = (ev-sv);                                                                           \
-    time_spent = ev / 1000000.0;                                                            \
+    time_spent = ev / 1000.0;                                                               \
     if(wp != NULL)                                                                          \
         printf( "%s: %s out of order at %ld of %lu\n",                                      \
                 name, report_name, wp-sp2, ep2-sp2 );
