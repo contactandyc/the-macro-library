@@ -1,5 +1,5 @@
 # the-macro-library
-The macro_sort performs significantly better than qsort and better than std::sort.  This test was run on a MacBook Pro 2020 2.3 GHz Quad-Core Intel Core i7 with 32 GB 3733 MHz LPDDR4X.
+The macro_sort performs significantly better than qsort and better than std::sort.  This test was run on a MacBook Pro 2020 2.3 GHz Quad-Core Intel Core i7 with 32 GB 3733 MHz LPDDR4X RAM.
 
 ![Speed Comparison](./docs/BarChart.png)
 
