@@ -1,7 +1,7 @@
 # the-macro-library
 The macro_sort performs significantly better than qsort and better than std::sort.  This test was run on a MacBook Pro 2020 2.3 GHz Quad-Core Intel Core i7 with 32 GB 3733 MHz LPDDR4X RAM.
 
-![Speed Comparison](./docs/BarChart.png)
+![Speed Comparison](images/BarChart.png)
 
 ## Installation
 
@@ -333,7 +333,7 @@ void sort_ints(int *base, size_t n);
 
 ## Converting define macros into code
 
-`#define` is a very useful mechanism in C/C++.  However, these statements present challenges during debugging since debuggers won't typically let you step through a macro.  This library helps to address this with the `bin/convert_macros_to_code.py` script.  The tool will read a source file and replace any macro_...() define statements with their underlying code.
+`#define` is a very useful mechanism in C/C++.  However, these statements present challenges during debugging since debuggers won't typically let you step through a macro.  This library helps to address this with the `bin/convert-macros-to-code.py` script.  The tool will read a source file and replace any macro_...() define statements with their underlying code.
 
 Consider examples/demo/sort_ints.c
 ```c
@@ -346,7 +346,7 @@ int main() {
 ```
 
 ```bash
-$ python3 bin/convert_macros_to_code.py examples/demo/sort_ints.c | less
+$ convert-macros-to-code.py examples/demo/sort_ints.c | less
 ...
 void sort_ints(int *base, size_t n) {
     int *a, *b, *e;
@@ -361,7 +361,7 @@ void sort_ints(int *base, size_t n) {
 
 Instead of printing to the terminal, the output can be redirected to a file and compiled.
 ```bash
-$ python3 bin/convert_macros_to_code.py examples/demo/sort_ints.c > sort_ints_d.c
+$ convert-macros-to-code.py examples/demo/sort_ints.c > sort_ints_d.c
 $ g++ sort_ints_d.cc -o sort_ints_d -g
 $ ./sort_ints_d
  1 2 3 4 5
@@ -369,13 +369,6 @@ $ ./sort_ints_d
 
 Because the macros are expanded, this new program is easy to debug.
 
+## More to come soon
 
-
-
-
-
-```bash
-python3 bin/convert_macros_to_code.py examples/cpp/test_sort.cc include/ > test_sort_expanded.cc
-g++ test_sort_expanded.cc -o test_sort_expanded -g
-lldb ./test_sort_expanded random
-```
+Contact me at contactandyc@gmail.com
