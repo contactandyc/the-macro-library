@@ -24,7 +24,7 @@ cd build/examples/speed-test
 ```
 Sorting 100000 elements 1000 times which are of size 20
 
-              test name	  sort_items	  std_sort	     qsort
+              test name	  macro_sort	  std_sort	     qsort
               ascending	    0.136391	  0.346498	  0.490240
        ascending[gap=0]	    0.227794	  0.359617	  0.660179
              descending	    0.246166	  0.683351	  2.450071
