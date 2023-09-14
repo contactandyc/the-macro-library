@@ -10,7 +10,7 @@ foreach(file ${C_FILES})
     get_filename_component(name ${file} NAME_WE)  # Remove directory and extension
     add_custom_command(
         OUTPUT ${name}_d.c
-        COMMAND python3 ${CMAKE_SOURCE_DIR}/bin/convert_macros_to_code.py ${CMAKE_SOURCE_DIR}/examples/demo/${name}.c > ${name}_d.c
+        COMMAND ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code.py ${CMAKE_SOURCE_DIR}/examples/demo/${name}.c > ${name}_d.c
         DEPENDS ${CMAKE_SOURCE_DIR}/examples/demo/${name}.c
     )
     add_executable(${name}_d ${name}_d.c)
@@ -23,7 +23,7 @@ foreach(file ${CC_FILES})
     get_filename_component(name ${file} NAME_WE)  # Remove directory and extension
     add_custom_command(
         OUTPUT ${name}_d.cc
-        COMMAND python3 ${CMAKE_SOURCE_DIR}/bin/convert_macros_to_code.py ${CMAKE_SOURCE_DIR}/examples/demo/${name}.cc > ${name}_d.cc
+        COMMAND ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code.py ${CMAKE_SOURCE_DIR}/examples/demo/${name}.cc > ${name}_d.cc
         DEPENDS ${CMAKE_SOURCE_DIR}/examples/demo/${name}.cc
     )
     add_executable(${name}_d ${name}_d.cc)

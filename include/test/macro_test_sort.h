@@ -293,9 +293,33 @@ typedef struct {
     double times[3];
 } __macro_test_sort_result_t;
 
+static inline void __macro_sort_write_plot_csv( size_t n, size_t elem_size, int rep,
+                                                const char *sort1, const char *sort2, const char *sort3,
+                                                __macro_test_sort_result_t *results, int num_results) {
+    FILE *out = fopen("plot.dat", "wb");
+    fprintf( out, "Sorting %lu elements %d times, each %lu bytes\n", n, rep, elem_size );
+    fprintf( out, "test_names" );
+    for( int i=0; i<num_results; i++ )
+        fprintf(out, ",\"%s\"", results[i].test_name );
+    fprintf( out, "\n" );
+    fprintf( out, "%s", sort1 );
+    for( int i=0; i<num_results; i++ )
+        fprintf(out, ",%0.6f", results[i].times[0] );
+    fprintf( out, "\n" );
+    fprintf( out, "%s", sort2 );
+    for( int i=0; i<num_results; i++ )
+        fprintf(out, ",%0.6f", results[i].times[1] );
+    fprintf( out, "\n" );
+    fprintf( out, "%s", sort3 );
+    for( int i=0; i<num_results; i++ )
+        fprintf(out, ",%0.6f", results[i].times[2] );
+    fprintf( out, "\n" );
+    fclose(out);
+}
+
 #define macro_test_sort_driver(arr, arr2, size, rep, set_value,                                   \
                                sort1_name, sort1, sort2_name, sort2, sort3_name, sort3,           \
-                               style, type, cmp, sorts, num_sorts, results, num_results)          \
+                               style, type, cmp, sorts, num_sorts)                                \
     {                                                                                             \
         char **tests = sorts;                                                                     \
         int num_tests = num_sorts;                                                                \
@@ -306,9 +330,9 @@ typedef struct {
         int elem_size = sizeof(type);                                                             \
         char *fmt = print_header_and_get_format(tests, num_tests, size,                           \
             rep, elem_size, sort1_name, sort2_name, sort3_name );                                 \
-        results =                                                                                 \
+        __macro_test_sort_result_t *results =                                                     \
             (__macro_test_sort_result_t*)malloc(sizeof(__macro_test_sort_result_t)*num_tests);    \
-        num_results = 0;                                                                          \
+        int num_results = 0;                                                                      \
         for( int t=-2; t<num_tests; t++ ) {                                                       \
             const char *test_name;                                                                \
             if(t < 0) test_name = "*descending";                                                  \
@@ -396,6 +420,9 @@ typedef struct {
             if(test_name[0] != '*') num_results++;                                                \
         }                                                                                         \
         free(fmt);                                                                                \
+        __macro_sort_write_plot_csv( size, elem_size, rep, sort1_name, sort2_name, sort3_name,    \
+                                     results, num_results );                                      \
+        free(results);                                                                            \
     }
 
 #endif /* _macro_test_H */

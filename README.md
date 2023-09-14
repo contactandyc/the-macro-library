@@ -12,6 +12,36 @@ make
 make install
 ```
 
+To use the python utilities
+
+Mac OS X
+```bash
+python3 -m venv venv
+source venv/bin/activate
+source .env
+pip install -r requirements.txt
+```
+
+Linux
+```bash
+python -m venv venv
+source venv/bin/activate
+source .env
+pip install -r requirements.txt
+```
+
+Windows
+```bash
+python -m venv venv
+source `.\venv\Scripts\activate`
+pip install -r requirements.txt
+```
+
+To leave the virtual environment
+```bash
+deactivate
+```
+
 ## A Fast C Sort (with more to come)
 This library is entirely header based and requires no special linkage.  A comparison of this sort to qsort and std::sort follows.
 
@@ -19,6 +49,7 @@ starting from root directory (assuming package was built - see last section)
 ```bash
 cd build/examples/speed-test
 ./speed_test 1000 10000 
+macro-plot.py
 ```
 
 ```
