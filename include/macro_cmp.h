@@ -63,4 +63,19 @@ limitations under the License.
 
 #define macro_cmp(style, type, cmp, a, b) macro_cmp_ ## style(type, cmp, a, b)
 
+/* The macro_..._kv are used to compare a key_type and a value_type.  Because a and b can't be swapped, only cmp
+   is supported for this.
+*/
+#define macro_cmp_kv_cmp_no_arg(key_type, value_type, cmp, a, b) cmp((const key_type *)(a), (const value_type *)(b))
+#define macro_cmp_kv_cmp_arg(key_type, value_type, cmp, a, b) cmp((const key_type *)(a), (const value_type *)(b), (arg))
+#define macro_cmp_kv_arg_cmp(key_type, value_type, cmp, a, b) cmp((arg), (const key_type *)(a), (const value_type *)(b))
+
+#define macro_cmp_kv(style, key_type, value_type, cmp, a, b) macro_cmp_kv_ ## style(key_type, value_type, cmp, a, b)
+
+#define macro_equal_kv(style, key_type, value_type, cmp, a, b) (macro_cmp_kv_ ## style(key_type, value_type, cmp, (a), (b))==0)
+#define macro_less_kv(style, key_type, value_type, cmp, a, b) (macro_cmp_kv_ ## style(key_type, value_type, cmp, (a), (b))<0)
+#define macro_le_kv(style, key_type, value_type, cmp, a, b) (macro_cmp_kv_ ## style(key_type, value_type, cmp, (a), (b))<=0)
+#define macro_ge_kv(style, key_type, value_type, cmp, a, b) (macro_cmp_kv_ ## style(key_type, value_type, cmp, (a), (b))>=0)
+#define macro_greater_kv(style, key_type, value_type, cmp, a, b) (macro_cmp_kv_ ## style(key_type, value_type, cmp, (a), (b))>0)
+
 #endif /* _macro_cmp_H */
