@@ -48,7 +48,7 @@ This library is entirely header based and requires no special linkage.  A compar
 starting from root directory (assuming package was built - see last section)
 ```bash
 cd build/examples/speed-test
-./speed_test 1000 10000 
+./speed_test 1000000 100 
 macro-plot.py
 ```
 
