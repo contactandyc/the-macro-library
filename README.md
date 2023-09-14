@@ -70,7 +70,7 @@ C macros are difficult to debug with most debuggers.  The included `bin/convert-
 
 ## Extendable
 
-This library has started with introsort and a series of binary search methods.  Other algorithms can be added as needed. 
+This library has started with introsort and a series of binary search methods.  Other algorithms are planned to be added soon.
 
 ## A Fast C Sort (with more to come)
 A comparison of this sort to qsort and std::sort follows.
