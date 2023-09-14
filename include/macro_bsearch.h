@@ -50,8 +50,9 @@ limitations under the License.
     }                                                                           \
     return NULL;
 
-#define __macro_bsearch_lower_bound_code(style, key_type, value_type, cmp, key, base, n)    \
+#define __macro_bsearch_floor_code(style, key_type, value_type, cmp, key, base, n)          \
     __macro_bsearch_vars(value_type, base, n);                                              \
+    value_type *low = lo; \
     while(lo < hi) {                                                                        \
         mid = lo + ((hi - lo) >> 1);                                                        \
         if (macro_greater_kv(style, key_type, value_type, cmp, key, mid))                   \
@@ -59,9 +60,23 @@ limitations under the License.
         else                                                                                \
             hi = mid;                                                                       \
     }                                                                                       \
-    return lo;
+    lo--;   \
+    return lo >= low ? lo : NULL;
 
-#define __macro_bsearch_lower_match_code(style, key_type, value_type, cmp, key, base, n)    \
+
+#define __macro_bsearch_lower_bound_code(style, key_type, value_type, cmp, key, base, n)    \
+    __macro_bsearch_vars(value_type, base, n);                                              \
+    value_type *high = hi; \
+    while(lo < hi) {                                                                        \
+        mid = lo + ((hi - lo) >> 1);                                                        \
+        if (macro_greater_kv(style, key_type, value_type, cmp, key, mid))                   \
+            lo = mid + 1;                                                                   \
+        else                                                                                \
+            hi = mid;                                                                       \
+    }                                                                                       \
+    return lo < high ? lo : NULL;
+
+#define __macro_bsearch_first_code(style, key_type, value_type, cmp, key, base, n)    \
     __macro_bsearch_vars(value_type, base, n);                                              \
     value_type *high = hi;                                                                  \
     while(lo < hi) {                                                                        \
@@ -75,9 +90,9 @@ limitations under the License.
         return lo;                                                                          \
     return NULL;
 
-
-#define __macro_bsearch_upper_bound_code(style, key_type, value_type, cmp, key, base, n)    \
+#define __macro_bsearch_ceiling_code(style, key_type, value_type, cmp, key, base, n)        \
     __macro_bsearch_vars(value_type, base, n);                                              \
+    value_type *high = hi; \
     while(lo < hi) {                                                                        \
         mid = lo + ((hi - lo) >> 1);                                                        \
         if (macro_less_kv(style, key_type, value_type, cmp, key, mid))                      \
@@ -85,10 +100,11 @@ limitations under the License.
         else                                                                                \
             lo = mid + 1;                                                                   \
     }                                                                                       \
-    return lo;                                                                              \
+    return lo <= high ? lo : NULL;
 
-#define __macro_bsearch_upper_match_code(style, key_type, value_type, cmp, key, base, n)    \
+#define __macro_bsearch_upper_bound_code(style, key_type, value_type, cmp, key, base, n)    \
     __macro_bsearch_vars(value_type, base, n);                                              \
+    value_type *low = lo; \
     while(lo < hi) {                                                                        \
         mid = lo + ((hi - lo) >> 1);                                                        \
         if (macro_less_kv(style, key_type, value_type, cmp, key, mid))                      \
@@ -97,9 +113,23 @@ limitations under the License.
             lo = mid + 1;                                                                   \
     }                                                                                       \
     lo--;                                                                                   \
-    if(lo >= base && macro_equal_kv(style, key_type, value_type, cmp, key, lo))             \
-        return lo;                                                                          \
+    return lo >= low ? lo : NULL;
+
+#define __macro_bsearch_last_code(style, key_type, value_type, cmp, key, base, n)    \
+    __macro_bsearch_vars(value_type, base, n);                                              \
+    value_type *low = lo; \
+    while(lo < hi) {                                                                        \
+        mid = lo + ((hi - lo) >> 1);                                                        \
+        if (macro_less_kv(style, key_type, value_type, cmp, key, mid))                      \
+            hi = mid;                                                                       \
+        else                                                                                \
+            lo = mid + 1;                                                                   \
+    }                                                                                       \
+    lo--;                                                                                   \
+    if(lo >= low && macro_equal_kv(style, key_type, value_type, cmp, key, lo))  \
+        return lo;  \
     return NULL;
+
 
 /* start macro_bsearch */
 
