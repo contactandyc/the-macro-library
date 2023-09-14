@@ -10,8 +10,8 @@ add_custom_command(
 )
 
 # Create an executable using the generated source
-add_executable(speed_test_d speed_test_d.cc)
 add_executable(speed_test speed_test.cc)
+add_executable(speed_test_d speed_test_d.cc)
 
 # Set the executable to be built with debug information
 target_compile_options(speed_test_d PRIVATE -g)

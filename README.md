@@ -1,5 +1,7 @@
 # the-macro-library
 
+![Speed Comparison](./docs/BarChart.png)
+
 ## Installation
 
 ```bash
@@ -20,73 +22,19 @@ cd build/examples/speed-test
 ```
 
 ```
-Sorting 1000 elements 10000 times which are of size 20
+Sorting 100000 elements 1000 times which are of size 20
 
-                            test name	  sort_items	  std_sort	         gain %
-Ascending Values
-                            ascending	    0.006563	  0.029219	         345.21
-Equal Values
-                     ascending[gap=0]	    0.013708	  0.029565	         115.68
-Descending Values
-                           descending	    0.013612	  0.065414	         380.56
-Saw Pattern
- saw[period=50,max=1000,increment=10]	    0.082563	  0.187881	         127.56
-saw[period=50,max=-1000,increment=20]	    0.074940	  0.146521	          95.52
-
-Random Values
-                       random[seed=1]	    0.118494	  0.231757	          95.59
-                       random[seed=0]	    0.123645	  0.208858	          68.92
-                       random[seed=0]	    0.139703	  0.208990	          49.60
-Random between 0-99
-             rand_max[seed=1,max=100]	    0.088512	  0.167277	          88.99
-             rand_max[seed=0,max=100]	    0.087671	  0.169538	          93.38
-             rand_max[seed=0,max=100]	    0.088723	  0.164302	          85.19
-Random between 0-9999
-           rand_max[seed=1,max=10000]	    0.136579	  0.202220	          48.06
-           rand_max[seed=0,max=10000]	    0.128565	  0.214389	          66.76
-           rand_max[seed=0,max=10000]	    0.174204	  0.223062	          28.05
-Random for first 25%
-             rand_head[seed=1,pct=25]	    0.099045	  0.151807	          53.27
-             rand_head[seed=0,pct=25]	    0.099430	  0.178332	          79.35
-             rand_head[seed=0,pct=25]	    0.098464	  0.183933	          86.80
-Random for last 25%
-             rand_tail[seed=1,pct=25]	    0.067868	  0.079599	          17.29
-             rand_tail[seed=0,pct=25]	    0.067383	  0.083243	          23.54
-             rand_tail[seed=0,pct=25]	    0.068252	  0.088028	          28.97
-
-Sorting 1000 elements 10000 times which are of size 20
-
-                            test name	  sort_items	     qsort	         gain %
-Ascending Values
-                            ascending	    0.006701	  0.041219	         515.12
-Equal Values
-                     ascending[gap=0]	    0.012256	  0.059348	         384.24
-Descending Values
-                           descending	    0.013634	  0.259071	        1800.18
-Saw Pattern
- saw[period=50,max=1000,increment=10]	    0.081647	  0.229434	         181.01
-saw[period=50,max=-1000,increment=20]	    0.074231	  0.203322	         173.90
-
-Random Values
-                       random[seed=1]	    0.115585	  0.458976	         297.09
-                       random[seed=0]	    0.114679	  0.464667	         305.19
-                       random[seed=0]	    0.152963	  0.468421	         206.23
-Random between 0-99
-             rand_max[seed=1,max=100]	    0.084674	  0.228831	         170.25
-             rand_max[seed=0,max=100]	    0.087867	  0.230848	         162.72
-             rand_max[seed=0,max=100]	    0.089134	  0.235022	         163.67
-Random between 0-9999
-           rand_max[seed=1,max=10000]	    0.135200	  0.488818	         261.55
-           rand_max[seed=0,max=10000]	    0.132019	  0.485112	         267.46
-           rand_max[seed=0,max=10000]	    0.176569	  0.488761	         176.81
-Random for first 25%
-             rand_head[seed=1,pct=25]	    0.097860	  0.272600	         178.56
-             rand_head[seed=0,pct=25]	    0.103751	  0.289281	         178.82
-             rand_head[seed=0,pct=25]	    0.097597	  0.274428	         181.18
-Random for last 25%
-             rand_tail[seed=1,pct=25]	    0.068167	  0.180194	         164.34
-             rand_tail[seed=0,pct=25]	    0.064350	  0.168062	         161.17
-             rand_tail[seed=0,pct=25]	    0.067563	  0.181413	         168.51
+              test name	  sort_items	  std_sort	     qsort
+              ascending	    0.136391	  0.346498	  0.490240
+       ascending[gap=0]	    0.227794	  0.359617	  0.660179
+             descending	    0.246166	  0.683351	  2.450071
+ saw[period=10,max=100]	    0.695768	  1.219611	  1.582721
+saw[period=10,max=-100]	    0.691319	  1.274635	  1.572666
+                 random	    6.480880	  8.028105	 10.640059
+      rand_max[max=100]	    2.505797	  3.630266	  4.067321
+    rand_max[max=10000]	    5.956528	  7.415671	  8.924805
+      rand_head[pct=25]	    2.789506	  3.954147	  6.123680
+      rand_tail[pct=25]	    3.011739	  4.204019	  5.975161
 ```
 
 Across nearly all measures for the given test, the macro library performs better than std::sort and significantly better than qsort.  I've found that for raw types, the std::sort tends to perform about the same as the macro versions.

@@ -64,15 +64,15 @@ int main( int argc, char *argv[]) {
     argc -= 3;
     argv += 3;
 
-    macro_test_sort_driver(arr, arr2, size, rep, set_item,
-                           "sort_items", sort_items,
-                           "std_sort", std_sort,
-                           less_no_arg, item_t, compare_items_for_macro_sort, argv, argc);
+    __macro_test_sort_result_t *results = NULL;
+    int num_results = 0;
 
     macro_test_sort_driver(arr, arr2, size, rep, set_item,
-                           "sort_items", sort_items,
+                           "macro_sort", sort_items,
+                           "std_sort", std_sort,
                            "qsort", quick_sort,
-                           less_no_arg, item_t, compare_items_for_macro_sort, argv, argc);
+                           less_no_arg, item_t, compare_items_for_macro_sort, argv, argc, results, num_results);
+
     free(arr);
     free(arr2);
     return 0;

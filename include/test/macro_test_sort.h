@@ -31,29 +31,17 @@ limitations under the License.
     long long sv, ev;                                               \
     int repeat=(rep);
 
-#define __macro_test_start_sort_loop(sort, n)    \
-    gettimeofday(&start, NULL);                  \
-    for( int r=0; r<repeat; r++ ) {              \
-        p = sp;                                  \
-        wp = sp2;                                \
-        while(p < ep) {                          \
-            *wp++ = *p++;                        \
-        }                                        \
-        sort(arr2, n);                           \
-    }
-
-#define macro_test_sort_ascending(type, set_value, rep, arr, new_arr, n, gap, p2, p3, sort)    \
+#define macro_test_sort_ascending(type, set_value, rep, arr, new_arr, n, gap, p2, p3)    \
     __macro_test_start_sort_vars(type, rep, arr, new_arr, n)                                   \
     int i=0;                                                                                   \
     while(p < ep) {                                                                            \
         set_value(p, i);                                                                       \
         i += gap;                                                                              \
         p++;                                                                                   \
-    }                                                                                          \
-    __macro_test_start_sort_loop(sort, n)
+    }
 
 #define macro_test_sort_saw(type, set_value, rep, arr, new_arr, n,            \
-                            period, max_value, increment_per_period, sort)    \
+                            period, max_value, increment_per_period)    \
     __macro_test_start_sort_vars(type, rep, arr, new_arr, n)                  \
     int i=0, value;                                                           \
     while(p < ep) {                                                           \
@@ -62,32 +50,29 @@ limitations under the License.
         set_value(p, value);                                                  \
         i++;                                                                  \
         p++;                                                                  \
-    }                                                                         \
-    __macro_test_start_sort_loop(sort, n)
+    }
 
 
-#define macro_test_sort_descending(type, set_value, rep, arr, new_arr, n, gap, p2, p3, sort)    \
+#define macro_test_sort_descending(type, set_value, rep, arr, new_arr, n, gap, p2, p3)    \
     __macro_test_start_sort_vars(type, rep, arr, new_arr, n)                                    \
     int i=n*gap;                                                                                \
     while(p < ep) {                                                                             \
         set_value(p, i);                                                                        \
         i -= gap;                                                                               \
         p++;                                                                                    \
-    }                                                                                           \
-    __macro_test_start_sort_loop(sort, n)
+    }
 
 
-#define macro_test_sort_random(type, set_value, rep, arr, new_arr, n, seed, p2, p3, sort)    \
+#define macro_test_sort_random(type, set_value, rep, arr, new_arr, n, seed, p2, p3)    \
     if(seed != 0) srand(seed);                                                               \
     __macro_test_start_sort_vars(type, rep, arr, new_arr, n)                                 \
     while(p < ep) {                                                                          \
         set_value(p, rand());                                                                \
         p++;                                                                                 \
-    }                                                                                        \
-    __macro_test_start_sort_loop(sort, n)
+    }
 
 
-#define macro_test_sort_rand_tail(type, set_value, rep, arr, new_arr, n, seed, pct, gap, sort)    \
+#define macro_test_sort_rand_tail(type, set_value, rep, arr, new_arr, n, seed, pct, gap)    \
     if(seed != 0) srand(seed);                                                                    \
     __macro_test_start_sort_vars(type, rep, arr, new_arr, n)                                      \
     wp = p + ((100-(pct))*n/100);                                                                 \
@@ -100,10 +85,9 @@ limitations under the License.
     while(p < ep) {                                                                               \
         set_value(p, rand());                                                                     \
         p++;                                                                                      \
-    }                                                                                             \
-    __macro_test_start_sort_loop(sort, n)
+    }
 
-#define macro_test_sort_rand_head(type, set_value, rep, arr, new_arr, n, seed, pct, gap, sort)    \
+#define macro_test_sort_rand_head(type, set_value, rep, arr, new_arr, n, seed, pct, gap)          \
     if(seed != 0) srand(seed);                                                                    \
     __macro_test_start_sort_vars(type, rep, arr, new_arr, n)                                      \
     wp = p + ((pct)*n/100);                                                                       \
@@ -116,22 +100,27 @@ limitations under the License.
         set_value(p, i);                                                                          \
         i += gap;                                                                                 \
         p++;                                                                                      \
-    }                                                                                             \
-    __macro_test_start_sort_loop(sort, n)
+    }
 
-
-#define macro_test_sort_rand_max(type, set_value, rep, arr, new_arr, n,seed, max, p3, sort)    \
+#define macro_test_sort_rand_max(type, set_value, rep, arr, new_arr, n,seed, max, p3)          \
     if(seed != 0) srand(seed);                                                                 \
     __macro_test_start_sort_vars(type, rep, arr, new_arr, n)                                   \
     while(p < ep) {                                                                            \
         set_value(p, rand() % max);                                                            \
         p++;                                                                                   \
-    }                                                                                          \
-    __macro_test_start_sort_loop(sort, n)
+    }
 
-#define macro_test_sort_end(name, style, type, cmp, report_name, time_spent)    \
-    gettimeofday(&end, NULL);                                                   \
-                                                                                \
+#define __macro_test_sort_loop(name, sort, n, style, type, cmp, report_name, time_spent)    \
+    gettimeofday(&start, NULL);                  \
+    for( int r=0; r<repeat; r++ ) {              \
+        p = sp;                                  \
+        wp = sp2;                                \
+        while(p < ep) {                          \
+            *wp++ = *p++;                        \
+        }                                        \
+        sort(arr2, n);                           \
+    }                                            \
+    gettimeofday(&end, NULL);                    \
     wp = NULL;                                                                  \
     p = sp2+1;                                                                  \
     while(p < ep2) {                                                            \
@@ -152,21 +141,20 @@ limitations under the License.
 
 #define macro_test_sort(sort_type, p1, p2, p3, rep,                                                    \
                         test_name,  fmt,                                                               \
-                        name1, name2, sort1, sort2,                                                    \
+                        name1, name2, name3, sort1, sort2, sort3,                                      \
                         style, type, cmp,                                                              \
-                        set_value, arr, new_arr, n)                                                    \
+                        set_value, arr, new_arr, n, result)                                            \
     {                                                                                                  \
-        double speed1 = 0.0, speed2 = 0.0;                                                             \
-        {                                                                                              \
-            macro_test_sort_ ## sort_type(type, set_value, rep, arr, new_arr, n, p1, p2, p3, sort1)    \
-            macro_test_sort_end(name1, style, type, cmp, test_name, speed1)                            \
-        }                                                                                              \
-        {                                                                                              \
-            macro_test_sort_ ## sort_type(type, set_value, rep, arr, new_arr, n, p1, p2, p3, sort2)    \
-            macro_test_sort_end(name2, style, type, cmp, test_name, speed2)                            \
-        }                                                                                              \
-        double percentageGain = speed1 > 0.0 ? ((speed2 - speed1) / speed1) * 100 : 0.0;               \
-        if(test_name[0] != '*') printf( fmt, test_name, speed1, speed2, percentageGain);               \
+        double speed1 = 0.0, speed2 = 0.0, speed3 = 0.0;                                               \
+        macro_test_sort_ ## sort_type(type, set_value, rep, arr, new_arr, n, p1, p2, p3)    \
+        __macro_test_sort_loop(name1, sort1, n, style, type, cmp, test_name, speed1)                            \
+        __macro_test_sort_loop(name2, sort2, n, style, type, cmp, test_name, speed2)                            \
+        __macro_test_sort_loop(name3, sort3, n, style, type, cmp, test_name, speed3)                            \
+        (result).test_name = (char *)test_name; \
+        (result).times[0] = speed1; \
+        (result).times[1] = speed2; \
+        (result).times[2] = speed3; \
+        if(test_name[0] != '*') printf( fmt, test_name, speed1, speed2, speed3);               \
     }
 
 #define __macro_get_int_param(argc, argv, arg, v)    \
@@ -184,7 +172,7 @@ limitations under the License.
     "rand_tail: [seed=1234] [pct=25] [gap=5]\n"              \
     "saw: [period=100] [max_value=500] [increment_per_period=0]\n"
 
-static const char *__macro_default_sorts[] = {
+static const char *__macro_default_sorts2[] = {
     "-Ascending Values",
     "ascending",
     "-Equal Values",
@@ -217,9 +205,26 @@ static const char *__macro_default_sorts[] = {
 };
 
 
+
+static const char *__macro_default_sorts[] = {
+    "ascending",
+    "ascending[gap=0]",
+    "descending",
+    "saw[period=10,max=100]",
+    "saw[period=10,max=-100]",
+    "random",
+    "rand_max[max=100]",
+    "rand_max[max=10000]",
+    "rand_head[pct=25]",
+    "rand_tail[pct=25]"
+};
+
+
 static inline char * print_header_and_get_format( char **sorts, size_t num_sorts,
                                                   int size, int rep, int elem_size,
-                                                  const char *sort1, const char *sort2 ) {
+                                                  const char *sort1,
+                                                  const char *sort2,
+                                                  const char *sort3 ) {
     printf( "\nSorting %d elements %d times which are of size %d\n\n", size, rep, elem_size );
     size_t max_len = 10;
     for( size_t i=0; i<num_sorts; i++ ) {
@@ -227,14 +232,17 @@ static inline char * print_header_and_get_format( char **sorts, size_t num_sorts
             max_len = strlen(sorts[i]);
     }
     char *fmt = (char *)malloc(100);
-    size_t sort1_len = strlen(sort1)+2, sort2_len = strlen(sort2)+2;
+    size_t sort1_len = strlen(sort1)+2, sort2_len = strlen(sort2)+2, sort3_len = strlen(sort3)+2;
     if(sort1_len < 10)
         sort1_len = 10;
     if(sort2_len < 10)
         sort2_len = 10;
-    snprintf(fmt, 100, "%%%lus\t%%%lus\t%%%lus\t%%15s\n", max_len, sort1_len, sort2_len);
-    printf( fmt, "test name", sort1, sort2, "gain %");
-    snprintf(fmt, 100, "%%%lus\t%%%lu.6f\t%%%lu.6f\t%%15.2f\n", max_len, sort1_len, sort2_len );
+    if(sort3_len < 10)
+        sort3_len = 10;
+    snprintf(fmt, 100, "%%%lus\t%%%lus\t%%%lus\t%%%lus\n",
+             max_len, sort1_len, sort2_len, sort3_len );
+    printf( fmt, "test name", sort1, sort2, sort3 );
+    snprintf(fmt, 100, "%%%lus\t%%%lu.6f\t%%%lu.6f\t%%%lu.6f\n", max_len, sort1_len, sort2_len, sort3_len );
     return fmt;
 }
 
@@ -280,9 +288,14 @@ static inline void get_param_from_test_name(const char *input, const char *key, 
     *res = value;
 }
 
+typedef struct {
+    char *test_name;
+    double times[3];
+} __macro_test_sort_result_t;
+
 #define macro_test_sort_driver(arr, arr2, size, rep, set_value,                              \
-                               sort1_name, sort1, sort2_name, sort2,                         \
-                               style, type, cmp, sorts, num_sorts)                           \
+                               sort1_name, sort1, sort2_name, sort2, sort3_name, sort3,      \
+                               style, type, cmp, sorts, num_sorts, results, num_results)     \
     {                                                                                        \
         char **tests = sorts;                                                                \
         int num_tests = num_sorts;                                                           \
@@ -292,7 +305,10 @@ static inline void get_param_from_test_name(const char *input, const char *key, 
         }                                                                                    \
         int elem_size = sizeof(type);                                                        \
         char *fmt = print_header_and_get_format(tests, num_tests, size,                      \
-            rep, elem_size, sort1_name, sort2_name );                                        \
+            rep, elem_size, sort1_name, sort2_name, sort3_name );                            \
+        results =                                                                            \
+            (__macro_test_sort_result_t*)malloc(sizeof(__macro_test_sort_result_t)*num_tests);  \
+        num_results = 0;                                                                     \
         for( int t=-2; t<num_tests; t++ ) {                                                  \
             const char *test_name;                                                           \
             if(t < 0) test_name = "*descending";                                             \
@@ -305,18 +321,18 @@ static inline void get_param_from_test_name(const char *input, const char *key, 
                 get_param_from_test_name(test_name, "gap", &gap);                            \
                 macro_test_sort(ascending, gap, 0, 0, rep,                                   \
                                 test_name, fmt,                                              \
-                                sort1_name, sort2_name, sort1, sort2,                        \
+                                sort1_name, sort2_name, sort3_name, sort1, sort2, sort3,     \
                                 style, type, cmp,                                            \
-                                set_value, arr, arr2, size);                                 \
+                                set_value, arr, arr2, size, results[num_results]);           \
             }                                                                                \
             else if(!strncmp(match_name, "descending", sizeof("descending")-1)) {            \
                 int gap = 5;                                                                 \
                 get_param_from_test_name(test_name, "gap", &gap);                            \
                 macro_test_sort(descending, gap, 0, 0, rep,                                  \
                                 test_name, fmt,                                              \
-                                sort1_name, sort2_name, sort1, sort2,                        \
+                                sort1_name, sort2_name, sort3_name, sort1, sort2, sort3,     \
                                 style, type, cmp,                                            \
-                                set_value, arr, arr2, size);                                 \
+                                set_value, arr, arr2, size, results[num_results]);           \
             }                                                                                \
             else if(!strncmp(match_name, "rand_max", sizeof("rand_max")-1)) {                \
                 int seed = 12345;                                                            \
@@ -325,18 +341,18 @@ static inline void get_param_from_test_name(const char *input, const char *key, 
                 get_param_from_test_name(test_name, "max", &rmax);                           \
                 macro_test_sort(rand_max, seed, rmax, 0, rep,                                \
                                 test_name, fmt,                                              \
-                                sort1_name, sort2_name, sort1, sort2,                        \
+                                sort1_name, sort2_name, sort3_name, sort1, sort2, sort3,     \
                                 style, type, cmp,                                            \
-                                set_value, arr, arr2, size);                                 \
+                                set_value, arr, arr2, size, results[num_results]);           \
             }                                                                                \
             else if(!strncmp(match_name, "random", sizeof("random")-1)) {                    \
                 int seed = 12345;                                                            \
                 get_param_from_test_name(test_name, "seed", &seed);                          \
                 macro_test_sort(random, seed, 0, 0, rep,                                     \
                                 test_name, fmt,                                              \
-                                sort1_name, sort2_name, sort1, sort2,                        \
+                                sort1_name, sort2_name, sort3_name, sort1, sort2, sort3,     \
                                 style, type, cmp,                                            \
-                                set_value, arr, arr2, size);                                 \
+                                set_value, arr, arr2, size, results[num_results]);           \
             }                                                                                \
             else if(!strncmp(match_name, "rand_head", sizeof("rand_head")-1)) {              \
                 int seed = 12345;                                                            \
@@ -347,9 +363,9 @@ static inline void get_param_from_test_name(const char *input, const char *key, 
                 get_param_from_test_name(test_name, "gap", &gap);                            \
                 macro_test_sort(rand_head, seed, pct, gap, rep,                              \
                                 test_name, fmt,                                              \
-                                sort1_name, sort2_name, sort1, sort2,                        \
+                                sort1_name, sort2_name, sort3_name, sort1, sort2, sort3,     \
                                 style, type, cmp,                                            \
-                                set_value, arr, arr2, size);                                 \
+                                set_value, arr, arr2, size, results[num_results]);           \
             }                                                                                \
             else if(!strncmp(match_name, "rand_tail", sizeof("rand_tail")-1)) {              \
                 int seed = 12345;                                                            \
@@ -360,9 +376,9 @@ static inline void get_param_from_test_name(const char *input, const char *key, 
                 get_param_from_test_name(test_name, "gap", &gap);                            \
                 macro_test_sort(rand_tail, seed, pct, gap, rep,                              \
                                 test_name, fmt,                                              \
-                                sort1_name, sort2_name, sort1, sort2,                        \
+                                sort1_name, sort2_name, sort3_name, sort1, sort2, sort3,     \
                                 style, type, cmp,                                            \
-                                set_value, arr, arr2, size);                                 \
+                                set_value, arr, arr2, size, results[num_results]);           \
             }                                                                                \
             else if(!strncmp(match_name, "saw", sizeof("saw")-1)) {                          \
                 int period = 100;                                                            \
@@ -373,10 +389,11 @@ static inline void get_param_from_test_name(const char *input, const char *key, 
                 get_param_from_test_name(test_name, "increment", &increment_per_period);     \
                 macro_test_sort(saw, period, max_value, increment_per_period, rep,           \
                                 test_name, fmt,                                              \
-                                sort1_name, sort2_name, sort1, sort2,                        \
+                                sort1_name, sort2_name, sort3_name, sort1, sort2, sort3,     \
                                 style, type, cmp,                                            \
-                                set_value, arr, arr2, size);                                 \
+                                set_value, arr, arr2, size, results[num_results]);           \
             }                                                                                \
+            if(test_name[0] != '*') num_results++;                                           \
         }                                                                                    \
         free(fmt);                                                                           \
     }
