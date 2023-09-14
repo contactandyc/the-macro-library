@@ -43,8 +43,37 @@ To leave the virtual environment
 deactivate
 ```
 
+## Lightweight
+
+This library is entirely header based and requires no special linkage.
+
+## Simple to use
+
+```c
+#include "macro_sort.h"
+
+int compare_ints(const int *a, const int *b) {
+    return *a - *b;
+}
+
+macro_sort_cmp_no_arg(sort_ints, int, compare_ints);
+
+int main() {
+    int arr[] = { 5, 4, 3, 1, 2 };
+    sort_ints(arr, 5);
+    ...    
+```
+
+## Debuggable
+
+C macros are difficult to debug with most debuggers.  The included `bin/convert-macros-to-code.py` will convert macros to their base code and preserve readability.  Additionally, the convert tool can be used to create functions which have no dependency on this library.
+
+## Extendable
+
+This library has started with introsort and a series of binary search methods.  Other algorithms can be added as needed. 
+
 ## A Fast C Sort (with more to come)
-This library is entirely header based and requires no special linkage.  A comparison of this sort to qsort and std::sort follows.
+A comparison of this sort to qsort and std::sort follows.
 
 starting from root directory (assuming package was built - see last section)
 ```bash
