@@ -1,4 +1,5 @@
 # the-macro-library
+The macro_sort performs significantly better than qsort and better than std::sort
 
 ![Speed Comparison](./docs/BarChart.png)
 
