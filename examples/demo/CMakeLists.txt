@@ -13,9 +13,9 @@ foreach(file ${C_FILES})
         COMMAND ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code.py ${CMAKE_SOURCE_DIR}/examples/demo/${name}.c > ${name}_d.c
         DEPENDS ${CMAKE_SOURCE_DIR}/examples/demo/${name}.c
     )
+    add_executable(${name} ${name}.c)
     add_executable(${name}_d ${name}_d.c)
     target_compile_options(${name}_d PRIVATE -I${CMAKE_SOURCE_DIR}/include -g)
-    add_executable(${name} ${name}.c)
 endforeach()
 
 # Loop through each .cc file to create its target
@@ -26,7 +26,7 @@ foreach(file ${CC_FILES})
         COMMAND ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code.py ${CMAKE_SOURCE_DIR}/examples/demo/${name}.cc > ${name}_d.cc
         DEPENDS ${CMAKE_SOURCE_DIR}/examples/demo/${name}.cc
     )
+    add_executable(${name} ${name}.cc)
     add_executable(${name}_d ${name}_d.cc)
     target_compile_options(${name}_d PRIVATE -I${CMAKE_SOURCE_DIR}/include -g)
-    add_executable(${name} ${name}.cc)
 endforeach()

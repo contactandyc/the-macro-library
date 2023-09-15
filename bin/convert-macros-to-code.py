@@ -300,6 +300,53 @@ def process_macro_file(filename):
         # Move to the next line
         line_no += 1
 
+def scan_for_macros(tokens):
+    has_macros = False
+    for idx in range(0, len(tokens)):
+        token = tokens[idx]
+        if token['isToken'] is True and token['text'] in macros:
+            token['isMacro'] = True
+            has_macros = True
+
+    return has_macros
+
+def parse_args(tokens, i, macros, depth=0):
+    args = []
+    arg = ''
+    paren_count = 0  # Counter to keep track of nesting level of parentheses
+
+    while i < len(tokens):
+        token_text = tokens[i]['text']
+        if token_text == '(':
+            paren_count += 1
+        elif token_text == ')':
+            if paren_count == 0:
+                break
+            paren_count -= 1
+        elif token_text == ',' and paren_count == 0:
+            args.append(arg.strip())
+            arg = ''
+            i += 1
+            continue  # Skip appending the comma to the argument
+
+        arg += token_text
+        i += 1
+
+    args.append(arg.strip())
+
+    arg_tokens = parse_cpp_code(','.join(args))
+    needs_parsed = scan_for_macros(arg_tokens)
+
+    if needs_parsed:
+        arg_text = evaluate_macro({
+            'code': ','.join(args),
+            'tokens': arg_tokens,
+            'args': []
+        }, macros)
+        arg_tokens = parse_cpp_code(arg_text)
+        _, args = parse_args(arg_tokens, 0, depth+1)
+
+    return i, args
 
 def evaluate_macro(macro, macros):
     evaluated_code = ''
@@ -316,28 +363,7 @@ def evaluate_macro(macro, macros):
             i += 1  # Skip macro name token
             if macro['tokens'][i]['text'] == '(':
                 i += 1  # Skip '(' token
-                arg = ''
-                paren_count = 0  # Counter to keep track of nesting level of parentheses
-
-                while True:
-                    token_text = macro['tokens'][i]['text']
-
-                    if token_text == '(':
-                        paren_count += 1
-                    elif token_text == ')':
-                        if paren_count == 0:
-                            break
-                        paren_count -= 1
-                    elif token_text == ',' and paren_count == 0:
-                        args.append(arg.strip())
-                        arg = ''
-                        i += 1
-                        continue  # Skip appending the comma to the argument
-
-                    arg += token_text
-                    i += 1
-
-                args.append(arg.strip())
+                i, args = parse_args(macro['tokens'], i, macros)
 
             # Evaluate the called macro
             spaces = count_trailing_spaces_after_newline(evaluated_code)
@@ -347,15 +373,8 @@ def evaluate_macro(macro, macros):
 
         i += 1
 
-    needs_parsed = False
-
     tokens = parse_cpp_code(evaluated_code)
-    for idx in range(0, len(tokens)):
-        token = tokens[idx]
-        if token['isToken'] is True and token['text'] in macros:
-            token['isMacro'] = True
-            needs_parsed = True
-            break
+    needs_parsed = scan_for_macros(tokens)
 
     if needs_parsed:
         return evaluate_macro({
@@ -370,7 +389,11 @@ def evaluate_macro_with_args(name, args, spaces, macros):
     tokens = copy.deepcopy(macros[name]['tokens'])
     for token in tokens:
         if token.get('arg') is not None:
-            token['text'] = args[token['arg']]
+            try:
+                token['text'] = args[token['arg']]
+            except:
+                print(token['arg'])
+                pprint(args)
 
     code = ''
     for t in range(0, len(tokens)):
@@ -415,4 +438,5 @@ for name,macro in macros.items():
             if token['text'].strip() == '##':
                 token['concat'] = True
 
+# evaluate_macro(macros['macro_final_code'], macros)
 print(evaluate_macro(macros['macro_final_code'], macros))

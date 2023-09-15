@@ -21,36 +21,20 @@ limitations under the License.
 
 /* See README.md for more details */
 
-#define macro_sort_h_cmp_no_arg(name, type) macro_introsort1_h(name, type)
-#define macro_sort_h_cmp_arg(name, type) macro_introsort2_h(name, type)
-#define macro_sort_h_arg_cmp(name, type) macro_introsort2_h(name, type)
-#define macro_sort_h_less_no_arg(name, type) macro_introsort1_h(name, type)
-#define macro_sort_h_less_arg(name, type) macro_introsort2_h(name, type)
-#define macro_sort_h_arg_less(name, type) macro_introsort2_h(name, type)
-#define macro_sort_h_less(name, type) macro_introsort1_h(name, type)
-#define macro_sort_h_cmp(name, type) macro_introsort1_h(name, type)
+/* macro_sort uses macro_introsort */
+#define _macro_sort_h(name, style, type) macro_introsort_h(name, style, type)
+#define _macro_sort(name, style, type, cmp) macro_introsort(name, style, type, cmp)
 
-#define macro_sort_cmp_no_arg(name, type, cmp) macro_introsort1(name, cmp_no_arg, type, cmp)
-#define macro_sort_cmp_arg(name, type, cmp) macro_introsort2(name, cmp_arg, type, cmp)
-#define macro_sort_arg_cmp(name, type, cmp) macro_introsort2(name, arg_cmp, type, cmp)
-#define macro_sort_less_no_arg(name, type, cmp) macro_introsort1(name, less_no_arg, type, cmp)
-#define macro_sort_less_arg(name, type, cmp) macro_introsort2(name, less_arg, type, cmp)
-#define macro_sort_arg_less(name, type, cmp) macro_introsort2(name, arg_less, type, cmp)
-#define macro_sort_less(name, type) macro_introsort1(name, less, type, unused)
-#define macro_sort_cmp(name, type) macro_introsort1(name, cmp, type, unused)
+#define _macro_sort_compare_h(name, style, type) macro_introsort_compare_h(name, style, type)
+#define _macro_sort_compare(name, style, type) macro_introsort_compare(name, style, type)
 
-#define macro_sort_compare_h_cmp_no_arg(name, type) macro_introsort_cmp_no_arg_h(name, type)
-#define macro_sort_compare_h_cmp_arg(name, type) macro_introsort_cmp_arg_h(name, type)
-#define macro_sort_compare_h_arg_cmp(name, type) macro_introsort_arg_cmp_h(name, type)
-#define macro_sort_compare_h_less_no_arg(name, type) macro_introsort_less_no_arg_h(name, type)
-#define macro_sort_compare_h_less_arg(name, type) macro_introsort_less_arg_h(name, type)
-#define macro_sort_compare_h_arg_less(name, type) macro_introsort_arg_less_h(name, type)
+/* create a set of defaults - less_no_arg */
+#define macro_sort_default() less_no_arg
 
-#define macro_sort_compare_cmp_no_arg(name, type) macro_introsort_cmp_no_arg(name, type)
-#define macro_sort_compare_cmp_arg(name, type) macro_introsort_cmp_arg(name, type)
-#define macro_sort_compare_arg_cmp(name, type) macro_introsort_arg_cmp(name, type)
-#define macro_sort_compare_less_no_arg(name, type) macro_introsort_less_no_arg(name, type)
-#define macro_sort_compare_less_arg(name, type) macro_introsort_less_arg(name, type)
-#define macro_sort_compare_arg_less(name, type) macro_introsort_arg_less(name, type)
+#define macro_sort_h(name, type) _macro_sort_h(name, macro_sort_default(), type)
+#define macro_sort(name, type, cmp) _macro_sort(name, macro_sort_default(), type, cmp)
+
+#define macro_sort_compare_h(name, type) _macro_sort_compare_h(name, macro_sort_default(), type)
+#define macro_sort_compare(name, type) _macro_sort_compare(name, macro_sort_default(), type)
 
 #endif

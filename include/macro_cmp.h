@@ -78,4 +78,48 @@ limitations under the License.
 #define macro_ge_kv(style, key_type, value_type, cmp, a, b) (macro_cmp_kv_ ## style(key_type, value_type, cmp, (a), (b))>=0)
 #define macro_greater_kv(style, key_type, value_type, cmp, a, b) (macro_cmp_kv_ ## style(key_type, value_type, cmp, (a), (b))>0)
 
+#define macro_cmp_kv_signature_cmp_no_arg(param, key_type, value_type) param
+#define macro_cmp_kv_signature_arg_cmp(param, key_type, value_type) param, void *arg
+#define macro_cmp_kv_signature_cmp_arg(param, key_type, value_type) param, void *arg
+#define macro_cmp_kv_signature_compare_cmp_no_arg(param, key_type, value_type) \
+    param, int (*cmp)(const key_type *, const value_type *)
+
+#define macro_cmp_kv_signature_compare_arg_cmp(param, key_type, value_type) \
+    param, int (*cmp)(void *arg, const key_type *, const value_type *), void *arg
+
+#define macro_cmp_kv_signature_compare_cmp_arg(param, key_type, value_type) \
+    param, int (*cmp)(const key_type *, const value_type *, void *), void *arg
+
+#define macro_cmp_kv_signature(param, style, key_type, value_type) macro_cmp_kv_signature_ ## style(param, key_type, value_type)
+
+
+
+#define macro_cmp_signature_cmp_no_arg(param, type) param
+#define macro_cmp_signature_cmp(param, type) param
+#define macro_cmp_signature_arg_cmp(param, type) param, void *arg
+#define macro_cmp_signature_cmp_arg(param, type) param, void *arg
+#define macro_cmp_signature_compare_cmp_no_arg(param, type) \
+    param, int (*cmp)(const type *, const type *)
+
+#define macro_cmp_signature_compare_arg_cmp(param, type) \
+    param, int (*cmp)(void *arg, const type *, const type *), void *arg
+
+#define macro_cmp_signature_compare_cmp_arg(param, type) \
+    param, int (*cmp)(const type *, const type *, void *), void *arg
+
+#define macro_cmp_signature_less_no_arg(param, type) param
+#define macro_cmp_signature_less(param, type) param
+#define macro_cmp_signature_arg_less(param, type) param, void *arg
+#define macro_cmp_signature_less_arg(param, type) param, void *arg
+#define macro_cmp_signature_compare_less_no_arg(param, type) \
+    param, bool (*cmp)(const type *, const type *)
+
+#define macro_cmp_signature_compare_arg_less(param, type) \
+    param, bool (*cmp)(void *arg, const type *, const type *), void *arg
+
+#define macro_cmp_signature_compare_less_arg(param, type) \
+    param, bool (*cmp)(const type *, const type *, void *), void *arg
+
+#define macro_cmp_signature(param, style, type) macro_cmp_signature_ ## style(param, type)
+
 #endif /* _macro_cmp_H */

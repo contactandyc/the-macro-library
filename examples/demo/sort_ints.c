@@ -1,6 +1,7 @@
 #include "macro_sort.h"
 
-macro_sort_cmp(sort_ints, int);
+
+_macro_sort(sort_ints, cmp, int, not_used);
 
 int main() {
     int arr[] = { 5, 4, 3, 1, 2 };

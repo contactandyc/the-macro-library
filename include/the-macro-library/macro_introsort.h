@@ -199,91 +199,26 @@ small_sort:;                                                      \
     }                                                             \
     goto hi_mid_low;
 
-#define macro_introsort1_h(name, type)    \
-void name(type *base, size_t n)
 
-#define macro_introsort1(name, style, type, cmp)    \
-void name(type *base, size_t n) {                   \
+#define macro_introsort_h(name, style, type)                          \
+type *name(type *base,               \
+           macro_cmp_signature(size_t n, style, type))
+
+#define macro_introsort(name, style, type, cmp)    \
+void name(type *base,  \
+          macro_cmp_signature(size_t n, style, type)) {                   \
     __macro_introsort_code(style, type, cmp);       \
 }
 
-#define macro_introsort2_h(name, type)    \
-void name(type *base, size_t n, void *arg)
+#define macro_introsort_compare_h(name, style, type)                          \
+type *name(type *base,               \
+           macro_cmp_signature(size_t n, compare_ ## style, type))
 
-#define macro_introsort2(name, style, type, cmp)    \
-void name(type *base, size_t n, void *arg) {        \
+#define macro_introsort_compare(name, style, type)    \
+void name(type *base,  \
+          macro_cmp_signature(size_t n, compare_ ## style, type)) {                   \
     __macro_introsort_code(style, type, cmp);       \
 }
-
-#define macro_introsort_cmp_no_arg_h(name, type)    \
-void name(type *base, size_t n,                     \
-          int (*cmp)(const type *a, const type *b))
-
-#define macro_introsort_cmp_no_arg(name, type)           \
-void name(type *base, size_t n,                          \
-          int (*cmp)(const type *a, const type *b)) {    \
-    __macro_introsort_code(cmp_no_arg, type, cmp);       \
-}
-
-#define macro_introsort_cmp_arg_h(name, type)                     \
-void name(type *base, size_t n,                                   \
-          int (*cmp)(void *arg, const type *a, const type *b),    \
-          void *arg)
-
-#define macro_introsort_cmp_arg(name, type)                       \
-void name(type *base, size_t n,                                   \
-          int (*cmp)(const type *a, const type *b, void *arg),    \
-          void *arg) {                                            \
-    __macro_introsort_code(cmp_arg, type, cmp);                   \
-}
-
-#define macro_introsort_arg_cmp_h(name, type)                     \
-void name(type *base, size_t n,                                   \
-          int (*cmp)(const type *a, const type *b, void *arg),    \
-          void *arg)
-
-#define macro_introsort_arg_cmp(name, type)                       \
-void name(type *base, size_t n,                                   \
-          int (*cmp)(void *arg, const type *a, const type *b),    \
-          void *arg) {                                            \
-    __macro_introsort_code(arg_cmp, type, cmp);                   \
-}
-
-
-#define macro_introsort_less_no_arg_h(name, type)    \
-void name(type *base, size_t n,                      \
-          bool (*cmp)(const type *a, const type *b))
-
-#define macro_introsort_less_no_arg(name, type)           \
-void name(type *base, size_t n,                           \
-          bool (*cmp)(const type *a, const type *b)) {    \
-    __macro_introsort_code(less_no_arg, type, cmp);       \
-}
-
-#define macro_introsort_less_arg_h(name, type)                     \
-void name(type *base, size_t n,                                    \
-          bool (*cmp)(const type *a, const type *b, void *arg),    \
-          void *arg)
-
-#define macro_introsort_less_arg(name, type)                       \
-void name(type *base, size_t n,                                    \
-          bool (*cmp)(const type *a, const type *b, void *arg),    \
-          void *arg) {                                             \
-    __macro_introsort_code(less_arg, type, cmp);                   \
-}
-
-#define macro_introsort_arg_less_h(name, type)                     \
-void name(type *base, size_t n,                                    \
-          bool (*cmp)(void *arg, const type *a, const type *b),    \
-          void *arg)
-
-#define macro_introsort_arg_less(name, type)                       \
-void name(type *base, size_t n,                                    \
-          bool (*cmp)(void *arg, const type *a, const type *b),    \
-          void *arg) {                                             \
-    __macro_introsort_code(arg_less, type, cmp);                   \
-}
-
 
 #endif
 

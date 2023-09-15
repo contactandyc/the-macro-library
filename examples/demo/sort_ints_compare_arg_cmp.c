@@ -1,6 +1,6 @@
 #include "macro_sort.h"
 
-macro_sort_compare_arg_cmp(sort_ints, int);
+_macro_sort_compare(sort_ints, arg_cmp, int);
 
 int compare_ints(void *arg, const int *a, const int *b) {
     return *a - *b;

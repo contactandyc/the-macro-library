@@ -4,7 +4,7 @@ int compare_ints(const int *a, const int *b) {
     return *a - *b;
 }
 
-macro_sort_cmp_no_arg(sort_ints, int, compare_ints);
+_macro_sort(sort_ints, cmp_no_arg, int, compare_ints);
 
 int main() {
     int arr[] = { 5, 4, 3, 1, 2 };

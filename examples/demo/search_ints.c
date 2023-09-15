@@ -5,13 +5,13 @@ int compare_int(const int *a, const int *b) {
     return *a - *b;
 }
 
-macro_bsearch_cmp_no_arg(bsearch_ints, int, int, compare_int);
-macro_bsearch_first_cmp_no_arg(bsearch_first_ints, int, int, compare_int);
-macro_bsearch_last_cmp_no_arg(bsearch_last_ints, int, int, compare_int);
-macro_bsearch_floor_cmp_no_arg(bsearch_floor_ints, int, int, compare_int);
-macro_bsearch_ceiling_cmp_no_arg(bsearch_ceiling_ints, int, int, compare_int);
-macro_bsearch_lower_bound_cmp_no_arg(bsearch_lower_bound_ints, int, int, compare_int);
-macro_bsearch_upper_bound_cmp_no_arg(bsearch_upper_bound_ints, int, int, compare_int);
+macro_bsearch_kv(bsearch_ints, int, int, compare_int);
+macro_bsearch_first_kv(bsearch_first_ints, int, int, compare_int);
+macro_bsearch_last_kv(bsearch_last_ints, int, int, compare_int);
+macro_bsearch_floor_kv(bsearch_floor_ints, int, int, compare_int);
+macro_bsearch_ceiling_kv(bsearch_ceiling_ints, int, int, compare_int);
+macro_bsearch_lower_bound_kv(bsearch_lower_bound_ints, int, int, compare_int);
+macro_bsearch_upper_bound_kv(bsearch_upper_bound_ints, int, int, compare_int);
 
 void test_bsearch(const char *test_name, int key, int *arr, int n, int *expected, bool allow_same_value, int * (*bsearch)(const int *k, const int *a, size_t n)) {
     int *r = bsearch(&key, arr, n);

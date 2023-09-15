@@ -22,107 +22,143 @@ limitations under the License.
 
 #include "the-macro-library/macro_bsearch_code.h"
 
-#define macro_bsearch_h_cmp_no_arg(name, key_type, value_type)    \
-    value_type *name(const key_type *key, const value_type *base, size_t n)
+#define _macro_bsearch_h(name, style, value_type)                          \
+    value_type *name(const value_type *key, const value_type *base,               \
+                     macro_cmp_signature(size_t n, style, value_type))
 
-#define __macro_bsearch_h_arg(name, key_type, value_type)    \
-    value_type *name(const key_type *key, const value_type *base, size_t n, void *arg)
+#define _macro_bsearch_kv_h(name, style, key_type, value_type)                          \
+    value_type *name(const key_type *key, const value_type *base,               \
+                     macro_cmp_kv_signature(size_t n, style, key_type, value_type))
 
-#define macro_bsearch_h_cmp_arg(name, key_type, value_type, cmp) __macro_bsearch_h_arg(name, key_type, value_type)
-#define macro_bsearch_h_arg_cmp(name, key_type, value_type, cmp) __macro_bsearch_h_arg(name, key_type, value_type)
+#define _macro_bsearch_compare_h(name, style, value_type)                  \
+    value_type *name(const value_type *key, const value_type *base,               \
+                     macro_cmp_signature(size_t n, compare_ ## style, value_type))
 
-#define macro_bsearch_compare_h_cmp_no_arg(name, key_type, value_type)    \
-    value_type *name(const key_type *key, const value_type *base, size_t n, int (*cmp)(const key_type *, const value_type *))
+#define _macro_bsearch_kv_compare_h(name, style, key_type, value_type)                  \
+    value_type *name(const key_type *key, const value_type *base,               \
+                     macro_cmp_kv_signature(size_t n, compare_ ## style, key_type, value_type))
 
-#define macro_bsearch_compare_h_cmp_arg(name, key_type, value_type)                  \
-    value_type *name(const key_type *key, const value_type *base, size_t n,          \
-                     int (*cmp)(const key_type *, const value_type *, void *arg),    \
-                     void *arg)
-
-#define macro_bsearch_compare_h_arg_cmp(name, key_type, value_type)                  \
-    value_type *name(const key_type *key, const value_type *base, size_t n,          \
-                     int (*cmp)(void *arg, const key_type *, const value_type *),    \
-                     void *arg)
-
-
-#define _macro_bsearch_cmp_no_arg(name, bsearch_style, key_type, value_type, cmp)                           \
-    value_type *name(const key_type *key, const value_type *base, size_t n) {                               \
-        __macro_bsearch_ ## bsearch_style ## _code(cmp_no_arg, key_type, value_type, cmp, key, base, n);    \
+#define _macro_bsearch(name, bsearch_style, style, value_type, cmp)                         \
+    value_type *name(const value_type *key, const value_type *base,                                \
+                     macro_cmp_signature(size_t n, style, value_type)) {                              \
+        __macro_bsearch_ ## bsearch_style ## _code(style, value_type, cmp, key, base, n);   \
     }
 
-#define __macro_bsearch_arg(name, bsearch_style, style, key_type, value_type, cmp)                     \
-    value_type *name(const key_type *key, const value_type *base, size_t n, void *arg) {               \
-        __macro_bsearch_ ## bsearch_style ## _code(style, key_type, value_type, cmp, key, base, n);    \
+#define _macro_bsearch_kv(name, bsearch_style, style, key_type, value_type, cmp)                         \
+    value_type *name(const key_type *key, const value_type *base,                                \
+                     macro_cmp_kv_signature(size_t n, style, key_type, value_type)) {                              \
+        __macro_bsearch_kv_ ## bsearch_style ## _code(style, key_type, value_type, cmp, key, base, n);   \
     }
 
-#define _macro_bsearch_cmp_arg(name, bsearch_style, key_type, value_type, cmp) __macro_bsearch_arg(name, bsearch_style, cmp_arg, key_type, value_type, cmp)
-#define _macro_bsearch_arg_cmp(name, bsearch_style, key_type, value_type, cmp) __macro_bsearch_arg(name, bsearch_style, arg_cmp, key_type, value_type, cmp)
-
-#define _macro_bsearch_compare_cmp_no_arg(name, bsearch_style, key_type, value_type)                                               \
-    value_type *name(const key_type *key, const value_type *base, size_t n, int (*cmp)(const key_type *, const value_type *)) {    \
-        __macro_bsearch_ ## bsearch_style ## _code(cmp_no_arg, key_type, value_type, cmp, key, base, n);                           \
+#define _macro_bsearch_compare(name, bsearch_style, style, value_type)                      \
+    value_type *name(const value_type *key, const value_type *base,                                \
+                     macro_cmp_signature(size_t n, compare_ ## style, value_type)) {                  \
+        __macro_bsearch_ ## bsearch_style ## _code(style, value_type, cmp, key, base, n);   \
     }
 
-#define _macro_bsearch_compare_cmp_arg(name, bsearch_style, key_type, value_type)                        \
-    value_type *name(const key_type *key, const value_type *base, size_t n,                              \
-                     int (*cmp)(const key_type *, const value_type *, void *arg),                        \
-                     void *arg) {                                                                        \
-        __macro_bsearch_ ## bsearch_style ## _code(cmp_arg, key_type, value_type, cmp, key, base, n);    \
+#define _macro_bsearch_kv_compare(name, bsearch_style, style, key_type, value_type)                      \
+    value_type *name(const key_type *key, const value_type *base,                                \
+                     macro_cmp_kv_signature(size_t n, compare_ ## style, key_type, value_type)) {                  \
+        __macro_bsearch_kv_ ## bsearch_style ## _code(style, key_type, value_type, cmp, key, base, n);   \
     }
 
-#define _macro_bsearch_compare_arg_cmp(name, bsearch_style, key_type, value_type)                        \
-    value_type *name(const key_type *key, const value_type *base, size_t n,                              \
-                     int (*cmp)(void *arg, const key_type *, const value_type *),                        \
-                     void *arg) {                                                                        \
-        __macro_bsearch_ ## bsearch_style ## _code(arg_cmp, key_type, value_type, cmp, key, base, n);    \
-    }
+#define macro_bsearch_default() cmp_no_arg
 
+#define macro_bsearch_h(name, value_type) \
+    _macro_bsearch_h(name, macro_bsearch_default(), value_type )
 
-#define macro_bsearch_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_no_arg(name, core, key_type, value_type, cmp)
-#define macro_bsearch_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_arg(name, core, key_type, value_type, cmp)
-#define macro_bsearch_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_arg_cmp(name, core, key_type, value_type, cmp)
-#define macro_bsearch_compare_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_no_arg(name, core, key_type, value_type, cmp)
-#define macro_bsearch_compare_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_arg(name, core, key_type, value_type, cmp)
-#define macro_bsearch_compare_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_compare_arg_cmp(name, core, key_type, value_type, cmp)
+#define macro_bsearch_compare_h(name, value_type) \
+    _macro_bsearch_compare_h(name, macro_bsearch_default(), value_type )
 
-#define macro_bsearch_first_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_no_arg(name, first, key_type, value_type, cmp)
-#define macro_bsearch_first_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_arg(name, first, key_type, value_type, cmp)
-#define macro_bsearch_first_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_arg_cmp(name, first, key_type, value_type, cmp)
-#define macro_bsearch_first_compare_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_no_arg(name, first, key_type, value_type, cmp)
-#define macro_bsearch_first_compare_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_arg(name, first, key_type, value_type, cmp)
-#define macro_bsearch_first_compare_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_compare_arg_cmp(name, first, key_type, value_type, cmp)
+#define macro_bsearch(name, value_type, cmp) \
+    _macro_bsearch(name, core, macro_bsearch_default(), value_type, cmp)
 
-#define macro_bsearch_last_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_no_arg(name, last, key_type, value_type, cmp)
-#define macro_bsearch_last_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_arg(name, last, key_type, value_type, cmp)
-#define macro_bsearch_last_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_arg_cmp(name, last, key_type, value_type, cmp)
-#define macro_bsearch_last_compare_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_no_arg(name, last, key_type, value_type, cmp)
-#define macro_bsearch_last_compare_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_arg(name, last, key_type, value_type, cmp)
-#define macro_bsearch_last_compare_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_compare_arg_cmp(name, last, key_type, value_type, cmp)
+#define macro_bsearch_compare(name, value_type) \
+    _macro_bsearch_compare(name, core, macro_bsearch_default(), value_type )
 
-#define macro_bsearch_floor_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_no_arg(name, floor, key_type, value_type, cmp)
-#define macro_bsearch_floor_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_arg(name, floor, key_type, value_type, cmp)
-#define macro_bsearch_floor_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_arg_cmp(name, floor, key_type, value_type, cmp)
-#define macro_bsearch_floor_compare_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_no_arg(name, floor, key_type, value_type, cmp)
-#define macro_bsearch_floor_compare_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_arg(name, floor, key_type, value_type, cmp)
-#define macro_bsearch_floor_compare_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_compare_arg_cmp(name, floor, key_type, value_type, cmp)
+#define macro_bsearch_first(name, value_type, cmp) \
+    _macro_bsearch(name, first, macro_bsearch_default(), value_type, cmp)
 
-#define macro_bsearch_ceiling_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_no_arg(name, ceiling, key_type, value_type, cmp)
-#define macro_bsearch_ceiling_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_arg(name, ceiling, key_type, value_type, cmp)
-#define macro_bsearch_ceiling_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_arg_cmp(name, ceiling, key_type, value_type, cmp)
-#define macro_bsearch_ceiling_compare_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_no_arg(name, ceiling, key_type, value_type, cmp)
-#define macro_bsearch_ceiling_compare_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_arg(name, ceiling, key_type, value_type, cmp)
-#define macro_bsearch_ceiling_compare_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_compare_arg_cmp(name, ceiling, key_type, value_type, cmp)
+#define macro_bsearch_first_compare(name, value_type) \
+    _macro_bsearch_compare(name, first, macro_bsearch_default(), value_type )
 
-#define macro_bsearch_lower_bound_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_no_arg(name, lower_bound, key_type, value_type, cmp)
-#define macro_bsearch_lower_bound_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_arg(name, lower_bound, key_type, value_type, cmp)
-#define macro_bsearch_lower_bound_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_arg_cmp(name, lower_bound, key_type, value_type, cmp)
-#define macro_bsearch_lower_bound_compare_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_no_arg(name, lower_bound, key_type, value_type, cmp)
-#define macro_bsearch_lower_bound_compare_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_arg(name, lower_bound, key_type, value_type, cmp)
-#define macro_bsearch_lower_bound_compare_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_compare_arg_cmp(name, lower_bound, key_type, value_type, cmp)
+#define macro_bsearch_last(name, value_type, cmp) \
+    _macro_bsearch(name, last, macro_bsearch_default(), value_type, cmp)
 
-#define macro_bsearch_upper_bound_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_no_arg(name, upper_bound, key_type, value_type, cmp)
-#define macro_bsearch_upper_bound_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_cmp_arg(name, upper_bound, key_type, value_type, cmp)
-#define macro_bsearch_upper_bound_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_arg_cmp(name, upper_bound, key_type, value_type, cmp)
-#define macro_bsearch_upper_bound_compare_cmp_no_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_no_arg(name, upper_bound, key_type, value_type, cmp)
-#define macro_bsearch_upper_bound_compare_cmp_arg(name, key_type, value_type, cmp) _macro_bsearch_compare_cmp_arg(name, upper_bound, key_type, value_type, cmp)
-#define macro_bsearch_upper_bound_compare_arg_cmp(name, key_type, value_type, cmp) _macro_bsearch_compare_arg_cmp(name, upper_bound, key_type, value_type, cmp)
+#define macro_bsearch_last_compare(name, value_type) \
+    _macro_bsearch_compare(name, last, macro_bsearch_default(), value_type )
+
+#define macro_bsearch_floor(name, value_type, cmp) \
+    _macro_bsearch(name, floor, macro_bsearch_default(), value_type, cmp)
+
+#define macro_bsearch_floor_compare(name, value_type) \
+    _macro_bsearch_compare(name, floor, macro_bsearch_default(), value_type )
+
+#define macro_bsearch_ceiling(name, value_type, cmp) \
+    _macro_bsearch(name, ceiling, macro_bsearch_default(), value_type, cmp)
+
+#define macro_bsearch_last_compare(name, value_type) \
+    _macro_bsearch_compare(name, last, macro_bsearch_default(), value_type )
+
+#define macro_bsearch_lower_bound(name, value_type, cmp) \
+    _macro_bsearch(name, lower_bound, macro_bsearch_default(), value_type, cmp)
+
+#define macro_bsearch_lower_bound_compare(name, value_type) \
+    _macro_bsearch_compare(name, lower_bound, macro_bsearch_default(), value_type )
+
+#define macro_bsearch_upper_bound(name, value_type, cmp) \
+    _macro_bsearch(name, upper_bound, macro_bsearch_default(), value_type, cmp)
+
+#define macro_bsearch_upper_bound_compare(name, value_type) \
+    _macro_bsearch_compare(name, upper_bound, macro_bsearch_default(), value_type )
+
+/* kv version (accepts a different type of key) */
+
+#define macro_bsearch_kv_h(name, key_type, value_type) \
+    _macro_bsearch_kv_h(name, macro_bsearch_default(), key_type, value_type )
+
+#define macro_bsearch_kv_compare_h(name, key_type, value_type) \
+    _macro_bsearch_kv_compare_h(name, macro_bsearch_default(), key_type, value_type )
+
+#define macro_bsearch_kv(name, key_type, value_type, cmp) \
+    _macro_bsearch_kv(name, core, macro_bsearch_default(), key_type, value_type, cmp)
+
+#define macro_bsearch_kv_compare(name, key_type, value_type) \
+    _macro_bsearch_kv_compare(name, core, macro_bsearch_default(), key_type, value_type )
+
+#define macro_bsearch_first_kv(name, key_type, value_type, cmp) \
+    _macro_bsearch_kv(name, first, macro_bsearch_default(), key_type, value_type, cmp)
+
+#define macro_bsearch_first_kv_compare(name, key_type, value_type) \
+    _macro_bsearch_kv_compare(name, first, macro_bsearch_default(), key_type, value_type )
+
+#define macro_bsearch_last_kv(name, key_type, value_type, cmp) \
+    _macro_bsearch_kv(name, last, macro_bsearch_default(), key_type, value_type, cmp)
+
+#define macro_bsearch_last_kv_compare(name, key_type, value_type) \
+    _macro_bsearch_kv_compare(name, last, macro_bsearch_default(), key_type, value_type )
+
+#define macro_bsearch_floor_kv(name, key_type, value_type, cmp) \
+    _macro_bsearch_kv(name, floor, macro_bsearch_default(), key_type, value_type, cmp)
+
+#define macro_bsearch_floor_kv_compare(name, key_type, value_type) \
+    _macro_bsearch_kv_compare(name, floor, macro_bsearch_default(), key_type, value_type )
+
+#define macro_bsearch_ceiling_kv(name, key_type, value_type, cmp) \
+    _macro_bsearch_kv(name, ceiling, macro_bsearch_default(), key_type, value_type, cmp)
+
+#define macro_bsearch_last_kv_compare(name, key_type, value_type) \
+    _macro_bsearch_kv_compare(name, last, macro_bsearch_default(), key_type, value_type )
+
+#define macro_bsearch_lower_bound_kv(name, key_type, value_type, cmp) \
+    _macro_bsearch_kv(name, lower_bound, macro_bsearch_default(), key_type, value_type, cmp)
+
+#define macro_bsearch_lower_bound_kv_compare(name, key_type, value_type) \
+    _macro_bsearch_kv_compare(name, lower_bound, macro_bsearch_default(), key_type, value_type )
+
+#define macro_bsearch_upper_bound_kv(name, key_type, value_type, cmp) \
+    _macro_bsearch_kv(name, upper_bound, macro_bsearch_default(), key_type, value_type, cmp)
+
+#define macro_bsearch_upper_bound_kv_compare(name, key_type, value_type) \
+    _macro_bsearch_kv_compare(name, upper_bound, macro_bsearch_default(), key_type, value_type )
+

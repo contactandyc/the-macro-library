@@ -37,7 +37,7 @@ bool compare_items_for_macro_sort(const item_t *a, const item_t *b) {
     return a->key2 < b->key2;
 }
 
-macro_sort_less_no_arg(sort_items, item_t, compare_items_for_macro_sort);
+macro_sort(sort_items, item_t, compare_items_for_macro_sort);
 
 static inline
 bool less_items_for_std_sort(const item_t & a, const item_t & b) {
