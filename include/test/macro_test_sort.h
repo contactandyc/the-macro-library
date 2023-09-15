@@ -297,7 +297,7 @@ static inline void __macro_sort_write_plot_csv( size_t n, size_t elem_size, int 
                                                 const char *sort1, const char *sort2, const char *sort3,
                                                 __macro_test_sort_result_t *results, int num_results) {
     FILE *out = fopen("plot.dat", "wb");
-    fprintf( out, "Sorting %lu elements %d times, each %lu bytes\n", n, rep, elem_size );
+    fprintf( out, "\"Sorting %lu elements %d times, each %lu bytes\"\n", n, rep, elem_size );
     fprintf( out, "test_names" );
     for( int i=0; i<num_results; i++ )
         fprintf(out, ",\"%s\"", results[i].test_name );
