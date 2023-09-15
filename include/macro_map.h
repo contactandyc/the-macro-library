@@ -463,14 +463,14 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     value_type *res = NULL, *equal = NULL;
 
 #define _macro_map_floor_code_inner(value)    \
-    if (n < 0) {    \
-        root = root->left;  \
-    } else if (n > 0) { \
-        res = value; \
-        root = root->right; \
-    } else { \
-        equal = value; \
-        root = root->right; \
+    if (n < 0) {                              \
+        root = root->left;                    \
+    } else if (n > 0) {                       \
+        res = value;                          \
+        root = root->right;                   \
+    } else {                                  \
+        equal = value;                        \
+        root = root->right;                   \
     }
 
 #define _macro_map_floor_code_tail(key, style, type, cmp) return equal ? equal : res;
@@ -481,20 +481,20 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     _macro_map_floor_code_head(value_type)
 
 #define _macro_map_ceiling_code_inner(value)    \
-    if (n > 0) {    \
-        root = root->right; \
-    } else if (n < 0) { \
-        res = value; \
-        root = root->left; \
-    } else { \
-        equal = value; \
-        root = root->left; \
+    if (n > 0) {                                \
+        root = root->right;                     \
+    } else if (n < 0) {                         \
+        res = value;                            \
+        root = root->left;                      \
+    } else {                                    \
+        equal = value;                          \
+        root = root->left;                      \
     }
 
-#define _macro_map_ceiling_code_tail(key, style, type, cmp) \
+#define _macro_map_ceiling_code_tail(key, style, type, cmp)    \
     _macro_map_floor_code_tail(key, style, type, cmp)
 
-#define _macro_map_kv_ceiling_code_tail(key, style, key_type, value_type, cmp) \
+#define _macro_map_kv_ceiling_code_tail(key, style, key_type, value_type, cmp)    \
     _macro_map_kv_floor_code_tail(key, style, key_type, value_type, cmp)
 
 /* end of custom find functions */
