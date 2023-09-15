@@ -385,95 +385,196 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
 #define macro_parent_object(addr, base_type, field)    \
   (base_type *)((char *)addr - offsetof(base_type, field))
 
-#define _macro_map_find_code_with_field(root, field, style, value_type, cmp, key )    \
-    while (root) {                                                                    \
-        value_type *value = macro_parent_object(root, value_type, field );            \
-        int n = macro_cmp(style, value_type, cmp, key, value);                        \
-        if (n < 0)                                                                    \
-            root = root->left;                                                        \
-        else if (n > 0)                                                               \
-            root = root->right;                                                       \
-        else                                                                          \
-            return value;                                                             \
-    }                                                                                 \
+
+#define _macro_map_find_code_head(value_type)
+
+#define _macro_map_find_code_inner(value)    \
+    if (n < 0)                               \
+        root = root->left;                   \
+    else if (n > 0)                          \
+        root = root->right;                  \
+    else                                     \
+        return value;                        \
+
+#define _macro_map_find_code_tail(key, style, type, cmp)
+#define _macro_map_kv_find_code_tail(key, style, key_type, value_type, cmp)
+
+/* first */
+
+#define _macro_map_first_code_head(value_type)    \
+    value_type *res = NULL;
+
+#define _macro_map_first_code_inner(value)    \
+      if (n <= 0) {                           \
+        res = value;                          \
+        root = root->left;                    \
+      } else                                  \
+        root = root->right;                   \
+
+#define _macro_map_first_code_tail(key, style, type, cmp)    \
+    if (res && macro_equal(style,type, cmp, key, res))       \
+      return res;                                            \
     return NULL;
 
-#define _macro_map_find_code(root, style, value_type, cmp, key )    \
-    while (root) {                                                  \
-        int n = macro_cmp(style, value_type, cmp, key, root);       \
-        if (n < 0)                                                  \
-            root = root->left;                                      \
-        else if (n > 0)                                             \
-            root = root->right;                                     \
-        else                                                        \
-            return (value_type *)root;                              \
-    }                                                               \
+#define _macro_map_kv_first_code_tail(key, style, key_type, value_type, cmp)    \
+    if (res && macro_equal_kv(style, key_type, value_type, cmp, key, res))      \
+      return res;                                                               \
     return NULL;
 
-#define _macro_map_kv_find_code_with_field(root, field, style, key_type, value_type, cmp, key )    \
-    while (root) {                                                                                 \
-        value_type *value = macro_parent_object(root, value_type, field );                         \
-        int n = macro_cmp_kv(style, key_type, value_type, cmp, key, value);                        \
-        if (n < 0)                                                                                 \
-            root = root->left;                                                                     \
-        else if (n > 0)                                                                            \
-            root = root->right;                                                                    \
-        else                                                                                       \
-            return value;                                                                          \
-    }                                                                                              \
+/* last */
+#define _macro_map_last_code_head(value_type) _macro_map_first_code_head(value_type)
+
+#define _macro_map_last_code_inner(value)    \
+    if (n < 0)                               \
+        root = root->left;                   \
+    else {                                   \
+        res = value;                         \
+        root = root->right;                  \
+    }
+
+#define _macro_map_last_code_tail(key, style, type, cmp) _macro_map_first_code_tail(key, style, type, cmp)
+
+#define _macro_map_kv_last_code_tail(key, style, key_type, value_type, cmp)    \
+    _macro_map_kv_first_code_tail(key, style, key_type, value_type, cmp)
+
+/* lower_bound */
+#define _macro_map_lower_bound_code_head(value_type) _macro_map_first_code_head(value_type)
+#define _macro_map_lower_bound_code_inner(value) _macro_map_first_code_inner(value)
+#define _macro_map_lower_bound_code_tail(key, style, type, cmp) return res;
+#define _macro_map_kv_lower_bound_code_tail(key, style, key_type, value_type, cmp) return res;
+
+/* upper_bound */
+#define _macro_map_upper_bound_code_head(value_type) _macro_map_first_code_head(value_type)
+
+#define _macro_map_upper_bound_code_inner(value)    \
+    if (n < 0) {                                    \
+        res = value;                                \
+        root = root->left;                          \
+    } else                                          \
+        root = root->right;
+
+#define _macro_map_upper_bound_code_tail(key, style, type, cmp)    \
+    _macro_map_lower_bound_code_tail(key, style, type, cmp)
+#define _macro_map_kv_upper_bound_code_tail(key, style, key_type, value_type, cmp)    \
+    _macro_map_kv_lower_bound_code_tail(key, style, key_type, value_type, cmp)
+
+/* floor */
+#define _macro_map_floor_code_head(value_type)    \
+    value_type *res = NULL, *equal = NULL;
+
+#define _macro_map_floor_code_inner(value)    \
+    if (n < 0) {    \
+        root = root->left;  \
+    } else if (n > 0) { \
+        res = value; \
+        root = root->right; \
+    } else { \
+        equal = value; \
+        root = root->right; \
+    }
+
+#define _macro_map_floor_code_tail(key, style, type, cmp) return equal ? equal : res;
+#define _macro_map_kv_floor_code_tail(key, style, key_type, value_type, cmp) return equal ? equal : res;
+
+/* ceiling */
+#define _macro_map_ceiling_code_head(value_type)    \
+    _macro_map_floor_code_head(value_type)
+
+#define _macro_map_ceiling_code_inner(value)    \
+    if (n > 0) {    \
+        root = root->right; \
+    } else if (n < 0) { \
+        res = value; \
+        root = root->left; \
+    } else { \
+        equal = value; \
+        root = root->left; \
+    }
+
+#define _macro_map_ceiling_code_tail(key, style, type, cmp) \
+    _macro_map_floor_code_tail(key, style, type, cmp)
+
+#define _macro_map_kv_ceiling_code_tail(key, style, key_type, value_type, cmp) \
+    _macro_map_kv_floor_code_tail(key, style, key_type, value_type, cmp)
+
+/* end of custom find functions */
+
+#define _macro_map_code_with_field(root, field, find_style, style, value_type, cmp, key )    \
+    _macro_map_ ## find_style ## _code_head(value_type)                                      \
+    while (root) {                                                                           \
+        value_type *value = macro_parent_object(root, value_type, field );                   \
+        int n = macro_cmp(style, value_type, cmp, key, value);                               \
+        _macro_map_ ## find_style ## _code_inner(value)                                      \
+    }                                                                                        \
+    _macro_map_ ## find_style ## _code_tail(key, style, value_type, cmp)                     \
     return NULL;
 
-#define _macro_map_kv_find_code(root, style, key_type, value_type, cmp, key )    \
-    while (root) {                                                               \
-        int n = macro_cmp_kv(style, key_type, value_type, cmp, key, root);       \
-        if (n < 0)                                                               \
-            root = root->left;                                                   \
-        else if (n > 0)                                                          \
-            root = root->right;                                                  \
-        else                                                                     \
-            return (value_type *)root;                                           \
-    }                                                                            \
+#define _macro_map_code(root, find_style, style, value_type, cmp, key )     \
+    _macro_map_ ## find_style ## _code_head(value_type)                     \
+    while (root) {                                                          \
+        int n = macro_cmp(style, value_type, cmp, key, root);               \
+        _macro_map_ ## find_style ## _code_inner((value_type *)root)        \
+    }                                                                       \
+    _macro_map_ ## find_style ## _code_tail(key, style, value_type, cmp)    \
     return NULL;
 
+#define _macro_map_kw_code_with_field(root, field, find_style, style, key_type, value_type, cmp, key )    \
+    _macro_map_ ## find_style ## _code_head(value_type)                                                   \
+    while (root) {                                                                                        \
+        value_type *value = macro_parent_object(root, value_type, field );                                \
+        int n = macro_cmp_kw(style, key_type, value_type, cmp, key, value);                               \
+        _macro_map_ ## find_style ## _code_inner(value)                                                   \
+    }                                                                                                     \
+    _macro_map_kw_ ## find_style ## _code_tail(key, style, key_type, value_type, cmp)                     \
+    return NULL;
+
+#define _macro_map_kw_code(root, find_style, style, key_type, value_type, cmp, key )     \
+    _macro_map_ ## find_style ## _code_head(value_type)                                  \
+    while (root) {                                                                       \
+        int n = macro_cmp_kw(style, key_type, value_type, cmp, key, root);               \
+        _macro_map_ ## find_style ## _code_inner((value_type *)root)                     \
+    }                                                                                    \
+    _macro_map_kw_ ## find_style ## _code_tail(key, style, key_type, value_type, cmp)    \
+    return NULL;
 
 #define _macro_map(name, find_style, style, type, cmp)                                           \
     type *name(const macro_map_t *root, macro_cmp_signature(const type *node, style, type)) {    \
-        _macro_map_ ## find_style ## _code(root, style, type, cmp, node);                        \
+        _macro_map_code(root, find_style, style, type, cmp, node);                               \
     }
 
 #define _macro_map_with_field(name, field, find_style, style, type, cmp)                         \
     type *name(const macro_map_t *root, macro_cmp_signature(const type *node, style, type)) {    \
-        _macro_map_ ## find_style ## _code_with_field(root, field, style, type, cmp, node);      \
+        _macro_map_code_with_field(root, find_style, field, style, type, cmp, node);             \
     }
 
 #define _macro_map_compare(name, find_style, style, type)                                                    \
     type *name(const macro_map_t *root, macro_cmp_signature(const type *node, compare_ ## style, type)) {    \
-        _macro_map_ ## find_style ## _code(root, style, type, cmp, node);                                    \
+        _macro_map_code(root, find_style, style, type, cmp, node);                                           \
     }
 
 #define _macro_map_compare_with_field(name, field, find_style, style, type)                                  \
     type *name(const macro_map_t *root, macro_cmp_signature(const type *node, compare_ ## style, type)) {    \
-        _macro_map_ ## find_style ## _code_with_field(root, field, style, type, cmp, node);                  \
+        _macro_map_code_with_field(root, find_style, field, style, type, cmp, node);                         \
     }
 
 #define _macro_map_kv(name, find_style, style, key_type, value_type, cmp)                                                     \
     value_type *name(const macro_map_t *root, macro_cmp_kv_signature(const key_type *node, style, key_type, value_type)) {    \
-        _macro_map_kv_ ## find_style ## _code(root, style, key_type, value_type, cmp, node);                                  \
+        _macro_map_kv_code(root, find_style, style, key_type, value_type, cmp, node);                                         \
     }
 
 #define _macro_map_kv_with_field(name, field, find_style, style, key_type, value_type, cmp)                                   \
     value_type *name(const macro_map_t *root, macro_cmp_kv_signature(const key_type *node, style, key_type, value_type)) {    \
-        _macro_map_kv_ ## find_style ## _code_with_field(root, field, style, key_type, value_type, cmp, node);                \
+        _macro_map_kv_code_with_field(root, find_style, field, style, key_type, value_type, cmp, node);                       \
     }
 
 #define _macro_map_kv_compare(name, find_style, style, key_type, value_type)                                                              \
     value_type *name(const macro_map_t *root, macro_cmp_kv_signature(const key_type *node, compare_ ## style, key_type, value_type)) {    \
-        _macro_map_kv_ ## find_style ## _code(root, style, key_type, value_type, cmp, node);                                              \
+        _macro_map_kv_code(root, find_style, style, key_type, value_type, cmp, node);                                                     \
     }
 
 #define _macro_map_kv_compare_with_field(name, field, find_style, style, key_type, value_type)                                            \
     value_type *name(const macro_map_t *root, macro_cmp_kv_signature(const key_type *node, compare_ ## style, key_type, value_type)) {    \
-        _macro_map_kv_ ## find_style ## _code_with_field(root, field, style, key_type, value_type, cmp, node);                            \
+        _macro_map_kv_code_with_field(root, find_style, field, style, key_type, value_type, cmp, node);                                   \
     }
 
 #define _macro_map_insert_code_with_field(root, field, style, value_type, cmp, node )    \
@@ -554,31 +655,6 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     _macro_map_fix_insert(*np, parent, root);                               \
     return true;
 
-#define ac_multimap_insert_m(name, datatype, compare)                         \
-  bool name(datatype *node, ac_map_t **root) {                                \
-    ac_map_t **np = root, *parent = NULL;                                     \
-    while (*np) {                                                             \
-        parent = *np;                                                         \
-        int n = compare((const datatype *)node, (const datatype *)parent);    \
-        if (n < 0)                                                            \
-            np = &(parent->left);                                             \
-        else if (n > 0)                                                       \
-            np = &(parent->right);                                            \
-        else {                                                                \
-            if (node < (datatype *)parent)                                    \
-                np = &(parent->left);                                         \
-            else if (node > (datatype *)parent)                               \
-                np = &(parent->right);                                        \
-            else                                                              \
-                return false;                                                 \
-        }                                                                     \
-    }                                                                         \
-    *np = (ac_map_t *)node;                                                   \
-    ac_map_fix_insert(*np, parent, root);                                     \
-    return true;                                                              \
-  }
-
-
 #define _macro_map_insert_with_field(name, field, style, type, cmp)                   \
     bool name(macro_map_t **root, macro_cmp_signature(type *node, style, type) ) {    \
         _macro_map_insert_code_with_field(root, field, style, type, cmp, node);       \
@@ -598,6 +674,28 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     bool name(macro_map_t **root, macro_cmp_signature(type *node, compare_ ## style, type) ) {    \
         _macro_map_insert_code(root, style, type, cmp, node);                                     \
     }
+
+/* multimap */
+#define _macro_multimap_insert_with_field(name, field, style, type, cmp)                \
+    bool name(macro_map_t **root, macro_cmp_signature(type *node, style, type) ) {      \
+        _macro_multimap_insert_code_with_field(root, field, style, type, cmp, node);    \
+    }
+
+#define _macro_multimap_insert(name, style, type, cmp)                                \
+    bool name(macro_map_t **root, macro_cmp_signature(type *node, style, type) ) {    \
+        _macro_multimap_insert_code(root, style, type, cmp, node);                    \
+    }
+
+#define _macro_multimap_insert_compare_with_field(name, field, style, type)                       \
+    bool name(macro_map_t **root, macro_cmp_signature(type *node, compare_ ## style, type) ) {    \
+        _macro_multimap_insert_code_with_field(root, field, style, type, cmp, node);              \
+    }
+
+#define _macro_multimap_insert_compare(name, style, type)                                         \
+    bool name(macro_map_t **root, macro_cmp_signature(type *node, compare_ ## style, type) ) {    \
+        _macro_multimap_insert_code(root, style, type, cmp, node);                                \
+    }
+
 
 /* create a set of defaults - cmp_no_arg */
 #define macro_map_default() cmp_no_arg
@@ -627,5 +725,17 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     _macro_map_insert_compare_with_field(name, field, macro_map_default(), type)
 
 #define macro_map_insert_compare(name, cmp) _macro_map_insert_compare(name, macro_map_default(), cmp)
+
+/* multimap */
+#define macro_multimap_insert_with_field(name, field, type, cmp)    \
+    _macro_multimap_insert_with_field(name, field, macro_map_default(), type, cmp)
+
+#define macro_multimap_insert(name, type, cmp) _macro_multimap_insert(name, macro_map_default(), type, cmp)
+
+#define macro_multimap_insert_compare_with_field(name, field, type)    \
+    _macro_multimap_insert_compare_with_field(name, field, macro_map_default(), type)
+
+#define macro_multimap_insert_compare(name, cmp) _macro_multimap_insert_compare(name, macro_map_default(), cmp)
+
 
 /* TODO: multimap */
