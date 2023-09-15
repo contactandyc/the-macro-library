@@ -445,13 +445,6 @@ Finds the last instance of a key or the value less than.  NULL is returned if th
 ### bsearch_lower_bound
 Finds the first instance of a key or the value greater.  NULL is returned if the key is greater than any item in the array.
 
-success(bsearch_lower_bound): key(1) 1 at position 0 returned
-success(bsearch_lower_bound): key(2) 3 at position 1 returned
-success(bsearch_lower_bound): key(3) 3 at position 1 returned
-success(bsearch_lower_bound): key(4) 5 at position 3 returned
-success(bsearch_lower_bound): key(5) 5 at position 3 returned
-success(bsearch_lower_bound): key(6) NULL returned
-
 | key | response | index | reason                                                  |
 |-----|----------|-------|---------------------------------------------------------|
 | 0   | 1        | 0     | 0 is less than any value in the array, return 1st value |
