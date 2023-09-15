@@ -200,24 +200,24 @@ small_sort:;                                                      \
     goto hi_mid_low;
 
 
-#define macro_introsort_h(name, style, type)                          \
-type *name(type *base,               \
+#define macro_introsort_h(name, style, type)    \
+type *name(type *base,                          \
            macro_cmp_signature(size_t n, style, type))
 
-#define macro_introsort(name, style, type, cmp)    \
-void name(type *base,  \
-          macro_cmp_signature(size_t n, style, type)) {                   \
-    __macro_introsort_code(style, type, cmp);       \
+#define macro_introsort(name, style, type, cmp)            \
+void name(type *base,                                      \
+          macro_cmp_signature(size_t n, style, type)) {    \
+    __macro_introsort_code(style, type, cmp);              \
 }
 
-#define macro_introsort_compare_h(name, style, type)                          \
-type *name(type *base,               \
+#define macro_introsort_compare_h(name, style, type)    \
+type *name(type *base,                                  \
            macro_cmp_signature(size_t n, compare_ ## style, type))
 
-#define macro_introsort_compare(name, style, type)    \
-void name(type *base,  \
-          macro_cmp_signature(size_t n, compare_ ## style, type)) {                   \
-    __macro_introsort_code(style, type, cmp);       \
+#define macro_introsort_compare(name, style, type)                     \
+void name(type *base,                                                  \
+          macro_cmp_signature(size_t n, compare_ ## style, type)) {    \
+    __macro_introsort_code(style, type, cmp);                          \
 }
 
 #endif
