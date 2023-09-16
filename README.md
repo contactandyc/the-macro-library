@@ -3,6 +3,14 @@ The macro_sort performs significantly better than qsort and better than std::sor
 
 ![Speed Comparison](images/BarChart.png)
 
+## What's included
+
+`macro_sort.h` - a c approach to sorting
+`macro_bsearch.h` - a c approach to searching using various binary search approaches
+`macro_map.h` - a c version of the c++ map (or dictionary)
+
+I welcome suggestions and plan to have more soon!
+
 ## Installation
 
 ```bash
@@ -72,7 +80,7 @@ C macros are difficult to debug with most debuggers.  The included `bin/convert-
 
 This library has started with introsort and a series of binary search methods.  Other algorithms are planned to be added soon.
 
-## A Fast C Sort (with more to come)
+## A Fast C Sort (works fine with C++)
 A comparison of this sort to qsort and std::sort follows.
 
 starting from root directory (assuming package was built - see last section)
