@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(themacrolibrary VERSION 0.0.3)
+project(themacrolibrary VERSION 0.1.0)
 
 option(DEBUG "Enable debugging" OFF)
 option(ADDRESS_SANITIZER "Enable Address Sanitizer" OFF)
