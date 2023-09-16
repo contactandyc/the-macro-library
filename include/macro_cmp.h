@@ -17,6 +17,8 @@ limitations under the License.
 #ifndef _macro_cmp_H
 #define _macro_cmp_H
 
+#include <stdbool.h>
+
 /*
     macro_less, macro_equal makes it easier to define different styles of comparisons.
 
@@ -51,6 +53,10 @@ limitations under the License.
 #define macro_equal_cmp(type, cmp, a, b) (*(a) == *(b))
 
 #define macro_equal(style, type, cmp, a, b) macro_equal_ ## style(type, cmp, a, b)
+
+#define macro_le(style, type, cmp, a, b) (macro_cmp_ ## style(type, cmp, (a), (b))<=0)
+#define macro_ge(style, type, cmp, a, b) (macro_cmp_ ## style(type, cmp, (a), (b))>=0)
+#define macro_greater(style, type, cmp, a, b) macro_less(style, type, cmp, b, a)
 
 #define macro_cmp_cmp_no_arg(type, cmp, a, b) cmp((const type *)(a), (const type *)(b))
 #define macro_cmp_cmp_arg(type, cmp, a, b) cmp((const type *)(a), (const type *)(b), (arg))

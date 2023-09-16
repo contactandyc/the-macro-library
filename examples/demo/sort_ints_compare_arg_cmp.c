@@ -1,5 +1,6 @@
 #include "macro_sort.h"
 
+// the default macro_sort_compare expects a less function, use _macro_sort_compare to customize!
 _macro_sort_compare(sort_ints, arg_cmp, int);
 
 int compare_ints(void *arg, const int *a, const int *b) {

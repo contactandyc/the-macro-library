@@ -52,11 +52,11 @@ This library is entirely header based and requires no special linkage.
 ```c
 #include "macro_sort.h"
 
-int compare_ints(const int *a, const int *b) {
-    return *a - *b;
+bool compare_ints(const int *a, const int *b) {
+    return *a < *b;
 }
 
-macro_sort_cmp_no_arg(sort_ints, int, compare_ints);
+macro_sort(sort_ints, int, compare_ints);
 
 int main() {
     int arr[] = { 5, 4, 3, 1, 2 };
@@ -112,7 +112,11 @@ examples/demo/sort_ints.c
 ```c
 #include "macro_sort.h"
 
-macro_sort_cmp(sort_ints, int);
+bool compare_ints(const int *a, const int *b) {
+    return *a < *b;
+}
+
+macro_sort(sort_ints, int, compare_ints);
 
 int main() {
     int arr[] = { 5, 4, 3, 1, 2 };
@@ -130,11 +134,12 @@ $ ./sort_ints
  1 2 3 4 5
 ```
 
-## macro_sort_xxx
+## `_macro_sort( name, comparison_style, type, compare_function )`
 
-There are a series of macro_sort macros to allow for different compare methods.  `macro_sort_cmp` is used when the `type` (in this case `int`), can respond to `<`, `<=`, and `==`.
+The default macro_sort function is a less function which takes no arguments.  The `_macro_sort` method allows for custom comparisons.  In general, the macro library's approach is to define a customizable underscore prefixed macro and a default macro without the underscores with a common value.
 
-    
+The `macro_cmp.h` file defines a series of comparison_style(s) which are listed below.  If a new style is added to this file, it should allow for the other algorithms to take advantage of it without change!
+
 | Suffix      | Comparison Type                                                            |
 |-------------|----------------------------------------------------------------------------|
 | cmp_no_arg  | int compare(const type *a, const type *b);                                 |
@@ -146,188 +151,63 @@ There are a series of macro_sort macros to allow for different compare methods. 
 | less        | no comparison, expects *(a) < *(b) to function                             |
 | cmp         | no comparison, expects *(a) < *(b), *(a) <= *(b), *(a) == *(b) to function |
 
-
-In the simple example above, macro_sort_cmp was used (defined in `include/macro_sort.h`).
-
-examples/demo/sort_ints_cmp_no_arg.c
-```c
-...
-int compare_ints(const int *a, const int *b) {
-    return *a - *b;
-}
-
-macro_sort_cmp_no_arg(sort_ints, int, compare_ints);
-...
-```
-
-The program outputs the same result as sort_ints above.
-```bash
-$ gcc examples/demo/sort_ints_cmp_no_arg.c -o sort_ints_cmp_no_arg -O3
-$ ./sort_ints_cmp_no_arg
- 1 2 3 4 5
-```
-
-Using less_no_arg
-
-examples/demo/sort_ints_less_no_arg.c
-```c
-...
-bool compare_ints(const int *a, const int *b) {
-    return *a < *b;
-}
-
-macro_sort_less_no_arg(sort_ints, int, compare_ints);
-...
-```
-
-All of these macros so far are producing a function named `sort_ints` with the following signature.
-
-```c
-void sort_ints(int *base, size_t n); 
-```
-
-The functions have the same signature, but implement the compare method differently.  In general, the goal of this project is to allow the end user to use the comparison approach that best fits their project.
-
-## macro_sort_compare_xxx
-
-These macros are similar to the `macro_sort_xxx` except that they create a function which allows the end user to pass in a compare function.
-
-The second example,
-
-examples/demo/sort_ints_cmp_no_arg.c
-```c
-#include "macro_sort.h"
-
-int compare_ints(const int *a, const int *b) {
-    return *a - *b;
-}
-
-macro_sort_cmp_no_arg(sort_ints, int, compare_ints);
-
-int main() {
-    int arr[] = { 5, 4, 3, 1, 2 };
-    sort_ints(arr, sizeof(arr)/sizeof(arr[0]));
-...
-```
-
-=> 
-
-examples/demo/sort_ints_compare_cmp_no_arg.c
-```c
-#include "macro_sort.h"
-
-macro_sort_compare_cmp_no_arg(sort_ints, int);
-
-int compare_ints(const int *a, const int *b) {
-    return *a - *b;
-}
-
-int main() {
-    int arr[] = { 5, 4, 3, 1, 2 };
-    sort_ints(arr, sizeof(arr)/sizeof(arr[0]), compare_ints);
-...
-```
-
-## arg
-
-Sometimes it is nice to be able to pass an extra argument to the compare function. The following suffixes can be used.
-
- Suffix      | Comparison Type                                                            |
-|-------------|----------------------------------------------------------------------------|
-| cmp_arg     | int compare(const type *a, const type *b, void *arg);                      |
-| arg_cmp     | int compare(void *arg, const type *a, const type *b);                      |
-| less_arg    | bool less(const type *a, const type *b, void *arg);                        |
-| arg_less    | bool less(void *arg, const type *a, const type *b);                        |
-
-examples/demo/sort_ints_cmp_arg.c
-```c
-#include "macro_sort.h"
-
-int compare_ints(const int *a, const int *b, void *arg) {
-    return *a - *b;
-}
-
-macro_sort_cmp_arg(sort_ints, int, compare_ints);
-
-int main() {
-    int arr[] = { 5, 4, 3, 1, 2 };
-    void *arg = NULL;
-    sort_ints(arr, sizeof(arr)/sizeof(arr[0]), arg);
-```
-
-arg_cmp only changes the following lines
-
-examples/demo/sort_ints_arg_cmp.c
-```c
-int compare_ints(void *arg, const int *a, const int *b) {
-    return *a - *b;
-}
-
-macro_sort_arg_cmp(sort_ints, int, compare_ints);
-```
-
-Allowing the compare function to be passed into sort function as an argument
-
-examples/demo/sort_ints_compare_arg_cmp.c
-```c
-#include "macro_sort.h"
-
-macro_sort_compare_arg_cmp(sort_ints, int);
-
-int compare_ints(void *arg, const int *a, const int *b) {
-    return *a - *b;
-}
-
-int main() {
-    int arr[] = { 5, 4, 3, 1, 2 };
-    void *arg = NULL;
-    sort_ints(arr, sizeof(arr)/sizeof(arr[0]), compare_ints, arg);
-```
-
 ## Making the functions static and/or static inline
 
 To make the sort function `static` or `static inline`, add it in the line before the macro_sort call.
 
 ```c
 static
-macro_sort_cmp(sort_ints, int);
+macro_sort(sort_ints, int, compare_int);
 ```
 
 OR
 
 ```c
 static inline
-macro_sort_cmp(sort_ints, int);
+macro_sort(sort_ints, int, compare_int);
+```
+
+## User specified compare functions
+
+`macro_sort` has a `macro_sort_compare` counterpart which defines a sort function that allows for user specified compare functions.  This xxx_compare function does not require a compare method to be passed to it.
+
+```c
+macro_sort_compare(sort_ints, int);
+
+bool compare_ints(const int *a, const int *b) {
+    return *a < *b;
+}
 ```
 
 ## Creating header file definitions
 
-Use the `macro_sort_h_xxx` or `macro_sort_compare_h_xxx` macros.
+For each macro, there is a corresponding _h macro, (`macro_sort` => `macro_sort_h`).
 
+some_header.h
 ```c
-macro_sort_compare_h_arg_less(sort_ints, int);
+macro_sort_compare_h(sort_ints, int);
 ```
 
-produces
+For headers, it is important to add the semicolon.  This produces ...
 
 ```c
 void sort_ints(int *base, size_t n,
-          bool (*cmp)(void *arg, const int *a, const int *b),
-          void *arg);
+          bool (*cmp)(const int *a, const int *b));
 ```
 
 Use `static` or other modifiers on the line before if needed.
 
 ```c
 static inline
-macro_sort_h_less(sort_ints, int);
+macro_sort_compare_h(sort_ints, int);
 ```
 
 produces
 
 ```c
 static inline
-void sort_ints(int *base, size_t n);
+void sort_ints(int *base, size_t n,
+          bool (*cmp)(const int *a, const int *b));
 ```
 
 
@@ -339,7 +219,11 @@ Consider examples/demo/sort_ints.c
 ```c
 #include "macro_sort.h"
 
-macro_sort_cmp(sort_ints, int);
+bool compare_ints(const int *a, const int *b) {
+    return *a < *b;
+}
+
+macro_sort(sort_ints, int, compare_ints);
 
 int main() {
 ...
@@ -348,7 +232,12 @@ int main() {
 ```bash
 $ convert-macros-to-code.py examples/demo/sort_ints.c | less
 ...
-void sort_ints(int *base, size_t n) {
+bool compare_ints(const int *a, const int *b) {
+    return *a < *b;
+}
+
+void sort_ints(int *base,
+          size_t n) {
     int *a, *b, *e;
     int tmp;
     if(n < 17) {
@@ -356,6 +245,7 @@ void sort_ints(int *base, size_t n) {
         a = base + 1;
         while (a < e) {
             tmp = *a;
+            b = a;
 ...
 ```
 
@@ -371,13 +261,60 @@ Because the macros are expanded, this new program is easy to debug.
 
 # Binary Search
 
-## A quick refresher on what each function does
+```c
+#include "macro_bsearch.h"
+
+static inline
+int compare_int(const int *a, const int *b) {
+    return *a - *b;
+}
+
+macro_bsearch(bsearch_ints, int, compare_int)
+macro_bsearch_first(bsearch_first_ints, int, compare_int)
+macro_bsearch_last(bsearch_last_ints, int, compare_int)
+macro_bsearch_floor(bsearch_floor_ints, int, compare_int)
+macro_bsearch_ceiling(bsearch_ceiling_ints, int, compare_int)
+macro_bsearch_lower_bound(bsearch_lower_bound_ints, int, compare_int)
+macro_bsearch_upper_bound(bsearch_upper_bound_ints, int, compare_int)
+```
+
+This produces the core binary search function `bsearch_ints` and the `first`, `last`, `floor`, `ceiling`, `lower_bound`, and `upper_bound` functions.
+
+```c
+macro_bsearch_h(bsearch_ints, int, compare_int);
+```
+
+produces
+
+```c
+int *bsearch_ints(const int *key, const int *base, size_t n);
+```
+
+and it can be used like
+
+```c
+    int arr[] = { 1, 3, 3, 5 };
+    int key = 3;
+    int *r = bsearch(&key, arr, n);
+    if(r) // key is found and points to one of the 3s
+```
+
+There is also a `macro_bsearch_kv` macro which allows the comparison function to have a different type for the key than that of the array.
+
+# The Set or Map
+An implementation of the red black tree using macros and inlined code.
+
+Documentation coming soon.
+
+See `macro_map.h` and `examples/demo/map_ints.c`
+
+## A quick refresher on what each bsearch function does (and roughly the map functions)
 
 Consider the following array
 
 1, 3, 3, 5
 
-### bsearch
+### core (the common bsearch method)
 Finds any instance of a key or return NULL if none exist.
 
 | key | response | index                    | reason                                  |
@@ -390,7 +327,7 @@ Finds any instance of a key or return NULL if none exist.
 | 5   | 5 | 3 | 5 is found in the last index            |
 | 6   | NULL | none | 6 is not in the array                   |
 
-### bsearch_first
+### first
 Finds the first instance of a key or return NULL if none exist.
 
 | key | response | index | reason                                           |
@@ -403,7 +340,7 @@ Finds the first instance of a key or return NULL if none exist.
 | 5   | 5 | 3 | 5 is found in the last index                     |
 | 6   | NULL | none | 6 is not in the array                            |
 
-### bsearch_last
+### last
 Finds the last instance of a key or return NULL if none exist.
 
 | key | response | index | reason                                          |
@@ -416,7 +353,7 @@ Finds the last instance of a key or return NULL if none exist.
 | 5   | 5 | 3     | 5 is found in the last index                    |
 | 6   | NULL | none  | 6 is not in the array                           |
 
-### bsearch_floor
+### floor
 Finds the first instance of a key or the value less than.  NULL is returned if the key is less than any item in the array.
 
 | key | response | index | reason                                         |
@@ -429,7 +366,7 @@ Finds the first instance of a key or the value less than.  NULL is returned if t
 | 5   | 5        | 3     | 5 is found, see bsearch_first                  |
 | 6   | 5        | 3     | 6 is not found, the last 5 is less |
 
-### bsearch_ceiling
+### ceiling
 Finds the last instance of a key or the value less than.  NULL is returned if the key is less than any item in the array.
 
 | key | response | index | reason                                        |
@@ -442,7 +379,7 @@ Finds the last instance of a key or the value less than.  NULL is returned if th
 | 5   | 5        | 3     | 5 is found, see bsearch_last                  |
 | 6   | 5        | 3     | 6 is greater than all items, return last one  |
 
-### bsearch_lower_bound
+### lower_bound
 Finds the first instance of a key or the value greater.  NULL is returned if the key is greater than any item in the array.
 
 | key | response | index | reason                                                  |
@@ -455,7 +392,7 @@ Finds the first instance of a key or the value greater.  NULL is returned if the
 | 5   | 5        | 3     | 5 is found, see bsearch_first                           |
 | 6   | NULL     | none  | 6 is greater than all items, return NULL                |
 
-### bsearch_upper_bound
+### upper_bound
 This is different than the others in that the response is always one greater than the key.  It is possible for this to extend beyond the array.  The purpose of upper_bound is to be used in conjunction with lower_bound to form a range.
 
 | key | response  | index | reason                                                  |

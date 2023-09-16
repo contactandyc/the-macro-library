@@ -1,17 +1,17 @@
 #include "macro_bsearch.h"
-#include <stdbool.h>
+
 static inline
 int compare_int(const int *a, const int *b) {
     return *a - *b;
 }
 
-macro_bsearch_kv(bsearch_ints, int, int, compare_int);
-macro_bsearch_first_kv(bsearch_first_ints, int, int, compare_int);
-macro_bsearch_last_kv(bsearch_last_ints, int, int, compare_int);
-macro_bsearch_floor_kv(bsearch_floor_ints, int, int, compare_int);
-macro_bsearch_ceiling_kv(bsearch_ceiling_ints, int, int, compare_int);
-macro_bsearch_lower_bound_kv(bsearch_lower_bound_ints, int, int, compare_int);
-macro_bsearch_upper_bound_kv(bsearch_upper_bound_ints, int, int, compare_int);
+macro_bsearch(bsearch_ints, int, compare_int);
+macro_bsearch_first(bsearch_first_ints, int, compare_int);
+macro_bsearch_last(bsearch_last_ints, int, compare_int);
+macro_bsearch_floor(bsearch_floor_ints, int, compare_int);
+macro_bsearch_ceiling(bsearch_ceiling_ints, int, compare_int);
+macro_bsearch_lower_bound(bsearch_lower_bound_ints, int, compare_int);
+macro_bsearch_upper_bound(bsearch_upper_bound_ints, int, compare_int);
 
 void test_bsearch(const char *test_name, int key, int *arr, int n, int *expected, bool allow_same_value, int * (*bsearch)(const int *k, const int *a, size_t n)) {
     int *r = bsearch(&key, arr, n);

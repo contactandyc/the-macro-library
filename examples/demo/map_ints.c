@@ -10,12 +10,7 @@ int compare_int(const int_node *a, const int_node *b) {
     return a->value - b->value;
 }
 
-static inline
-int compare_int_for_insert(const int_node *a, const int_node *b) {
-    if(a->value != b->value)
-        return a->value - b->value;
-    return a - b;
-}
+macro_multimap_insert(insert_int, int_node, compare_int);
 
 macro_map_find(find_int, int_node, compare_int);
 _macro_map(first_int, first, cmp_no_arg, int_node, compare_int);
@@ -24,7 +19,6 @@ _macro_map(floor_int, floor, cmp_no_arg, int_node, compare_int);
 _macro_map(ceiling_int, ceiling, cmp_no_arg, int_node, compare_int);
 _macro_map(lower_bound_int, lower_bound, cmp_no_arg, int_node, compare_int);
 _macro_map(upper_bound_int, upper_bound, cmp_no_arg, int_node, compare_int);
-macro_multimap_insert(insert_int, int_node, compare_int_for_insert);
 
 int main() {
     int_node nodes[4];

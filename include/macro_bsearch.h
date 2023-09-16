@@ -26,39 +26,35 @@ limitations under the License.
     value_type *name(const value_type *key, const value_type *base,    \
                      macro_cmp_signature(size_t n, style, value_type))
 
+#define _macro_bsearch(name, bsearch_style, style, value_type, cmp)                          \
+    _macro_bsearch_h(name, style, value_type) { \
+        __macro_bsearch_ ## bsearch_style ## _code(style, value_type, cmp, key, base, n);    \
+    }
+
 #define _macro_bsearch_kv_h(name, style, key_type, value_type)       \
     value_type *name(const key_type *key, const value_type *base,    \
                      macro_cmp_kv_signature(size_t n, style, key_type, value_type))
+
+#define _macro_bsearch_kv(name, bsearch_style, style, key_type, value_type, cmp)                          \
+    _macro_bsearch_kv_h(name, style, key_type, value_type) {                                         \
+        __macro_bsearch_kv_ ## bsearch_style ## _code(style, key_type, value_type, cmp, key, base, n);    \
+    }
 
 #define _macro_bsearch_compare_h(name, style, value_type)              \
     value_type *name(const value_type *key, const value_type *base,    \
                      macro_cmp_signature(size_t n, compare_ ## style, value_type))
 
+#define _macro_bsearch_compare(name, bsearch_style, style, value_type)                       \
+    _macro_bsearch_compare_h(name, style, value_type) {         \
+        __macro_bsearch_ ## bsearch_style ## _code(style, value_type, cmp, key, base, n);    \
+    }
+
 #define _macro_bsearch_kv_compare_h(name, style, key_type, value_type)    \
     value_type *name(const key_type *key, const value_type *base,         \
                      macro_cmp_kv_signature(size_t n, compare_ ## style, key_type, value_type))
 
-#define _macro_bsearch(name, bsearch_style, style, value_type, cmp)                          \
-    value_type *name(const value_type *key, const value_type *base,                          \
-                     macro_cmp_signature(size_t n, style, value_type)) {                     \
-        __macro_bsearch_ ## bsearch_style ## _code(style, value_type, cmp, key, base, n);    \
-    }
-
-#define _macro_bsearch_kv(name, bsearch_style, style, key_type, value_type, cmp)                          \
-    value_type *name(const key_type *key, const value_type *base,                                         \
-                     macro_cmp_kv_signature(size_t n, style, key_type, value_type)) {                     \
-        __macro_bsearch_kv_ ## bsearch_style ## _code(style, key_type, value_type, cmp, key, base, n);    \
-    }
-
-#define _macro_bsearch_compare(name, bsearch_style, style, value_type)                       \
-    value_type *name(const value_type *key, const value_type *base,                          \
-                     macro_cmp_signature(size_t n, compare_ ## style, value_type)) {         \
-        __macro_bsearch_ ## bsearch_style ## _code(style, value_type, cmp, key, base, n);    \
-    }
-
 #define _macro_bsearch_kv_compare(name, bsearch_style, style, key_type, value_type)                       \
-    value_type *name(const key_type *key, const value_type *base,                                         \
-                     macro_cmp_kv_signature(size_t n, compare_ ## style, key_type, value_type)) {         \
+    _macro_bsearch_kv_compare_h(name, style, key_type, value_type) {         \
         __macro_bsearch_kv_ ## bsearch_style ## _code(style, key_type, value_type, cmp, key, base, n);    \
     }
 

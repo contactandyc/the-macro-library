@@ -4,6 +4,7 @@ int compare_ints(void *arg, const int *a, const int *b) {
     return *a - *b;
 }
 
+// the default macro_sort expects a less function, use _macro_sort to customize!
 _macro_sort(sort_ints, arg_cmp, int, compare_ints);
 
 int main() {

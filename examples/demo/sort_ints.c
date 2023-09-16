@@ -1,7 +1,10 @@
 #include "macro_sort.h"
 
+bool compare_ints(const int *a, const int *b) {
+    return *a < *b;
+}
 
-_macro_sort(sort_ints, cmp, int, not_used);
+macro_sort(sort_ints, int, compare_ints);
 
 int main() {
     int arr[] = { 5, 4, 3, 1, 2 };

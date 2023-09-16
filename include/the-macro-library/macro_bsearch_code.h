@@ -2,6 +2,8 @@
 
 #include "macro_cmp.h"
 
+/* TODO: consider reducing the amount of repeated logic as was done in macro_map.h */
+
 #define __macro_bsearch_vars(value_type, base, n)    \
     if(!n) return NULL;                              \
     value_type *lo = (value_type *)base;             \
@@ -183,7 +185,7 @@
     value_type *high = hi;                                                        \
     while(lo < hi) {                                                              \
         mid = lo + ((hi - lo) >> 1);                                              \
-        if (macro_greater_kv(style, value_type, cmp, key, mid))                   \
+        if (macro_greater(style, value_type, cmp, key, mid))                      \
             lo = mid + 1;                                                         \
         else                                                                      \
             hi = mid;                                                             \
