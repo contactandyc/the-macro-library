@@ -83,19 +83,19 @@ macro-plot.py
 ```
 
 ```
-Sorting 100000 elements 1000 times which are of size 20
+Sorting 1000000 elements 100 times which are of size 20
 
-              test name	  macro_sort	  std_sort	     qsort
-              ascending	    0.136391	  0.346498	  0.490240
-       ascending[gap=0]	    0.227794	  0.359617	  0.660179
-             descending	    0.246166	  0.683351	  2.450071
- saw[period=10,max=100]	    0.695768	  1.219611	  1.582721
-saw[period=10,max=-100]	    0.691319	  1.274635	  1.572666
-                 random	    6.480880	  8.028105	 10.640059
-      rand_max[max=100]	    2.505797	  3.630266	  4.067321
-    rand_max[max=10000]	    5.956528	  7.415671	  8.924805
-      rand_head[pct=25]	    2.789506	  3.954147	  6.123680
-      rand_tail[pct=25]	    3.011739	  4.204019	  5.975161
+              test name	  macro_sort	  std_sort	       qsort
+              ascending	  294.351000	528.314000	  677.732000
+       ascending[gap=0]	  448.574000	508.835000	  761.455000
+             descending	  443.424000	923.441000	 2902.537000
+ saw[period=10,max=100]	 1027.698000   1555.817000	 1894.363000
+saw[period=10,max=-100]	 1051.246000   1540.264000	 1865.106000
+                 random	 8750.826000  10468.536000	13477.098000
+      rand_max[max=100]	 3119.780000   4015.032000	 4593.354000
+    rand_max[max=10000]	 6738.275000   7613.115000	 9240.308000
+      rand_head[pct=25]	 4186.926000   5770.527000	 8037.935000
+      rand_tail[pct=25]	 3681.935000   5453.779000	 6964.615000
 ```
 
 Across nearly all measures for the given test, the macro library performs better than std::sort and significantly better than qsort.  I've found that for raw types, the std::sort tends to perform about the same as the macro versions.
