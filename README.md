@@ -6,7 +6,9 @@ The macro_sort performs significantly better than qsort and better than std::sor
 ## What's included
 
 `macro_sort.h` - a c approach to sorting
+
 `macro_bsearch.h` - a c approach to searching using various binary search approaches
+
 `macro_map.h` - a c version of the c++ map (or dictionary)
 
 I welcome suggestions and plan to have more soon!
