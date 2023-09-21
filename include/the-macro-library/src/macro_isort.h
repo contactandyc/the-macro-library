@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Andy Curtis
+Copyright (c) 2023 Andy Curtis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ limitations under the License.
 #ifndef _macro_isort_H
 #define _macro_isort_H
 
-#include "macro_cmp.h"
+#include "the-macro-library/macro_cmp.h"
 
 /*
     This macro defines an insertion sort algorithm for an array of elements

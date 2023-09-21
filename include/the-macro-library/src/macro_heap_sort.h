@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Andy Curtis
+Copyright (c) 2023 Andy Curtis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ limitations under the License.
 #ifndef _macro_heap_sort_H
 #define _macro_heap_sort_H
 
-#include "macro_cmp.h"
-#include "the-macro-library/macro_swap.h"
+#include "the-macro-library/macro_cmp.h"
+#include "the-macro-library/src/macro_swap.h"
 
 #define macro_heapify(style, type, cmp,                                        \
                       p, endp,                                                 \

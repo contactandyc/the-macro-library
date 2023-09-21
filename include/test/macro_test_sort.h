@@ -22,7 +22,7 @@ limitations under the License.
 #include <stdio.h>
 #include <string.h>
 
-#include "macro_cmp.h"
+#include "the-macro-library/macro_cmp.h"
 
 #define __macro_test_start_sort_vars(type, rep, arr, new_arr, n)    \
     type *wp, *sp = arr, *sp2 = new_arr, *p = arr;                  \

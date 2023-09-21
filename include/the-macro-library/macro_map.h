@@ -1,5 +1,5 @@
 /*
-Copyright 2019 Andy Curtis
+Copyright (c) 2023 Andy Curtis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ limitations under the License.
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "macro_cmp.h"
+#include "the-macro-library/macro_cmp.h"
 
 typedef struct macro_map_s {
     size_t parent_color;

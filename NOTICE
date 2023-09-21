@@ -1,3 +1,15 @@
 The Macro Library
 Copyright 2023 Andy Curtis.
 
+The authors of this library are
+* Andy Curtis
+  contactandyc@gmail.com
+  linkedin.com/in/andycurtis
+
+Based upon the Dutch national flag problem
+- https://en.wikipedia.org/wiki/Dutch_national_flag_problem
+
+Also consulted
+   Engineering a sort function; Jon Bentley and M. Douglas McIlroy;
+   Software - Practice and Experience; Vol. 23 (11), 1249-1265, 1993
+

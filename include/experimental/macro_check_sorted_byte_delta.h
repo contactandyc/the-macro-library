@@ -17,7 +17,7 @@ limitations under the License.
 #ifndef _macro_check_sorted_H
 #define _macro_check_sorted_H
 
-#include "macro_cmp.h"
+#include "the-macro-library/macro_cmp.h"
 
 /*  
     The basic idea with this is to quickly exit if a set is not sorted to one 

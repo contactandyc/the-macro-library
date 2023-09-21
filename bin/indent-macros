@@ -130,5 +130,9 @@ def process_macro_file(filename):
     with open(filename, 'w', encoding='utf-8') as file:
         file.write(new_file_contents)
 
-for idx in range(1, len(sys.argv)):
-    process_macro_file(sys.argv[idx])
+
+if len(sys.argv) > 1:
+    for idx in range(1, len(sys.argv)):
+        process_macro_file(sys.argv[idx])
+else:
+    print("indent-macros <source-file.h/c/cc> [source-file2.h/c/cc]")

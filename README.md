@@ -60,7 +60,7 @@ This library is entirely header based and requires no special linkage.
 ## Simple to use
 
 ```c
-#include "macro_sort.h"
+#include "the-macro-library/macro_sort.h"
 
 bool compare_ints(const int *a, const int *b) {
     return *a < *b;
@@ -76,7 +76,7 @@ int main() {
 
 ## Debuggable
 
-C macros are difficult to debug with most debuggers.  The included `bin/convert-macros-to-code.py` will convert macros to their base code and preserve readability.  Additionally, the convert tool can be used to create functions which have no dependency on this library.
+C macros are difficult to debug with most debuggers.  The included `bin/convert-macros-to-code` will convert macros to their base code and preserve readability.  Additionally, the convert tool can be used to create functions which have no dependency on this library.
 
 ## Extendable
 
@@ -120,7 +120,7 @@ The sort check at the beginning considers the first and last element of the arra
 
 examples/demo/sort_ints.c
 ```c
-#include "macro_sort.h"
+#include "the-macro-library/macro_sort.h"
 
 bool compare_ints(const int *a, const int *b) {
     return *a < *b;
@@ -223,11 +223,11 @@ void sort_ints(int *base, size_t n,
 
 ## Converting define macros into code
 
-`#define` is a very useful mechanism in C/C++.  However, these statements present challenges during debugging since debuggers won't typically let you step through a macro.  This library helps to address this with the `bin/convert-macros-to-code.py` script.  The tool will read a source file and replace any macro_...() define statements with their underlying code.
+`#define` is a very useful mechanism in C/C++.  However, these statements present challenges during debugging since debuggers won't typically let you step through a macro.  This library helps to address this with the `bin/convert-macros-to-code` script.  The tool will read a source file and replace any macro_...() define statements with their underlying code.
 
 Consider examples/demo/sort_ints.c
 ```c
-#include "macro_sort.h"
+#include "the-macro-library/macro_sort.h"
 
 bool compare_ints(const int *a, const int *b) {
     return *a < *b;
@@ -240,7 +240,7 @@ int main() {
 ```
 
 ```bash
-$ convert-macros-to-code.py examples/demo/sort_ints.c | less
+$ convert-macros-to-code examples/demo/sort_ints.c | less
 ...
 bool compare_ints(const int *a, const int *b) {
     return *a < *b;
@@ -261,7 +261,7 @@ void sort_ints(int *base,
 
 Instead of printing to the terminal, the output can be redirected to a file and compiled.
 ```bash
-$ convert-macros-to-code.py examples/demo/sort_ints.c > sort_ints_d.c
+$ convert-macros-to-code examples/demo/sort_ints.c > sort_ints_d.c
 $ g++ sort_ints_d.cc -o sort_ints_d -g
 $ ./sort_ints_d
  1 2 3 4 5
@@ -272,7 +272,7 @@ Because the macros are expanded, this new program is easy to debug.
 # Binary Search
 
 ```c
-#include "macro_bsearch.h"
+#include "the-macro-library/macro_bsearch.h"
 
 static inline
 int compare_int(const int *a, const int *b) {

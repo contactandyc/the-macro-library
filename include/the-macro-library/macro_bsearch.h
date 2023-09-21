@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Andy Curtis
+Copyright (c) 2023 Andy Curtis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ limitations under the License.
     All headers are the same for the different bsearch flavors, simply use macro_bsearch..._h_...
 */
 
-#include "the-macro-library/macro_bsearch_code.h"
+#include "the-macro-library/src/macro_bsearch_code.h"
 
 #define _macro_bsearch_h(name, style, value_type)                      \
     value_type *name(const value_type *key, const value_type *base,    \

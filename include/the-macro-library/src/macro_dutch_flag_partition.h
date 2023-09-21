@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Andy Curtis
+Copyright (c) 2023 Andy Curtis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ Also consulted
 #ifndef _macro_dutch_flag_partition_H
 #define _macro_dutch_flag_partition_H
 
-#include "the-macro-library/macro_vecswap.h"
+#include "the-macro-library/src/macro_vecswap.h"
 
 /* Towards the end in
     macro_vecswap(lo, left_p-tmp_n, left_eq, right_p, tmp_n);

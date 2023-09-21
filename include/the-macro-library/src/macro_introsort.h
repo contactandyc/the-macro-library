@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Andy Curtis
+Copyright (c) 2023 Andy Curtis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,14 +24,14 @@ limitations under the License.
 #include <stdbool.h>
 
 
-#include "the-macro-library/macro_check_sorted.h"
-#include "the-macro-library/macro_dutch_flag_partition.h"
-#include "the-macro-library/macro_isort.h"
-#include "the-macro-library/macro_heap_sort.h"
-#include "the-macro-library/macro_swap.h"
-#include "the-macro-library/macro_vecswap.h"
+#include "the-macro-library/src/macro_check_sorted.h"
+#include "the-macro-library/src/macro_dutch_flag_partition.h"
+#include "the-macro-library/src/macro_isort.h"
+#include "the-macro-library/src/macro_heap_sort.h"
+#include "the-macro-library/src/macro_swap.h"
+#include "the-macro-library/src/macro_vecswap.h"
 
-#include "macro_cmp.h"
+#include "the-macro-library/macro_cmp.h"
 
 #ifdef __linux__
 #ifdef __LP64__
