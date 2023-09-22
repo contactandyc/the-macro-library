@@ -530,51 +530,51 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
 #define _macro_map_h(name, style, type)    \
     type *name(const macro_map_t *root, macro_cmp_signature(const type *key, style, type))
 
-#define _macro_map(name, find_style, style, type, cmp)                                           \
-    _macro_map_h(name, style, type) {    \
-        _macro_map_code(root, find_style, style, type, cmp, key);                               \
+#define _macro_map(name, find_style, style, type, cmp)               \
+    _macro_map_h(name, style, type) {                                \
+        _macro_map_code(root, find_style, style, type, cmp, key);    \
     }
 
-#define _macro_map_with_field(name, field, find_style, style, type, cmp)                         \
-    _macro_map_h(name, style, type) { {    \
-        _macro_map_code_with_field(root, find_style, field, style, type, cmp, key);             \
+#define _macro_map_with_field(name, field, find_style, style, type, cmp)               \
+    _macro_map_h(name, style, type) { {                                                \
+        _macro_map_code_with_field(root, find_style, field, style, type, cmp, key);    \
     }
 
 #define _macro_map_compare_h(name, style, type) _macro_map_h(name, compare_ ## style, type)
 
-#define _macro_map_compare(name, find_style, style, type)                                                    \
-    _macro_map_compare_h(name, style, type) {    \
-        _macro_map_code(root, find_style, style, type, cmp, key);                                           \
+#define _macro_map_compare(name, find_style, style, type)            \
+    _macro_map_compare_h(name, style, type) {                        \
+        _macro_map_code(root, find_style, style, type, cmp, key);    \
     }
 
-#define _macro_map_compare_with_field(name, field, find_style, style, type)                                  \
-    _macro_map_compare_h(name, style, type) {    \
-        _macro_map_code_with_field(root, find_style, field, style, type, cmp, key);                         \
+#define _macro_map_compare_with_field(name, field, find_style, style, type)            \
+    _macro_map_compare_h(name, style, type) {                                          \
+        _macro_map_code_with_field(root, find_style, field, style, type, cmp, key);    \
     }
 
 #define _macro_map_kv_h(name, style, key_type, value_type)    \
     value_type *name(const macro_map_t *root, macro_cmp_kv_signature(const key_type *key, style, key_type, value_type));
 
-#define _macro_map_kv(name, find_style, style, key_type, value_type, cmp)                                                     \
-    _macro_map_kv_h(name, style, key_type, value_type) {    \
-        _macro_map_kv_code(root, find_style, style, key_type, value_type, cmp, key);                                         \
+#define _macro_map_kv(name, find_style, style, key_type, value_type, cmp)               \
+    _macro_map_kv_h(name, style, key_type, value_type) {                                \
+        _macro_map_kv_code(root, find_style, style, key_type, value_type, cmp, key);    \
     }
 
-#define _macro_map_kv_with_field(name, field, find_style, style, key_type, value_type, cmp)                                   \
-    _macro_map_kv_h(name, style, key_type, value_type) {    \
-        _macro_map_kv_code_with_field(root, find_style, field, style, key_type, value_type, cmp, key);                       \
+#define _macro_map_kv_with_field(name, field, find_style, style, key_type, value_type, cmp)               \
+    _macro_map_kv_h(name, style, key_type, value_type) {                                                  \
+        _macro_map_kv_code_with_field(root, find_style, field, style, key_type, value_type, cmp, key);    \
     }
 
 #define _macro_map_kv_compare_h(name, style, key_type, value_type) _macro_map_kv_h(name, compare_ ## style, key_type, value_type)
 
-#define _macro_map_kv_compare(name, find_style, style, key_type, value_type)                                                              \
-    _macro_map_kv_compare_h(name, style, key_type, value_type) {    \
-        _macro_map_kv_code(root, find_style, style, key_type, value_type, cmp, node);                                                     \
+#define _macro_map_kv_compare(name, find_style, style, key_type, value_type)             \
+    _macro_map_kv_compare_h(name, style, key_type, value_type) {                         \
+        _macro_map_kv_code(root, find_style, style, key_type, value_type, cmp, node);    \
     }
 
-#define _macro_map_kv_compare_with_field(name, field, find_style, style, key_type, value_type)                                            \
-    _macro_map_kv_compare_h(name, style, key_type, value_type) {    \
-        _macro_map_kv_code_with_field(root, find_style, field, style, key_type, value_type, cmp, node);                                   \
+#define _macro_map_kv_compare_with_field(name, field, find_style, style, key_type, value_type)             \
+    _macro_map_kv_compare_h(name, style, key_type, value_type) {                                           \
+        _macro_map_kv_code_with_field(root, find_style, field, style, key_type, value_type, cmp, node);    \
     }
 
 #define _macro_map_insert_code_with_field(root, field, style, value_type, cmp, node )    \
@@ -658,47 +658,47 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
 #define _macro_map_insert_h(name, style, type)    \
     bool name(macro_map_t **root, macro_cmp_signature(type *node, style, type))
 
-#define _macro_map_insert_with_field(name, field, style, type, cmp)                   \
-    _macro_map_insert_h(name, style, type) {    \
-        _macro_map_insert_code_with_field(root, field, style, type, cmp, node);       \
+#define _macro_map_insert_with_field(name, field, style, type, cmp)                \
+    _macro_map_insert_h(name, style, type) {                                       \
+        _macro_map_insert_code_with_field(root, field, style, type, cmp, node);    \
     }
 
-#define _macro_map_insert(name, style, type, cmp)                                     \
-    _macro_map_insert_h(name, style, type) {    \
-        _macro_map_insert_code(root, style, type, cmp, node);                         \
+#define _macro_map_insert(name, style, type, cmp)                \
+    _macro_map_insert_h(name, style, type) {                     \
+        _macro_map_insert_code(root, style, type, cmp, node);    \
     }
 
 #define _macro_map_insert_compare_h(name, style, type) _macro_map_insert_h(name, compare_ ## style, type)
 
-#define _macro_map_insert_compare_with_field(name, field, style, type)                            \
-    _macro_map_insert_compare_h(name, style, type) {    \
-        _macro_map_insert_code_with_field(root, field, style, type, cmp, node);                   \
+#define _macro_map_insert_compare_with_field(name, field, style, type)             \
+    _macro_map_insert_compare_h(name, style, type) {                               \
+        _macro_map_insert_code_with_field(root, field, style, type, cmp, node);    \
     }
 
-#define _macro_map_insert_compare(name, style, type)                                              \
-    _macro_map_insert_compare_h(name, style, type) {    \
-        _macro_map_insert_code(root, style, type, cmp, node);                                     \
+#define _macro_map_insert_compare(name, style, type)             \
+    _macro_map_insert_compare_h(name, style, type) {             \
+        _macro_map_insert_code(root, style, type, cmp, node);    \
     }
 
 /* multimap */
 #define _macro_multimap_insert_with_field(name, field, style, type, cmp)                \
-    _macro_map_insert_h(name, style, type) {      \
+    _macro_map_insert_h(name, style, type) {                                            \
         _macro_multimap_insert_code_with_field(root, field, style, type, cmp, node);    \
     }
 
-#define _macro_multimap_insert(name, style, type, cmp)                                \
-    _macro_map_insert_h(name, style, type) {    \
-        _macro_multimap_insert_code(root, style, type, cmp, node);                    \
+#define _macro_multimap_insert(name, style, type, cmp)                \
+    _macro_map_insert_h(name, style, type) {                          \
+        _macro_multimap_insert_code(root, style, type, cmp, node);    \
     }
 
-#define _macro_multimap_insert_compare_with_field(name, field, style, type)                       \
-    _macro_map_insert_compare_h(name, style, type) {    \
-        _macro_multimap_insert_code_with_field(root, field, style, type, cmp, node);              \
+#define _macro_multimap_insert_compare_with_field(name, field, style, type)             \
+    _macro_map_insert_compare_h(name, style, type) {                                    \
+        _macro_multimap_insert_code_with_field(root, field, style, type, cmp, node);    \
     }
 
-#define _macro_multimap_insert_compare(name, style, type)                                         \
-    _macro_map_insert_compare_h(name, style, type) {    \
-        _macro_multimap_insert_code(root, style, type, cmp, node);                                \
+#define _macro_multimap_insert_compare(name, style, type)             \
+    _macro_map_insert_compare_h(name, style, type) {                  \
+        _macro_multimap_insert_code(root, style, type, cmp, node);    \
     }
 
 

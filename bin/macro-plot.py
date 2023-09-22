@@ -28,10 +28,12 @@ br1 = np.arange(len(test_names))
 br2 = [x + barWidth for x in br1]
 br3 = [x + barWidth for x in br2]
 
+custom_colors = [(48/256.0, 180/256.0, 29/256.0), (51/256.0, 116/256.0, 181/256.0),  (185.0/256.0, 42/256.0, 23/256.0)]
+
 # Make the plot
-plt.bar(br1, sort1, color='r', width=barWidth, edgecolor='grey', label=rows[1][0])
-plt.bar(br2, sort2, color='g', width=barWidth, edgecolor='grey', label=rows[2][0])
-plt.bar(br3, sort3, color='b', width=barWidth, edgecolor='grey', label=rows[3][0])
+plt.bar(br1, sort1, color=custom_colors[0], width=barWidth, edgecolor='grey', label=rows[1][0])
+plt.bar(br2, sort2, color=custom_colors[1], width=barWidth, edgecolor='grey', label=rows[2][0])
+plt.bar(br3, sort3, color=custom_colors[2], width=barWidth, edgecolor='grey', label=rows[3][0])
 
 # Adding Xticks and labels
 plt.xlabel(xlabel, fontweight='bold', fontsize=15)

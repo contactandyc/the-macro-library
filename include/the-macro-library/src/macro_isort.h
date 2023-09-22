@@ -28,9 +28,33 @@ limitations under the License.
     * tmp is used internally and is an instance of type
 */
 
+#define macro_isort_reverse_check(style, type, cmp, base, n,                   \
+                                   ep, curp, p, tmp)    \
+    if(macro_less(style, type, cmp, ep-1, base)) { \
+        p = ep-1;   \
+        curp = base + 1; \
+        macro_swap(base, p); \
+        p--; \
+        while(curp < p && macro_less(style, type, cmp, p, curp)) { \
+            macro_swap(curp, p); \
+            p--; \
+            curp++; \
+        }   \
+    }
+
+#define macro_isort_reverse_check2(style, type, cmp, base, n,                   \
+                                   ep, curp, p, tmp)    \
+    if(macro_less(style, type, cmp, ep-1, base)) { \
+        macro_swap(base, ep-1); \
+    }
+
+#define macro_isort_reverse_check3(style, type, cmp, base, n,                   \
+                                   ep, curp, p, tmp)
+
 #define macro_isort(style, type, cmp, base, n,                   \
                     ep, curp, p, tmp)                            \
     ep = base + n;                                               \
+    macro_isort_reverse_check3(style, type, cmp, base, n, ep, curp, p, tmp)    \
     curp = base + 1;                                             \
     while (curp < ep) {                                          \
         tmp = *curp;                                             \

@@ -38,7 +38,13 @@ bool compare_items_for_macro_sort(const item_t *a, const item_t *b) {
     return a->key2 < b->key2;
 }
 
-macro_sort(sort_items_with_compare, item_t, compare_items_for_macro_sort);
+macro_sort(sort_items_with_compare, item_t, compare_items_for_macro_sort)
+
+macro_sort_compare(sort_items, item_t)
+
+void sort_items_user_compare(item_t *base, size_t n) {
+    sort_items(base, n, compare_items_for_macro_sort);
+}
 
 static inline
 bool less_items_for_std_sort(const item_t & a, const item_t & b) {
@@ -64,9 +70,9 @@ int main( int argc, char *argv[]) {
     argv += 3;
 
     macro_test_sort_driver(size, rep, set_item,
-                           "macro_sort (with_compare)", sort_items_with_compare,
-                           "std::sort (with_compare)", std_sort_with_compare,
-                           "qsort", quick_sort,
+                           "macro_sort (with compare)", sort_items_with_compare,
+                           "macro_sort (user compare)", sort_items_user_compare,
+                           "std::sort (with compare)", std_sort_with_compare,
                            less_no_arg, item_t, compare_items_for_macro_sort, argv, argc, c);
     return 0;
 }
