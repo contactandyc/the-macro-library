@@ -23,10 +23,10 @@ The pie charts show how one method compares to another.  Less is more.  A method
 ![macro_sort vs qsort](images/speed_test_final_1.png)
 
 The goal of macro_sort is to be equal to _or better than the std::sort and provide a C alternative to the C++ sort.  
-![macro_sort vs std::sort](images/speed_final_2.png)
+![macro_sort vs std::sort](images/speed_test_final_2.png)
 
 
-![macro_sort vs std::sort](images/speed_final_3.png)
+![macro_sort vs std::sort](images/speed_test_final_3.png)
 
 ```
 Sorting 1,000,000 items 100 times, each item is 20 bytes
