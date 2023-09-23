@@ -74,7 +74,7 @@ fig.text(0.5, 0.9, subtitle, ha='center', va='center', fontsize=16)
 plt.subplots_adjust(left=0.17, right=0.83, bottom=0.2, top=0.8)
 
 if len(sys.argv) > 2 and sys.argv[-2] == '-o':
-    plt.subplots_adjust(wspace=-0.5)  # adjust spacing
+    plt.subplots_adjust(wspace=-0.4)  # adjust spacing
     fig.savefig(sys.argv[-1], dpi=300, bbox_inches='tight')
 else:
     plt.show()
