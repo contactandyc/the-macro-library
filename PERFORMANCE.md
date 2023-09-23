@@ -49,11 +49,11 @@ Tests sorting data where all items are in reverse or descending order
 
 ## random
 
-This tests sorting data that is randomized.  For all random methods, the data is randomized differently for each time the array is repeated.  For example, if the array is 1 million items and repeated 100 times, the 100 arrays will have different random values. 
+This tests sorting data that is randomized.  Repetition only occurs as often as the rand() function repeats numbers.  For all random methods, the data is randomized differently for each time the array is repeated.  For example, if the array is 1 million items and repeated 100 times, the 100 arrays will have different random values. 
 
-## ascending_random
+## mixed
 
-This tests first sorting that is first sorted in an ascending fashion.  Next, the N random swaps are applied to the array where N is equal to 25% of the number of items.
+This tests first sorting that is first sorted in an ascending fashion.  Next, the N random swaps are applied to the array where N is equal to 25% of the number of items.  This has the effect of mixing up the array.
 
 ## rand_max
 
@@ -107,20 +107,46 @@ This compares the fastest version of macro_sort vs the fastest version of std::s
 ![Bar Graph](images/speed_test_final_bar.png)
 
 Comparing std::sort vs qsort
-![macro_sort vs qsort](images/speed_test_final_1.png)
+![macro_sort vs qsort](images/speed_test_final_2.png)
 
 Comparing macro_sort vs qsort
-![macro_sort vs qsort](images/speed_test_final_2.png)
+![macro_sort vs qsort](images/speed_test_final_1.png)
 
 Comparing macro_sort vs std::sort
 ![speed_test_final_3.png](images/speed_test_final_3.png)
 
 ## Takeaways
 
+### std::sort vs qsort
+std::sort is
+* ~1.7 times faster for most cases
+* Almost 5 times faster if data is reversed
+* 2 times faster when all items are equal
+
+### macro_sort vs std::sort
+
+macro_sort is
+* 1-2% less efficient when data is full random without much repetition
+* 10-15% more efficient when data is random but has significant repetition
+* 2.2 times faster for ascending, equal, and descending
+* 2-4% more efficient when data is all equal
+
+std::sort is also approximately 1.4 times slower when a user supplied compare function is used as opposed to using the less operator override.  macro_sort seems to only degrade in performance by a factor of about 5% or so.
+
+### macro_sort vs qsort
+macro_sort is
+* 1.6+ times faster for random cases
+* Almost 4 times faster if data is already sorted or equal
+* Almost 10 times faster if data is reversed
+* Twice as fast when all items are equal
+
+Summary:  qsort is significantly slower than macro_sort in all measures tested.
+
 * qsort is significantly less efficient than std::sort or macro_sort
   * macro_sort is almost 10 times faster than qsort for the descending case
-* macro_sort performs significantly better for the ascending and descending case
+* macro_sort performs significantly better for the ascending, equal, and descending case
 * macro_sort performs better than std::sort when the set is randomized, but has a lot of repeated values
+  * In other testing, I've found that this can go either way.
 * std::sort performs slightly better when the set is completely randomized without repeated values
 * macro_sort has similar performance with user defined compare functions and inlined compare functions
 * macro_sort has significantly better performance than std::sort when std::sort uses the extra compare function

@@ -136,7 +136,7 @@ typedef struct {
 */
 #define __macro_introsort_vars(type)                            \
     type *c, *d, *f, *lo, *mid, *hi;                            \
-    ssize_t left_n, right_n, tmp_n, delta, limit, elem_size;    \
+    ssize_t left_n, right_n, tmp_n, delta, elem_size;    \
     int depth_limit;                                            \
     __macro_introsort_stack_t stack[64];                        \
     __macro_introsort_stack_t *top = stack;                     \
@@ -151,6 +151,7 @@ typedef struct {
 #define __macro_introsort_code(style, type, cmp)                  \
     __macro_introsort_ivars(type);                                \
     if(n < 17) {                                                  \
+        macro_micro_check_reverse_on(style, type, cmp, base, n, a, b)  \
         macro_isort(style, type, cmp, base, n, e, a, b, tmp );    \
         return;                                                   \
     }                                                             \
@@ -159,7 +160,7 @@ typedef struct {
     macro_check_sorted(style, type, cmp,                          \
                        base, n,                                   \
                        lo, mid, hi,                               \
-                       limit, delta, tmp_n, a, b,                 \
+                       delta, a, b,                 \
                        find_pivot, partition)                     \
     return;                                                       \
 hi_mid_low:;                                                      \

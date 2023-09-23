@@ -2,7 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import csv
+import csv, sys
 from pprint import pprint
 
 # Set width of bar
@@ -45,4 +45,8 @@ plt.subplots_adjust(left=0.125, right=0.98, bottom=0.3, top=0.98)
 plt.legend()
 
 print('close plot to exit')
-plt.show()
+
+if len(sys.argv) > 2 and sys.argv[-2] == '-o':
+    plt.savefig(sys.argv[-1], dpi=300, bbox_inches='tight')
+else:
+    plt.show()

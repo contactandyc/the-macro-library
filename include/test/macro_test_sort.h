@@ -284,7 +284,7 @@ static const char *__macro_default_sorts[] = {
     "equal",
     "descending",
     "random",
-    "ascending_random",
+    "mixed",
     "rand_max",
     "rand_head",
     "rand_tail"
@@ -466,7 +466,8 @@ static inline void __macro_sort_write_plot_csv( size_t n, size_t elem_size, int 
             if(test_name[0] == '-') { printf( "%s\n", test_name+1); continue; }                    \
             const char *match_name = test_name;                                                    \
             if(match_name[0] == '*') match_name++;                                                 \
-            if(!strncmp(match_name, "ascending_random", sizeof("ascending_random")-1)) {      \
+            if(!strncmp(match_name, "mixed", sizeof("mixed")-1) ||   \
+               !strncmp(match_name, "ascending_random", sizeof("ascending_random")-1)) {      \
                 int seed = 12345;                                                                  \
                 int pct = 25;                                                                      \
                 int gap = 5;                                                                       \

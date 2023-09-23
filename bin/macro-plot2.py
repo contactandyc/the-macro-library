@@ -17,13 +17,15 @@ headers = [row[0] for row in data[1:]]
 
 plots_per_row = 4
 
+if len(types) < plots_per_row:
+    plots_per_row = len(types)
+
 rows = (int)(len(types) / plots_per_row)
 if len(types) % plots_per_row != 0:
     rows = rows + 1
 
-
 # plt.xlabel(xlabel, fontweight='bold', fontsize=15, loc='center')
-fig, axs = plt.subplots(rows, plots_per_row, figsize=(36, 9))
+fig, axs = plt.subplots(rows, plots_per_row, figsize=(36, 10))
 
 wedges = None
 
@@ -49,7 +51,6 @@ while pos < len(types):
     n = len(types) - pos
     if n > plots_per_row:
         n = plots_per_row
-
     for i in range(0, n):
         sizes = [float(row[pos + i + 1]) for row in data[1:]]
         if len(sys.argv) > 1 and sys.argv[1] == '1':
@@ -64,9 +65,16 @@ while pos < len(types):
     pos = pos + n
     row = row + 1
 
-fig.legend(wedges, labels, loc='center', fontsize=18)
-plt.suptitle(xlabel, fontweight='bold', fontsize=24)
+fig.legend(wedges, labels, loc='center', bbox_to_anchor=(0.5, 0.52), fontsize=17)
+if len(sys.argv) <= 2 or sys.argv[-2] != '-o':
+    plt.suptitle(xlabel, fontweight='bold', fontsize=24)
+
 subtitle = labels[0] + ' is ' + f"{(first_values[1]/first_values[0]):.2f} times faster than " + labels[1] + " for " + types[0]
 fig.text(0.5, 0.9, subtitle, ha='center', va='center', fontsize=16)
 plt.subplots_adjust(left=0.17, right=0.83, bottom=0.2, top=0.8)
-plt.show()
+
+if len(sys.argv) > 2 and sys.argv[-2] == '-o':
+    plt.subplots_adjust(hspace=0.05,wspace=-0.7)  # adjust spacing
+    fig.savefig(sys.argv[-1], dpi=300, bbox_inches='tight')
+else:
+    plt.show()

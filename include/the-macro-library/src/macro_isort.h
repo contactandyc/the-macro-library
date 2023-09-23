@@ -19,6 +19,40 @@ limitations under the License.
 
 #include "the-macro-library/macro_cmp.h"
 
+/* the micro_check_sorted can easily be enabled / disabled by switching from the
+    used case to the unused case.  descending is a bad case for insertion sort so
+    this is entirely optional */
+
+#define macro_micro_check_reverse_off(style, type, cmp, base, n, xp, yp)
+
+#define macro_micro_check_reverse_on(style, type, cmp, base, n, xp, yp)              \
+    if(n > 7) { \
+        xp = base;                                                              \
+        yp = xp+(n-1);                                                        \
+        if(macro_less(style, type, cmp, yp, xp )) {                           \
+            if(macro_less(style, type, cmp, xp, xp+2)) goto after_micro_check;         \
+            xp += 2;                                                  \
+            if(macro_less(style, type, cmp, xp, xp+2)) goto after_micro_check;         \
+            xp += 2;                                                  \
+            if(macro_less(style, type, cmp, xp, xp+2)) goto after_micro_check;         \
+            xp += 2;                                                  \
+            if(macro_less(style, type, cmp, xp, yp)) goto after_micro_check;         \
+            xp = yp;    \
+            while(xp > base) {                                                    \
+                if(macro_less(style, type, cmp, xp-1, xp)) goto after_micro_check;        \
+                xp--;                                                             \
+            }                                                                     \
+            while(xp < yp) {                                                  \
+                macro_swap(xp, yp);                                           \
+                xp++;                                                           \
+                yp--;                                                           \
+            }                                                                     \
+            return; \
+        } \
+    }   \
+    after_micro_check:;
+
+
 /*
     This macro defines an insertion sort algorithm for an array of elements
 
@@ -28,33 +62,9 @@ limitations under the License.
     * tmp is used internally and is an instance of type
 */
 
-#define macro_isort_reverse_check(style, type, cmp, base, n,                   \
-                                   ep, curp, p, tmp)    \
-    if(macro_less(style, type, cmp, ep-1, base)) { \
-        p = ep-1;   \
-        curp = base + 1; \
-        macro_swap(base, p); \
-        p--; \
-        while(curp < p && macro_less(style, type, cmp, p, curp)) { \
-            macro_swap(curp, p); \
-            p--; \
-            curp++; \
-        }   \
-    }
-
-#define macro_isort_reverse_check2(style, type, cmp, base, n,                   \
-                                   ep, curp, p, tmp)    \
-    if(macro_less(style, type, cmp, ep-1, base)) { \
-        macro_swap(base, ep-1); \
-    }
-
-#define macro_isort_reverse_check3(style, type, cmp, base, n,                   \
-                                   ep, curp, p, tmp)
-
 #define macro_isort(style, type, cmp, base, n,                   \
                     ep, curp, p, tmp)                            \
     ep = base + n;                                               \
-    macro_isort_reverse_check3(style, type, cmp, base, n, ep, curp, p, tmp)    \
     curp = base + 1;                                             \
     while (curp < ep) {                                          \
         tmp = *curp;                                             \
