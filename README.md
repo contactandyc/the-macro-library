@@ -5,19 +5,19 @@ macro_sort is an improvement over qsort in a few respects.
 * It provides type checking similar to C++'s std::sort
 * Types and compare functions can be inlined
 * Support exists for a wide variety of compare techniques
-* 400% faster for the ordered cases
+* 400% faster for ordered cases
 * 900% faster for the reverse case
-* 170% faster for the random cases
+* 170% faster for random cases
 
 It also performs well when stacked up against std::sort
-* 230% faster for the ordered cases
+* 230% faster for ordered cases
 * 200% faster for the reverse case
-* 98.7% (slightly slower) for the random cases
+* 98.7% (slightly slower) for random cases
 
 macro_sort performs better when compared against std::sort with a dynamically supplied compare function
-* 300% faster for the ordered cases
+* 300% faster for ordered cases
 * 270% faster for the reverse case
-* 130% faster for the random cases
+* 130% faster for random cases
 
 See [Performance](PERFORMANCE.md) for more details on the performance of `macro_sort`
 
