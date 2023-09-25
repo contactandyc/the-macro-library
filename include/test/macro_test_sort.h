@@ -283,11 +283,11 @@ static const char *__macro_default_sorts[] = {
     "ascending",
     "equal",
     "descending",
-    "random",
-    "mixed",
     "rand_max",
     "rand_head",
-    "rand_tail"
+    "rand_tail",
+    "mixed",
+    "random",
 };
 
 /* from chatgpt */

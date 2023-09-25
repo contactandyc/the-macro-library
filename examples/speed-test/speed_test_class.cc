@@ -82,9 +82,9 @@ int main( int argc, char *argv[]) {
     argv += 3;
 
     macro_test_sort_driver(size, rep, set_item,
-                           "macro_sort (with compare)", sort_items_with_compare,
+                           "macro_sort (inline compare)", sort_items_with_compare,
                            "std::sort", std_sort,
-                           "std::sort (with compare)", std_sort_with_compare,
+                           "std::sort (user compare)", std_sort_with_compare,
                            less_no_arg, item_t, compare_items_for_macro_sort, argv, argc, cc);
     return 0;
 }

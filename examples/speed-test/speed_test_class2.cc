@@ -85,7 +85,7 @@ int main( int argc, char *argv[]) {
 
     macro_test_sort_driver(size, rep, set_item,
                            "macro_sort", sort_items,
-                           "macro_sort (with compare)", sort_items_with_compare,
+                           "macro_sort (user compare)", sort_items_with_compare,
                            "std::sort", std_sort,
                            less, item_t, not_used, argv, argc, cc);
     return 0;

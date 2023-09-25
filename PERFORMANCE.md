@@ -1,210 +1,296 @@
-## A comparison of macro_sort vs std::sort vs qsort
-A comparison of this sort to qsort and std::sort follows.
+# macro_sort
+A C alternative to qsort that is similar to C++'s std::sort
 
-std::sort is almost twice as fast as qsort in most measures and is over 5x faster than qsort when data is descending in many tests.  
+macro_sort is an improvement over qsort in a few respects.
+* It provides type checking similar to C++'s std::sort
+* Types and compare functions can be inlined
+* Support exists for a wide variety of compare techniques
 
-std::sort achieves superior performance by
-* inlining the comparison
-* inlining the type (instead of working directly with bytes)
+To make macro_sort a viable alternative to qsort, it needs to be faster than qsort.  The following chart shows that macro_sort is much faster.
+![macro_sort vs qsort](images/speed_test_final_ms_qs.png)
 
-It also has better `safety` as the qsort works with void pointers instead of type based arrays.  Additionally, qsort expects the compare function to have two void pointers.  std::sort expects the compare function to reference the actual types.
+The macro library is meant to be easy to use.  See the [README](README.md) for more details
 
-std::sort uses introsort, a combination of quick sort, insertion sort, and heap sort to ensure performance and prevent worst case scenarios.  Some implementations use the Dutch National Flag algorithm which partitions arrays into a left (less than), right (greater than), and pivot (equal).  The Dutch National Flag algorithm differs from others in as much as the pivot is an array of all equal values as opposed to a single value and the left hand side contains all values less than as opposed to all values less than or equal.
+C++'s std::sort is an efficient alternative to C's qsort, except that it requires the adoption of C++.  macro_sort uses the `#define` keyword much like C++ uses `template`.  My goal in making `macro_sort` was to match the performance of `std::sort` or come close to it.
 
-This document has a series of bar graphs which will compare 3 sort types listed in the legend on the upper right corner.  The legends are color coded.
+The following chart show that std::sort and macro_sort are nearly equivalent from a performance perspective for random data.  In the first chart, macro_sort is `98.7%` as fast as std::sort for randomly ordered data.  However, macro_sort is over twice as fast for the ordered and reversed cases. 
+![macro_sort vs std::sort](images/speed_test_final_ms_ss.png)
 
-A sample legend
+`std::sort` takes the form of `std::sort(items, num_items)` where the items must be comparable either by overriding the less operator or using it directly if the item type is a base type.  `std::sort` also has a form which takes a compare function.  `macro_sort` can also take a compare function.
+![macro_sort vs std::sort](images/speed_test2_mu_su.png)
 
-![Sample Legend](images/sample_legend.png)
+In this case, `macro_sort` is `130%` faster than `std::sort` for the random case and approximately 3 times faster for all other cases!  I'm not 100% sure why this is the case and am still investigating why the random case is so much faster for `macro_sort`.  However, the ordered and reversed cases are significantly more efficient in both cases due to an algorithm twist that I created.
 
-The bar graph makes it easy to see how the 3 sort types stack up against each other.
+# Exploiting the median of 3 pivot selection
 
-A sample of the bar graph 
+The approach that most quick sort implementations choose when implementing the partition portion of the algorithm is to use either the median of the first, mid, and last points in an array.  If the set is large enough, then the median of 9 is taken (also known as ninther).  In addition, to implement introsort (invented by [David Musser](https://en.wikipedia.org/wiki/Introsort) in 1997) will begin first by choosing a maxdepth and when the recursion or stack has reached maxdepth, heapsort is chosen instead of quicksort.  The algorithm looks like this
 
-![Sample Bar Graph](images/sample_bar.png)
+[introsort](https://en.wikipedia.org/wiki/Introsort) - with a bit more detail
+```pseudocode
+procedure sort(A : array):
+    maxdepth ← ⌊log2(length(A))⌋ × 2
+    introsort(A, maxdepth)
 
-To test sort, there are a number of tests where arrays are pre-ordered before sorting.  
-
-The bar graph has a caption at the bottom indicating
-
-* number of items being sorted
-* number of times the sort is repeated (if it is repeated more than once)
-* the size of each item in bytes
-
-In all cases, the tests for each sort algorithm use identical sets.  For example, the random array presents the same array of random values to std::sort, macro_sort, and qsort. 
-
-The tests shown in the graphs are below.
-
-## ascending
-
-Tests sorting data that is already sorted
-
-## equal
-
-Tests sorting data where all items are equal
-
-## descending
-
-Tests sorting data where all items are in reverse or descending order
-
-## random
-
-This tests sorting data that is randomized.  Repetition only occurs as often as the rand() function repeats numbers.  For all random methods, the data is randomized differently for each time the array is repeated.  For example, if the array is 1 million items and repeated 100 times, the 100 arrays will have different random values. 
-
-## mixed
-
-This tests first sorting that is first sorted in an ascending fashion.  Next, the N random swaps are applied to the array where N is equal to 25% of the number of items.  This has the effect of mixing up the array.
-
-## rand_max
-
-This tests random values between 0 and 99.
-
-## rand_head
-
-This tests random values in the first 25% of the array and the rest of the array being sorted.
-
-## rand_tail
-
-This tests random values in the last 25% of the array and the rest of the array being sorted.
-
-In addition to the bar graph, I've added pie charts to aid in side-by-side comparisons.  Less is more and having a percentage below 50% means that an algorithm is faster than the other algorithm.  Dividing the higher percentage by the lower percentage provides an indication of how many times faster the algorithm with the smaller percentage is than the algorithm with the higher percentage.  For example,
-
-![Sample Pie Chart](images/sample_pie.png)
-
-The pie chart above shows that for ascending the blue color is (63.3/36.7) or 1.72 times faster than the red color.  The margin of error for these graphs is around 1%.
-
-
-For each test, I've indicated how to repeat the test.  To build the tests, follow the instructions for setting up the python environment and running `make` in the [README.md](README.md).  `make install` is not necessary.
-
-From the root of the repo
-```bash
-cd build/examples/speed-test
-make
+procedure pivot(A):
+    return A[some_point]
+    
+procedure partition(A, p):
+    // place all values that are equal to p in the middle
+    // put all values less than p to the left and greater to the right    
+    return A[all values < p], A[all values > p]
+        
+procedure introsort(A, maxdepth):
+    n ← length(A)
+    if n < 16:
+        insertionsort(A)
+    else if maxdepth = 0:
+        heapsort(A)
+    else:
+        p ← pivot(A)
+        left, right := partition(A, p)
+        introsort(left, maxdepth - 1)
+        introsort(right, maxdepth - 1)
 ```
 
-The programs first parameter is the number of items in an array to be sorted and the number of times to repeat the sort.  This allocates (the number of items) X (the number of reps) X (the size of each item) X 2 bytes to run.  My laptop is a 2020 MacBook Pro with 32G of RAM.
+`macro_sort` proposes to do the following at a high level
 
-```bash
-./speed_test_final 1000000 100
+```pseudocode
+procedure sort(A : array):
+    if n < 16:
+        insertionsort(A)
+        return
+    p ← checksort(A):
+    if not p:
+        return    
+    maxdepth ← ⌊log2(length(A))⌋ × 2
+    left, right := partition(A, p)    
+    introsort(left, maxdepth - 1)
+    introsort(right, maxdepth - 1)
+
+procedure checksort(A):
+    // explained next
+    return p
+
+procedure pivot(A):
+    return A[some_point]
+   
+procedure partition(A, p):
+    // place all values that are equal to p in the middle
+    // put all values less than p to the left and greater to the right    
+    return A[all values < p], A[all values > p]
+
+procedure introsort(A, maxdepth):
+    n ← length(A)
+    if n < 16:
+        insertionsort(A)
+    else if maxdepth = 0:
+        heapsort(A)
+    else:
+        p ← pivot(A)
+        left, right := partition(A, p)
+        introsort(left, maxdepth - 1)
+        introsort(right, maxdepth - 1)
 ```
 
-After running the various speed_test programs, `macro-plot` can be run to generate `matplotlib` graphs in python.  
+If `checksort` finds the array `A` sorted or all equal, it will conceptually return a _nil_ pivot and the sort is then complete.  If the array is reversed, it will reverse the array and return the _nil_ pivot ending the sort.  Otherwise, it will return the pivot point and continue to partition.  `checksort` is only called once at the beginning of the sort.
 
-* `macro-plot.py` - creates a bar graph comparing 3 sorts.  
-* `macro-plot2.py` - creates a series of pie charts comparing the first 2 sorts.  
-* `macro-plot2.py 1` - creates a series of pie charts comparing the first and last sort.
-* `macro-plot2.py 2` - creates a series of pie charts comparing the second and last sort.
+Pivot often chooses the median of the lo, mid, and hi values in the array as the pivot.
 
-```bash
-macro-plot.py
-macro-plot2.py 1
-macro-plot2.py 2
-macro-plot2.py
+```pseudocode
+procedure pivot(A):
+    lo := A
+    hi := A + len(A) - 1
+    mid := ⌊(lo + hi) / 2⌋
+    if A[mid] < A[lo]
+        swap A[lo] with A[mid]
+    if A[hi] < A[lo]
+        swap A[lo] with A[hi]
+    if A[mid] < A[hi]
+        swap A[mid] with A[hi]
+    return A[hi]
 ```
 
-This compares the fastest version of macro_sort vs the fastest version of std::sort vs qsort.
+The idea behind `checksort` is to do this comparison differently.  Initially, compare the lo and hi.  If the `lo <= hi`, then the array is possibly ascending or all equal.  If `lo > hi`, then the array is possibly descending.
 
-![Bar Graph](images/speed_test_final_bar.png)
-
-Comparing std::sort vs qsort
-![macro_sort vs qsort](images/speed_test_final_2.png)
-
-Comparing macro_sort vs qsort
-![macro_sort vs qsort](images/speed_test_final_1.png)
-
-Comparing macro_sort vs std::sort
-![speed_test_final_3.png](images/speed_test_final_3.png)
-
-## Takeaways
-
-### std::sort vs qsort
-std::sort is
-* ~1.7 times faster for most cases
-* Almost 5 times faster if data is reversed
-* 2 times faster when all items are equal
-
-### macro_sort vs std::sort
-
-macro_sort is
-* 1-2% less efficient when data is full random without much repetition
-* 10-15% more efficient when data is random but has significant repetition
-* 2.2 times faster for ascending, equal, and descending
-* 2-4% more efficient when data is all equal
-
-std::sort is also approximately 1.4 times slower when a user supplied compare function is used as opposed to using the less operator override.  macro_sort seems to only degrade in performance by a factor of about 5% or so.
-
-### macro_sort vs qsort
-macro_sort is
-* 1.6+ times faster for random cases
-* Almost 4 times faster if data is already sorted or equal
-* Almost 10 times faster if data is reversed
-* Twice as fast when all items are equal
-
-Summary:  qsort is significantly slower than macro_sort in all measures tested.
-
-* qsort is significantly less efficient than std::sort or macro_sort
-  * macro_sort is almost 10 times faster than qsort for the descending case
-* macro_sort performs significantly better for the ascending, equal, and descending case
-* macro_sort performs better than std::sort when the set is randomized, but has a lot of repeated values
-  * In other testing, I've found that this can go either way.
-* std::sort performs slightly better when the set is completely randomized without repeated values
-* macro_sort has similar performance with user defined compare functions and inlined compare functions
-* macro_sort has significantly better performance than std::sort when std::sort uses the extra compare function
-
-Macro_sort provides a viable alternative to std::sort for C and C++ programming.  Overall, macro_sort's approach to ascending and descending should be adopted by std::sort.
-
-Comparing macro_sort with a user provided function that is inlined into the sort vs std::sort with a user provided sort and C's qsort.  Both qsort and std::sort perform much worse than macro_sort. 
-```bash
-./speed_test 1000000 100
-macro-plot.py
-macro-plot2.py 1
-macro-plot2.py
+```pseudocode
+procedure checksort(A):
+    lo := A
+    hi := A + len(A) - 1
+    if A[lo] <= A[hi]:
+        // possibly ascending or equal        
+    else:
+        // possibly descending
 ```
 
-![Bar Graph](images/speed_test_bar.png)
-![macro_sort vs qsort](images/speed_test_1.png)
-![macro_sort vs std::sort](images/speed_test_2.png)
+Next, continue with the first case and check a point `a` between `lo` and `hi`.  
 
-One reason that macro_sort likely outperforms the std::sort function is because the compare method isn't being inlined since it is being passed as an argument to std::sort.  macro_sort supports creating functions which expect user provided functions.  The test below compares macro_sort with the user function inlined vs being passed as an argument vs std::sort.  There is almost no difference between the two versions of macro_sort in this test.
-```bash
-./speed_test2 1000000 100
-macro-plot.py
-macro-plot2.py
+```pseudocode
+procedure checksort(A):
+    lo := A
+    hi := A + len(A) - 1
+    if A[lo] <= A[hi]:
+        mid := ⌊(lo + hi) / 2⌋
+        if A[lo] > A[mid]:
+            return A[lo]
+        elif A[hi] < A[mid]:
+            return A[hi]
+        // next: continue checking if sorted
+    else:
+        // possibly descending
 ```
 
-![Bar Graph](images/speed_test2_bar.png)
-![macro_sort vs qsort](images/speed_test2_1.png)
+If the tests do not get to the `next: continue checking if sorted` comment, the array is not sorted.  Otherwise, continue to check a few more points in between.  For example, consider checking the first, 1/4, 1/2, 3/4, last.
 
-macro_sort with compare inlined vs std::sort with the less operator defined vs a user provided compare function.  The less operator shows significant improvement over the user provided comparison function.  It also slightly outperforms macro_sort on the random measure.  However, macro_sort performs much better for ascending and descending.
-
-```bash
-./speed_test_class 1000000 100 
-macro-plot.py
-macro-plot2.py
+```pseudocode
+    delta := (lo + hi) / 4
+    a := lo
+    if A[a+delta] < A[a]: // if 1/4 < lo), then out of order
+        return A[mid]
+    a += delta
+    if A[a+delta] < A[a]: // if 1/2 < 1/4, then out of order
+        return A[mid]
+    a += delta
+    if A[a+delta] < A[a]: // if 3/4 < 1/2, then out of order
+        return A[mid]
+    a += delta
+    if A[hi] < A[a]:    // if hi < 3/4, then out of order
+        return A[mid]
 ```
 
-![Bar Graph](images/speed_test_class_bar.png)
-![macro_sort vs std::sort](images/speed_test_class_1.png)
-![std::sort vs std::sort](images/speed_test_class_2.png)
-
-Comparing macro_sort using the less operator vs the user specified inlined compare function.  There is a very slight improvement in performance.
-```bash
-./speed_test_class2 1000000 100 
-macro-plot.py
-macro-plot2.py
+At this point, the set is far more likely to be sorted than not, so compare all elements and if all are in order, return _nil_.
+```pseudocode
+    while lo < hi:
+        if A[lo+1] < A[lo]:
+            return A[mid]
+        lo = lo + 1
+    return nil
 ```
 
-![Bar Graph](images/speed_test_class2_bar.png)
-![macro_sort vs macro_sort](images/speed_test_class2_1.png)
-![speed_test_class2_2.png](images%2Fspeed_test_class2_2.png)
+Reverse works in the same way only having everything reversed and at the end, swap all elements using the classic reverse algorithm.
 
-Finally, the larger the item size, the less the difference between the algorithms.  There is still a notable difference for the ascending and descending cases.
+# Understanding the math behind the comparisons and to know how many to choose.
 
-```bash
-./speed_test_class3 1000000 100 
-macro-plot.py
-macro-plot2.py
+In the pseudocode above, 7 comparisons must be satisfied before testing the whole array.
+* lo <= hi
+* lo <= mid
+* mid <= hi
+* lo <= lo+1/4
+* 1/4 <= 1/2
+* 1/2 <= 3/4
+* 3/4 <= hi
+
+One issue that can occur is that after these 7 comparisons, the array could still be out of order.  In this case, it is possible to scan nearly the entire array before recognizing the out of order item.  On the other hand, if too many comparisons are performed in the pre-test, that can also get more expensive.  It is helpful to understand the math behind all of this to inform the decision.
+
+Ideally, one would want to answer the following questions.
+
+* How many possible arrays can be created?
+* What is the probability of the array being out of order after N comparisons?
+* How does the range of values effect this probability?
+
+
+## How many possible arrays can be created?
+The number of possible arrays is the range^(length of the array).  For example, if the range of each item is 10 (0..9) and the array is 3 in length, then the number of possible arrays is 10^3 or 1,000.
+
+## What is the probability of the array being out of order after N comparisons?
+
+The [binomial coefficient](https://en.wikipedia.org/wiki/Binomial_coefficient) can be used to answer how many possible combinations exist where all items in the array are ordered (less than or equal)
+
+![combination](images/combination.png)
+
+* `n` is the number of different values each item can take.
+* `k` is the length of the array.
+
+For example, if the range of each item is 10 (0..9), and the array is 3 in length, then for the top part of the binomial coefficient is n + k - 1 or 10 + 3 - 1 or 12 and the bottom part is k or 3.  This becomes 12 choose 3 which can be evaluated using 
+
+The binomial coefficient can be written as
+
+![a choose b](images/a_choose_b.png)
+
 ```
-![Bar Graph](images/speed_test_class3_bar.png)
-![macro_sort vs std::sort](images/speed_test_class3_1.png)
-![macro_sort vs std::sort](images/speed_test_class3_2.png)
+     a!
+-------------
+b! * (a - b)!
+```
+
+or
+
+![12 choose 3](images/12_choose_3.png)
+
+```
+     12!
+-------------
+3! * (12 - 3)!
+```
+
+or 
+
+```
+     12!
+-------------
+    3! * 9!
+```
+
+or
+
+```
+12 * 11 * 10 * 9!
+-----------------
+   3! * 9!
+```
+
+or 
+
+```
+12 * 11 * 10
+------------
+ 3 * 2 * 1
+```
+
+or
+
+```
+220
+```
+
+This means that there are 220 combinations of 3 digits where the `1st digit <= 2nd digit <= 3rd digit`.
+
+To find the number of combinations of 3 digits which are <= + >, double the combination and subtract `n` (or 10).
+
+The number of combinations which are <= or >= 
+```
+220 + 220 - 10 = 430
+```
+
+So with the 3 tests, the probability of being in order or reversed is 430/1000 or 0.43
+
+In the pseudocode above, 7 comparisons are made, so the probability should be ((16 choose 7) * 2 - 10).
+
+![16 choose 7](images/16_choose_7.png)
+
+```
+11440 * 2 - 10 = 22870
+```
+
+So with 7 comparisons, the probability is `22,870/10^7` or 0.002287.
+
+The odds of the 7 comparisons all evaluating to true is around 1/5th of a percent if the items being sorted have 10 possible values.  This is why the `checksort` works.  It rapidly determines if the set is not sorted instead of comparing from the beginning to the end to see if it is not.  
+
+## How does the range of values effect this probability?
+
+![5 choose 3](images/5_choose_3.png)
+
+![12 choose 3](images/12_choose_3_prob.png)
+
+![102 choose 3](images/102_choose_3.png)
+
+![1002 choose 3](images/1002_choose_3.png)
+
+As the range increases, the final probability approaches 1/6th.  To include the reverse case, double it making it 1/3rd.  The equal case is insignificant.  Hopefully it is clear from the above numbers that it is likely that whatever values are being sorted are going to be close to the limit of the function.
+
+The limit can calculated as 1/k! where k is the number of items in the array.  For example, 3 would be 1/3! or 1/6, 7 would be 1/7! or 0.000198.
+
+## Summary
+
+The likelihood or probability of `k` random items being order (<=) is `1/k!`
+
+If the array being sorted is large, then it makes sense to do a few extra comparisons as each comparison dramatically reduces the odds that an array would `not` be sorted after passing all of them.
