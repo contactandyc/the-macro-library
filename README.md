@@ -14,7 +14,7 @@ It also performs well when stacked up against std::sort
 * 200% faster for the reverse case
 * 98.7% (slightly slower) for the random cases
 
-However, when comparing the macro_sort and std::sort with a dynamically supplied compare function, macro_sort is
+macro_sort performs better when compared against std::sort with a dynamically supplied compare function
 * 300% faster for the ordered cases
 * 270% faster for the reverse case
 * 130% faster for the random cases
