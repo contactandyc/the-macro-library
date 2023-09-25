@@ -21,8 +21,13 @@ However, when comparing the macro_sort and std::sort with a dynamically supplied
 
 See [Performance](PERFORMANCE.md) for more details on the performance of `macro_sort`
 
+macro_sort vs qsort
 ![macro_sort vs qsort](images/speed_test_final_ms_qs.png)
+
+macro_sort vs std::sort
 ![macro_sort vs std::sort](images/speed_test_final_ms_ss.png)
+
+macro_sort vs std::sort with a dynamically supplied compare function
 ![macro_sort vs std::sort](images/speed_test2_mu_su.png)
 
 ## What's included

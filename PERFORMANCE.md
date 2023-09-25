@@ -19,20 +19,16 @@ However, when comparing the macro_sort and std::sort with a dynamically supplied
 * 270% faster for the reverse case
 * 130% faster for the random cases
 
-To make macro_sort a viable alternative to qsort, it needs to be faster than qsort.  The following chart shows that macro_sort is much faster.
-![macro_sort vs qsort](images/speed_test_final_ms_qs.png)
-
 The macro library is meant to be easy to use.  See the [README](README.md) for more details
 
-C++'s std::sort is an efficient alternative to C's qsort, except that it requires the adoption of C++.  macro_sort uses the `#define` keyword much like C++ uses `template`.  My goal in making `macro_sort` was to match the performance of `std::sort` or come close to it.
+macro_sort vs qsort
+![macro_sort vs qsort](images/speed_test_final_ms_qs.png)
 
-The following chart show that std::sort and macro_sort are nearly equivalent from a performance perspective for random data.  In the first chart, macro_sort is `98.7%` as fast as std::sort for randomly ordered data.  However, macro_sort is over twice as fast for the ordered and reversed cases. 
+macro_sort vs std::sort
 ![macro_sort vs std::sort](images/speed_test_final_ms_ss.png)
 
-`std::sort` takes the form of `std::sort(items, num_items)` where the items must be comparable either by overriding the less operator or using it directly if the item type is a base type.  `std::sort` also has a form which takes a compare function.  `macro_sort` can also take a compare function.
+macro_sort vs std::sort with a dynamically supplied compare function
 ![macro_sort vs std::sort](images/speed_test2_mu_su.png)
-
-In this case, `macro_sort` is `130%` faster than `std::sort` for the random case and approximately 3 times faster for all other cases!  I'm not 100% sure why this is the case and am still investigating why the random case is so much faster for `macro_sort`.  However, the ordered and reversed cases are significantly more efficient in both cases due to an algorithm twist that I created.
 
 # Exploiting the median of 3 pivot selection
 
