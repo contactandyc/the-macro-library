@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "the-macro-library/macro_cmp.h"
 
-/*  
+/*
     The basic idea with this is to quickly exit if a set is not sorted to one 
     of the goto channels (find_mid or mid_found).  In order for the set to be
     sorted in ascending order, lo <= mid <= hi must be satisfied.  If this is
@@ -27,7 +27,11 @@ limitations under the License.
     lo >= mid >= hi, then the same idea can be used to find if the set is 
     reversed.  If it is reversed, this will reverse the array in place.
 
-    This should only be called if there are > 9 elements
+    This should only be called if there are > 8 elements (16 is better).
+
+    There are more pre-comparisons for larger sets as the larger sets are a more expensive hit if they happen
+    to seem sorted.
+
     style, type, cmp are used for macro_less
     base - array of n elements
     r_lo, r_mid, r_hi are values that are set.  find_mid and mid_found are labels to
@@ -35,7 +39,7 @@ limitations under the License.
     it will goto find_mid.  If the set is sorted, this macro will fall-through
 
     temporary variables that are needed are...
-    limit, delta, i should be of type size_t
+    delta, i should be of type size_t
     a, and b should be of type*
     
     note: the major if/else statement reflect the inverse of each other.  It is 
@@ -46,44 +50,12 @@ limitations under the License.
 #define macro_check_sorted(style, type, cmp,                                  \
                            base, n,                                           \
                            r_lo, r_mid, r_hi,                                 \
-                           limit, delta, i, xp, yp,                           \
+                           delta, xp, yp,                           \
                            find_mid, mid_found)                               \
     r_lo = base;                                                              \
     r_mid = r_lo + (n >> 1);                                                  \
     r_hi = r_lo+(n-1);                                                        \
-    if(macro_less(style, type, cmp, r_lo, r_hi )) {                           \
-        if(macro_less(style, type, cmp, r_hi, r_mid)) {                       \
-            r_mid = r_hi;                                                     \
-            goto find_mid;                                                    \
-        }                                                                     \
-        if(macro_less(style, type, cmp, r_mid, r_lo)) {                       \
-            r_mid = r_lo;                                                     \
-            goto find_mid;                                                    \
-        }                                                                     \
-        limit = n < 40 ? 8 : (n < 1000 ? 12 : (n < 1000000 ? 14 : 16));       \
-        delta = (n / limit) ;                                                 \
-        xp = r_lo;                                                            \
-        if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
-        xp = r_mid;                                                           \
-        if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
-        if(macro_less(style, type, cmp, xp, xp-delta)) goto find_mid;         \
-        xp = r_hi;                                                            \
-        if(macro_less(style, type, cmp, xp, xp-delta)) goto find_mid;         \
-        xp = r_lo;                                                            \
-        yp = r_mid;                                                           \
-        limit = (limit>>1)-2;                                                 \
-        for( i=0; i<limit; i++ ) {                                            \
-            xp += delta;                                                      \
-            yp += delta;                                                      \
-            if(macro_less(style, type, cmp, xp+delta, xp)) goto mid_found;    \
-            if(macro_less(style, type, cmp, yp+delta, yp)) goto mid_found;    \
-        }                                                                     \
-        xp = r_lo;                                                            \
-        while(xp < r_hi) {                                                    \
-            if(macro_less(style, type, cmp, xp+1, xp)) goto mid_found;        \
-            xp++;                                                             \
-        }                                                                     \
-    } else {                                                                  \
+    if(macro_less(style, type, cmp, r_hi, r_lo )) {                           \
         if(macro_less(style, type, cmp, r_lo, r_mid)) {                       \
             r_mid = r_lo;                                                     \
             goto find_mid;                                                    \
@@ -92,23 +64,49 @@ limitations under the License.
             r_mid = r_hi;                                                     \
             goto find_mid;                                                    \
         }                                                                     \
-        limit = n < 40 ? 8 : (n < 1000 ? 10 : (n < 1000000 ? 14 : 18));       \
-        delta = (n / limit);                                                  \
-        xp = r_hi;                                                            \
-        if(macro_less(style, type, cmp, xp-delta, xp)) goto find_mid;         \
-        xp = r_mid;                                                           \
-        if(macro_less(style, type, cmp, xp-delta, xp)) goto find_mid;         \
-        if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
-        xp = r_lo;                                                            \
-        if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
-        yp = r_mid;                                                           \
-        limit = (limit>>1)-2;                                                 \
-        for( i=0; i<limit; i++ ) {                                            \
-            xp += delta;                                                      \
-            yp += delta;                                                      \
-            if(macro_less(style, type, cmp, xp, xp+delta)) goto mid_found;    \
-            if(macro_less(style, type, cmp, yp, yp+delta)) goto mid_found;    \
-        }                                                                     \
+        if(n < 32) { \
+            delta = (n >> 2);                                                  \
+            xp = r_lo;                                                            \
+            if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
+            xp += delta;                                                  \
+            yp = r_hi; \
+            if(macro_less(style, type, cmp, yp-delta, yp)) goto find_mid;         \
+            yp -= delta; \
+            if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
+            if(macro_less(style, type, cmp, yp-delta, yp)) goto find_mid;         \
+        } else if(n < 256) { \
+            delta = (n >> 3);                                                  \
+            xp = r_lo;                                                            \
+            if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
+            xp += delta;                                                  \
+            yp = r_hi; \
+            if(macro_less(style, type, cmp, yp-delta, yp)) goto find_mid;         \
+            yp -= delta; \
+            if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
+            xp += delta;                                                  \
+            if(macro_less(style, type, cmp, yp-delta, yp)) goto find_mid;         \
+            yp -= delta; \
+            if(macro_less(style, type, cmp, yp-delta, yp)) goto find_mid;         \
+            if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
+        } else { \
+            delta = (n >> 4);                                                  \
+            xp = r_lo;                                                            \
+            if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
+            xp += (delta<<1);                                                  \
+            yp = r_hi; \
+            if(macro_less(style, type, cmp, yp-delta, yp)) goto find_mid;         \
+            yp -= (delta<<1); \
+            if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
+            xp += (delta<<1);                                                  \
+            if(macro_less(style, type, cmp, yp-delta, yp)) goto find_mid;         \
+            yp -= (delta<<1); \
+            if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
+            xp += (delta<<1);                                                  \
+            if(macro_less(style, type, cmp, yp-delta, yp)) goto find_mid;         \
+            yp -= (delta<<1); \
+            if(macro_less(style, type, cmp, xp, xp+delta)) goto find_mid;         \
+            if(macro_less(style, type, cmp, yp-delta, yp)) goto find_mid;         \
+        } \
         xp = r_hi;                                                            \
         while(xp > r_lo) {                                                    \
             if(macro_less(style, type, cmp, xp-1, xp)) goto mid_found;        \
@@ -118,6 +116,63 @@ limitations under the License.
             macro_swap(r_lo, r_hi);                                           \
             r_lo++;                                                           \
             r_hi--;                                                           \
+        }                                                                     \
+    } else {                                                                  \
+        if(macro_less(style, type, cmp, r_hi, r_mid)) {                       \
+            r_mid = r_hi;                                                     \
+            goto find_mid;                                                    \
+        }                                                                     \
+        if(macro_less(style, type, cmp, r_mid, r_lo)) {                       \
+            r_mid = r_lo;                                                     \
+            goto find_mid;                                                    \
+        }                                                                     \
+        if(n < 32) { \
+            delta = n >> 2;                                                 \
+            xp = r_lo;                                                            \
+            if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
+            xp += delta;                                                  \
+            yp = r_hi; \
+            if(macro_less(style, type, cmp, yp, yp-delta)) goto find_mid;         \
+            yp -= delta; \
+            if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
+            if(macro_less(style, type, cmp, yp, yp-delta)) goto find_mid;         \
+        } else if(n < 256) { \
+            delta = n >> 3;                                                 \
+            xp = r_lo;                                                            \
+            if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
+            xp += delta;                                                  \
+            yp = r_hi; \
+            if(macro_less(style, type, cmp, yp, yp-delta)) goto find_mid;         \
+            yp -= delta; \
+            if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
+            xp += delta;                                                  \
+            if(macro_less(style, type, cmp, yp, yp-delta)) goto find_mid;         \
+            yp -= delta; \
+            if(macro_less(style, type, cmp, yp, yp-delta)) goto find_mid;         \
+            if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
+        } else { \
+            delta = n >> 4;                                                 \
+            xp = r_lo;                                                            \
+            if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
+            xp += (delta<<1);                                                  \
+            yp = r_hi; \
+            if(macro_less(style, type, cmp, yp, yp-delta)) goto find_mid;         \
+            yp -= (delta<<1); \
+            if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
+            xp += (delta<<1);                                                  \
+            if(macro_less(style, type, cmp, yp, yp-delta)) goto find_mid;         \
+            yp -= (delta<<1); \
+            if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
+            xp += (delta<<1);                                                  \
+            if(macro_less(style, type, cmp, yp, yp-delta)) goto find_mid;         \
+            yp -= (delta<<1); \
+            if(macro_less(style, type, cmp, xp+delta, xp)) goto find_mid;         \
+            if(macro_less(style, type, cmp, yp, yp-delta)) goto find_mid;         \
+        } \
+        xp = r_lo;                                                            \
+        while(xp < r_hi) {                                                    \
+            if(macro_less(style, type, cmp, xp+1, xp)) goto mid_found;        \
+            xp++;                                                             \
         }                                                                     \
     }
 

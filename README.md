@@ -1,7 +1,9 @@
 # the-macro-library
-The macro_sort performs significantly better than qsort and better than std::sort.  This test was run on a MacBook Pro 2020 2.3 GHz Quad-Core Intel Core i7 with 32 GB 3733 MHz LPDDR4X RAM.
+The macro library attempts to match the performance of C++ in C.  macro_sort performs significantly better than C++ in some cases and in others is roughly comparable.  In particular, macro_sort significantly outperforms std::sort when the items are presorted or reversed.  There are also some cases where it is able to outperform std::sort across the board.
 
-![Speed Comparison](images/BarChart.png)
+![macro_sort vs qsort](images/speed_test_final_ms_qs.png)
+
+See [Performance](PERFORMANCE.md) for more details on the performance of `macro_sort`
 
 ## What's included
 
@@ -15,15 +17,14 @@ I welcome suggestions and plan to have more soon!
 
 ## Installation
 
+### Clone the library and change to the directory
+
 ```bash
-mkdir -p build
-cd build
-cmake ..
-make
-make install
+git clone https://github.com/contactandyc/the-macro-library.git
+cd the-macro-library
 ```
 
-To use the python utilities
+### Setup python environment
 
 Mac OS X
 ```bash
@@ -51,6 +52,20 @@ pip install -r requirements.txt
 To leave the virtual environment
 ```bash
 deactivate
+```
+
+### Make the macro library 
+
+```bash
+mkdir -p build
+cd build
+cmake ..
+make
+```
+
+Optionally install the library
+```bash
+make install
 ```
 
 ## Lightweight
@@ -81,36 +96,6 @@ C macros are difficult to debug with most debuggers.  The included `bin/convert-
 ## Extendable
 
 This library has started with introsort and a series of binary search methods.  Other algorithms are planned to be added soon.
-
-## A Fast C Sort (works fine with C++)
-A comparison of this sort to qsort and std::sort follows.
-
-starting from root directory (assuming package was built - see last section)
-```bash
-cd build/examples/speed-test
-./speed_test 1000000 100 
-macro-plot.py
-```
-
-```
-Sorting 1000000 elements 100 times which are of size 20
-
-              test name	  macro_sort	  std_sort	       qsort
-              ascending	  294.351000	528.314000	  677.732000
-       ascending[gap=0]	  448.574000	508.835000	  761.455000
-             descending	  443.424000	923.441000	 2902.537000
- saw[period=10,max=100]	 1027.698000   1555.817000	 1894.363000
-saw[period=10,max=-100]	 1051.246000   1540.264000	 1865.106000
-                 random	 8750.826000  10468.536000	13477.098000
-      rand_max[max=100]	 3119.780000   4015.032000	 4593.354000
-    rand_max[max=10000]	 6738.275000   7613.115000	 9240.308000
-      rand_head[pct=25]	 4186.926000   5770.527000	 8037.935000
-      rand_tail[pct=25]	 3681.935000   5453.779000	 6964.615000
-```
-
-Across nearly all measures for the given test, the macro library performs better than std::sort and significantly better than qsort.  I've found that for raw types, the std::sort tends to perform about the same as the macro versions.
-
-See examples/speed-test/speed_test.cc and feel free to modify the test. 
 
 ## The macro sort is the introsort + a sort check at the beginning.
 
