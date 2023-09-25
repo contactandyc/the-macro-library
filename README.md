@@ -1,9 +1,29 @@
 # the-macro-library
 The macro library attempts to match the performance of C++ in C.  macro_sort performs significantly better than C++ in some cases and in others is roughly comparable.  In particular, macro_sort significantly outperforms std::sort when the items are presorted or reversed.  There are also some cases where it is able to outperform std::sort across the board.
 
-![macro_sort vs qsort](images/speed_test_final_ms_qs.png)
+macro_sort is an improvement over qsort in a few respects.
+* It provides type checking similar to C++'s std::sort
+* Types and compare functions can be inlined
+* Support exists for a wide variety of compare techniques
+* 400% faster for the ordered cases
+* 900% faster for the reverse case
+* 170% faster for the random cases
+
+It also performs well when stacked up against std::sort
+* 230% faster for the ordered cases
+* 200% faster for the reverse case
+* 98.7% (slightly slower) for the random cases
+
+However, when comparing the macro_sort and std::sort with a dynamically supplied compare function, macro_sort is
+* 300% faster for the ordered cases
+* 270% faster for the reverse case
+* 130% faster for the random cases
 
 See [Performance](PERFORMANCE.md) for more details on the performance of `macro_sort`
+
+![macro_sort vs qsort](images/speed_test_final_ms_qs.png)
+![macro_sort vs std::sort](images/speed_test_final_ms_ss.png)
+![macro_sort vs std::sort](images/speed_test2_mu_su.png)
 
 ## What's included
 
