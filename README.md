@@ -1,4 +1,7 @@
-# the-macro-library
+[github repo](https://github.com/contactandyc/the-macro-library)
+
+# The Macro Library
+
 A C alternative to the standard template library c++ collection (starting with sort, binary search, and the red black tree)
 
 macro_sort is an improvement over qsort in a few respects.

@@ -1,4 +1,6 @@
-# macro_sort
+[See in github](https://github.com/contactandyc/the-macro-library/blob/main/PERFORMANCE.md)
+
+# macro_sort performance
 A C alternative to qsort that is similar to C++'s std::sort
 
 macro_sort is an improvement over qsort in a few respects.
