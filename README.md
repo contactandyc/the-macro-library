@@ -2,6 +2,8 @@
 
 # The Macro Library
 
+See [improvement to quicksort](PERFORMANCE.md) for more details on why `macro_sort` is fast and the math behind it.
+
 A C alternative to the standard template library c++ collection (starting with sort, binary search, and the red black tree)
 
 macro_sort is an improvement over qsort in a few respects.
