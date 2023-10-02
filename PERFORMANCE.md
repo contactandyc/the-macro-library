@@ -36,7 +36,7 @@ macro_sort vs std::sort with a dynamically supplied compare function
 
 # Exploiting the median of 3 pivot selection
 
-The approach that most quick sort implementations choose when implementing the partition portion of the algorithm is to use either the median of the first, mid, and last points in an array.  If the set is large enough, then the median of 9 is taken (also known as ninther).  In addition, to implement introsort (invented by [David Musser](https://en.wikipedia.org/wiki/Introsort) in 1997) will begin first by choosing a maxdepth and when the recursion or stack has reached maxdepth, heapsort is chosen instead of quicksort.  The algorithm looks like this
+The approach that most quick sort implementations choose when implementing the partition portion of the quick-sort algorithm is to use either the median of the first, mid, and last points in an array.  If the set is large enough, then the median of 9 is taken (also known as ninther).  In addition, to implement introsort (invented by [David Musser](https://en.wikipedia.org/wiki/Introsort) in 1997) will begin first by choosing a maxdepth and when the recursion or stack has reached maxdepth, heapsort is chosen instead of quicksort.  The algorithm looks like this
 
 [introsort](https://en.wikipedia.org/wiki/Introsort) - with a bit more detail
 ```pseudocode
