@@ -1,6 +1,6 @@
 [See in github](https://github.com/contactandyc/the-macro-library/blob/main/PERFORMANCE.md)
 
-`macro_sort` is introsort with a twist. In the beginning of the sort, the first, last, and mid points are compared to quickly determine that the array is not sorted while choosing a pivot.
+`macro_sort` (the macro library's version of sort) is introsort with a twist. In the beginning of the sort, the first, last, and mid points are compared to quickly determine that the array is not sorted while choosing a pivot.  More details follow the graphs comparing performance.
 
 # macro_sort performance
 A C alternative to qsort that is similar to C++'s std::sort
