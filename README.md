@@ -4,7 +4,7 @@
 
 The macro library is a C alternative to the standard template library c++ collection (starting with sort, binary search, and the red black tree)
 
-`macro_sort` (the macro library's version of sort) is introsort with a twist. In the beginning of the sort, the first, last, and mid points are compared to quickly determine that the array is not sorted while choosing a pivot.
+`macro_sort` (the macro library's version of sort) is introsort with a twist. In the beginning of the sort, the first, last, and mid points are compared to quickly determine that the array sortedness while choosing a pivot.
 
 See [improvement to introsort/quicksort](PERFORMANCE.md) for more details on why `macro_sort` is fast and the math behind it.
 
