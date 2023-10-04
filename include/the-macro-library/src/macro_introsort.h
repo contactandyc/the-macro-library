@@ -135,7 +135,7 @@ typedef struct {
     type tmp_items[5]; to support macro_introsort_experimental
 */
 #define __macro_introsort_vars(type)                            \
-    type *c, *d, *f, *lo, *mid, *hi;                            \
+    type* c; type* d; type* f; type* lo; type* mid; type* hi;   \
     ssize_t left_n, right_n, tmp_n, delta, elem_size;    \
     int depth_limit;                                            \
     __macro_introsort_stack_t stack[64];                        \
@@ -145,7 +145,7 @@ typedef struct {
     int cur_depth = 0
 
 #define __macro_introsort_ivars(type)    \
-    type *a, *b, *e;                     \
+    type* a; type* b; type* e;                     \
     type tmp
 
 #define __macro_introsort_code(style, type, cmp)                  \

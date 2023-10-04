@@ -508,23 +508,23 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     _macro_map_ ## find_style ## _code_tail(key, style, value_type, cmp)    \
     return NULL;
 
-#define _macro_map_kw_code_with_field(root, field, find_style, style, key_type, value_type, cmp, key )    \
+#define _macro_map_kv_code_with_field(root, field, find_style, style, key_type, value_type, cmp, key )    \
     _macro_map_ ## find_style ## _code_head(value_type)                                                   \
     while (root) {                                                                                        \
         value_type *value = macro_parent_object(root, value_type, field );                                \
-        int n = macro_cmp_kw(style, key_type, value_type, cmp, key, value);                               \
+        int n = macro_cmp_kv(style, key_type, value_type, cmp, key, value);                               \
         _macro_map_ ## find_style ## _code_inner(value)                                                   \
     }                                                                                                     \
-    _macro_map_kw_ ## find_style ## _code_tail(key, style, key_type, value_type, cmp)                     \
+    _macro_map_kv_ ## find_style ## _code_tail(key, style, key_type, value_type, cmp)                     \
     return NULL;
 
-#define _macro_map_kw_code(root, find_style, style, key_type, value_type, cmp, key )     \
+#define _macro_map_kv_code(root, find_style, style, key_type, value_type, cmp, key )     \
     _macro_map_ ## find_style ## _code_head(value_type)                                  \
     while (root) {                                                                       \
-        int n = macro_cmp_kw(style, key_type, value_type, cmp, key, root);               \
+        int n = macro_cmp_kv(style, key_type, value_type, cmp, key, root);               \
         _macro_map_ ## find_style ## _code_inner((value_type *)root)                     \
     }                                                                                    \
-    _macro_map_kw_ ## find_style ## _code_tail(key, style, key_type, value_type, cmp)    \
+    _macro_map_kv_ ## find_style ## _code_tail(key, style, key_type, value_type, cmp)    \
     return NULL;
 
 #define _macro_map_h(name, style, type)    \
@@ -553,7 +553,7 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     }
 
 #define _macro_map_kv_h(name, style, key_type, value_type)    \
-    value_type *name(const macro_map_t *root, macro_cmp_kv_signature(const key_type *key, style, key_type, value_type));
+    value_type *name(const macro_map_t *root, macro_cmp_kv_signature(const key_type *key, style, key_type, value_type))
 
 #define _macro_map_kv(name, find_style, style, key_type, value_type, cmp)               \
     _macro_map_kv_h(name, style, key_type, value_type) {                                \
