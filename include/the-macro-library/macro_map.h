@@ -1,3 +1,6 @@
+#ifndef _macro_map_H
+#define _macro_map_H
+
 /*
 Copyright (c) 2023 Andy Curtis
 
@@ -750,3 +753,5 @@ bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     _macro_multimap_insert_compare_with_field(name, field, macro_map_default(), type)
 
 #define macro_multimap_insert_compare(name, cmp) _macro_multimap_insert_compare(name, macro_map_default(), cmp)
+
+#endif
