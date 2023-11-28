@@ -95,6 +95,11 @@ cmake ..
 make
 ```
 
+Optionally build the examples
+```bash
+make examples
+```
+
 Optionally install the library
 ```bash
 make install

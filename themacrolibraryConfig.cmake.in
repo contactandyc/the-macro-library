@@ -1,0 +1,6 @@
+@PACKAGE_INIT@
+
+# Include directories
+set(THEMACROLIBRARY_INCLUDE_DIRS "${CMAKE_INSTALL_INCLUDEDIR}")
+
+# This is a header-only library, so no libraries to link to
