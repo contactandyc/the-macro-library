@@ -38,9 +38,27 @@ install(FILES ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code ${CMAKE_SOURCE_DIR}
 install(FILES README.md AUTHORS NEWS.md CHANGELOG.md LICENSE NOTICE
         DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
+# Create an interface library
+add_library(themacrolibrary INTERFACE)
+
+# Set include directories
+target_include_directories(themacrolibrary INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
 # Install header files
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/the-macro-library
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/the-macro-library
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Install the library target
+install(TARGETS themacrolibrary
+        EXPORT ${PROJECT_NAME}Targets
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Export the targets
+install(EXPORT ${PROJECT_NAME}Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        DESTINATION lib/cmake/${PROJECT_NAME})
 
 # Create and install the config file
 include(CMakePackageConfigHelpers)
@@ -50,7 +68,6 @@ write_basic_package_version_file(
     COMPATIBILITY SameMajorVersion)
 
 configure_file(${PROJECT_NAME}Config.cmake.in ${PROJECT_NAME}Config.cmake @ONLY)
-
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
               "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION lib/cmake/${PROJECT_NAME})
