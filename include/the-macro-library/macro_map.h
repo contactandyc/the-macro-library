@@ -32,12 +32,12 @@ typedef struct macro_map_s {
 /* The alignment is needed because the color uses the lowest bit */
 
 /* iteration */
-macro_map_t *macro_map_first(macro_map_t *n);
-macro_map_t *macro_map_last(macro_map_t *n);
-macro_map_t *macro_map_next(macro_map_t *n);
-macro_map_t *macro_map_previous(macro_map_t *n);
-macro_map_t *macro_map_postorder_first(macro_map_t *n);
-macro_map_t *macro_map_postorder_next(macro_map_t *n);
+static inline macro_map_t *macro_map_first(macro_map_t *n);
+static inline macro_map_t *macro_map_last(macro_map_t *n);
+static inline macro_map_t *macro_map_next(macro_map_t *n);
+static inline macro_map_t *macro_map_previous(macro_map_t *n);
+static inline macro_map_t *macro_map_postorder_first(macro_map_t *n);
+static inline macro_map_t *macro_map_postorder_next(macro_map_t *n);
 
 /*
   macro_map_copy_node_cb is a callback meant to be used with macro_map_copy to
@@ -46,11 +46,11 @@ macro_map_t *macro_map_postorder_next(macro_map_t *n);
 */
 typedef macro_map_t *(*macro_map_copy_node_cb)(macro_map_t *n, void *arg);
 
-macro_map_t *macro_map_copy(macro_map_t *root, macro_map_copy_node_cb copy, void *arg);
+static macro_map_t *macro_map_copy(macro_map_t *root, macro_map_copy_node_cb copy, void *arg);
 
-bool macro_map_erase(macro_map_t **root, macro_map_t *node);
+static bool macro_map_erase(macro_map_t **root, macro_map_t *node);
 
-void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t **root);
+static void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t **root);
 
 #define macro_map_color(n) ((n)->parent_color & 1)
 #define _macro_map_is_red(n) (((n)->parent_color & 1) == 0)
@@ -65,7 +65,7 @@ void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t *
 #define _macro_map_clear_black(n) (n)->parent_color = 1
 
 /* iteration */
-macro_map_t *macro_map_first(macro_map_t *n) {
+static inline macro_map_t *macro_map_first(macro_map_t *n) {
     if (!n)
         return NULL;
     while (n->left)
@@ -73,7 +73,7 @@ macro_map_t *macro_map_first(macro_map_t *n) {
     return n;
 }
 
-macro_map_t *macro_map_last(macro_map_t *n) {
+static inline macro_map_t *macro_map_last(macro_map_t *n) {
     if (!n)
         return NULL;
     while (n->right)
@@ -81,7 +81,7 @@ macro_map_t *macro_map_last(macro_map_t *n) {
     return n;
 }
 
-macro_map_t *macro_map_next(macro_map_t *n) {
+static inline macro_map_t *macro_map_next(macro_map_t *n) {
     if (n->right) {
         n = n->right;
         while (n->left)
@@ -96,7 +96,7 @@ macro_map_t *macro_map_next(macro_map_t *n) {
     return parent;
 }
 
-macro_map_t *macro_map_previous(macro_map_t *n) {
+static inline macro_map_t *macro_map_previous(macro_map_t *n) {
     if (n->left) {
         n = n->left;
         while (n->right)
@@ -122,13 +122,13 @@ static inline macro_map_t *_macro_map_left_deepest_node(macro_map_t *n) {
     }
 }
 
-macro_map_t *macro_map_postorder_first(macro_map_t *n) {
+static inline macro_map_t *macro_map_postorder_first(macro_map_t *n) {
     if (!n)
         return NULL;
     return _macro_map_left_deepest_node(n);
 }
 
-macro_map_t *macro_map_postorder_next(macro_map_t *n) {
+static inline macro_map_t *macro_map_postorder_next(macro_map_t *n) {
     macro_map_t *parent = _macro_map_parent(n);
     if (parent && n == parent->left && parent->right)
         return _macro_map_left_deepest_node(parent->right);
@@ -137,7 +137,7 @@ macro_map_t *macro_map_postorder_next(macro_map_t *n) {
 }
 
 /* copy */
-static inline void _macro_map_tree_copy(macro_map_t *n, macro_map_t **res, macro_map_t *parent,
+static void _macro_map_tree_copy(macro_map_t *n, macro_map_t **res, macro_map_t *parent,
                                         macro_map_copy_node_cb copy, void *arg) {
     macro_map_t *c = copy(n, arg);
     c->parent_color = n->parent_color;
@@ -152,7 +152,7 @@ static inline void _macro_map_tree_copy(macro_map_t *n, macro_map_t **res, macro
         c->right = NULL;
 }
 
-macro_map_t *macro_map_copy(macro_map_t *root, macro_map_copy_node_cb copy, void *arg) {
+static inline macro_map_t *macro_map_copy(macro_map_t *root, macro_map_copy_node_cb copy, void *arg) {
     macro_map_t *res = NULL;
     if (root)
         _macro_map_tree_copy(root, &res, NULL, copy, arg);
@@ -206,7 +206,7 @@ static void _macro_map_rotate_right(macro_map_t *A, macro_map_t **root) {
         _macro_map_set_parent(tmp, A);
 }
 
-void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t **root) {
+static void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t **root) {
     _macro_map_set_red(node);
     _macro_map_set_parent(node, parent);
     node->left = node->right = NULL;
@@ -315,7 +315,7 @@ static inline void _replace_node_with_child(macro_map_t *child, macro_map_t *nod
     child->parent_color = node->parent_color;
 }
 
-bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
+static bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     macro_map_t *parent = _macro_map_parent(node);
     if (!node->left) {
         if (node->right)
