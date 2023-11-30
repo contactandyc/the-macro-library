@@ -3,6 +3,22 @@
 
 #include <stdio.h>
 
+static char *macro_to_date_time(char *dest, time_t ts) {
+  struct tm t;
+  gmtime_r(&ts, &t);
+  sprintf(dest, "%04d-%02d-%02d %02d:%02d:%02d", t.tm_year + 1900, t.tm_mon + 1,
+          t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+  return dest;
+}
+
+static char *macro_to_date(char *dest, time_t ts) {
+  struct tm t;
+  gmtime_r(&ts, &t);
+  sprintf(dest, "%04d-%02d-%02d", t.tm_year + 1900, t.tm_mon + 1,
+          t.tm_mday);
+  return dest;
+}
+
 static inline int macro_to_int(const char *str, int default_value) {
     if (!str) return default_value;
 

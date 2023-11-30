@@ -3,6 +3,13 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <time.h>
+
+// Converts a time stamp to YYYY-MM-DD hh:mm:ss (requires a 20 byte dest)
+static char *macro_to_date_time(char *dest, time_t ts);
+
+// Converts a time stamp to YYYY-MM-DD (requires a 11 byte dest)
+static char *macro_to_date(char *dest, time_t ts);
 
 // Converts a string to an int. Handles negative numbers.
 static inline int macro_to_int(const char *str, int default_value);
