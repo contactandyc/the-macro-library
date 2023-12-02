@@ -391,9 +391,12 @@ def evaluate_macro_with_args(name, args, spaces, macros):
         if token.get('arg') is not None:
             try:
                 token['text'] = args[token['arg']]
-            except:
+            except Exception as e:
+                print("Exception occurred for arg:", token['arg'])
+                print("Exception details:", str(e))
                 print(token['arg'])
                 pprint(args)
+                pprint(token)
 
     code = ''
     for t in range(0, len(tokens)):
