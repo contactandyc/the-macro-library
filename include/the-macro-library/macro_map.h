@@ -21,6 +21,7 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "the-macro-library/macro_cmp.h"
 
@@ -540,7 +541,7 @@ static bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
 
 #define _macro_map_with_field(name, field, find_style, style, type, cmp)               \
     _macro_map_h(name, style, type) { {                                                \
-        _macro_map_code_with_field(root, find_style, field, style, type, cmp, key);    \
+        _macro_map_code_with_field(root, field, find_style, style, type, cmp, key);    \
     }
 
 #define _macro_map_compare_h(name, style, type) _macro_map_h(name, compare_ ## style, type)
@@ -552,7 +553,7 @@ static bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
 
 #define _macro_map_compare_with_field(name, field, find_style, style, type)            \
     _macro_map_compare_h(name, style, type) {                                          \
-        _macro_map_code_with_field(root, find_style, field, style, type, cmp, key);    \
+        _macro_map_code_with_field(root, field, find_style, style, type, cmp, key);    \
     }
 
 #define _macro_map_kv_h(name, style, key_type, value_type)    \
@@ -565,7 +566,7 @@ static bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
 
 #define _macro_map_kv_with_field(name, field, find_style, style, key_type, value_type, cmp)               \
     _macro_map_kv_h(name, style, key_type, value_type) {                                                  \
-        _macro_map_kv_code_with_field(root, find_style, field, style, key_type, value_type, cmp, key);    \
+        _macro_map_kv_code_with_field(root, field, find_style, style, key_type, value_type, cmp, key);    \
     }
 
 #define _macro_map_kv_compare_h(name, style, key_type, value_type) _macro_map_kv_h(name, compare_ ## style, key_type, value_type)
@@ -577,7 +578,7 @@ static bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
 
 #define _macro_map_kv_compare_with_field(name, field, find_style, style, key_type, value_type)             \
     _macro_map_kv_compare_h(name, style, key_type, value_type) {                                           \
-        _macro_map_kv_code_with_field(root, find_style, field, style, key_type, value_type, cmp, node);    \
+        _macro_map_kv_code_with_field(root, field, find_style, style, key_type, value_type, cmp, node);    \
     }
 
 #define _macro_map_insert_code_with_field(root, field, style, value_type, cmp, node )    \
