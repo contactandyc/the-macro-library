@@ -33,25 +33,41 @@ limitations under the License.
 
 #include "the-macro-library/macro_cmp.h"
 
-#ifdef __linux__
-#ifdef __LP64__
-#define __mcro_introsort_max_depth(n) depth_limit = (flsl(n) - 1) << 1
+/*
+   Compute the depth limit for introsort. The logic is to find the most significant bit
+   set in 'n', subtract one, and multiply by two. This was previously done using 'fls' or 'flsl'
+   on BSD systems. On Linux systems, we rely on GCC/Clang built-ins to achieve portability.
+
+   For platforms that don't have built-ins or 'flsl/fls', we fall back to a loop-based approach.
+*/
+
+#if defined(__linux__) && defined(__LP64__)
+// 64-bit Linux: use __builtin_clzl
+#define __mcro_introsort_max_depth(n) \
+    depth_limit = ((64 - __builtin_clzl((unsigned long)(n))) - 1) << 1
+
+#elif defined(__linux__)
+// 32-bit Linux: use __builtin_clz
+#define __mcro_introsort_max_depth(n) \
+    depth_limit = ((32 - __builtin_clz((unsigned)(n))) - 1) << 1
+
+#elif defined(__FreeBSD__) && defined(__LP64__)
+// 64-bit FreeBSD provides flsl
+#define __mcro_introsort_max_depth(n) depth_limit = (flsl((long)(n)) - 1) << 1
+
+#elif defined(__FreeBSD__)
+// 32-bit FreeBSD provides fls
+#define __mcro_introsort_max_depth(n) depth_limit = (fls((int)(n)) - 1) << 1
+
 #else
-#define __mcro_introsort_max_depth(n) depth_limit = (fls(n) - 1) << 1
-#endif
-#elif __FreeBSD__
-#ifdef __LP64__
-#define __mcro_introsort_max_depth(n) depth_limit = (flsl(n) - 1) << 1
-#else
-#define __mcro_introsort_max_depth(n) depth_limit = (fls(n) - 1) << 1
-#endif
-#else
+// Fallback method: manually count the leading bit
 #define __mcro_introsort_max_depth(n)    \
-    tmp_n = n;                           \
+    tmp_n = (n);                         \
     depth_limit = 0;                     \
     while (tmp_n >>= 1)                  \
         depth_limit++;                   \
     depth_limit <<= 1
+
 #endif
 
 /*

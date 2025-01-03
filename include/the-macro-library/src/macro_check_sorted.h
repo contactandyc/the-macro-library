@@ -57,11 +57,9 @@ limitations under the License.
     r_hi = r_lo+(n-1);                                                        \
     if(macro_less(style, type, cmp, r_hi, r_lo )) {                           \
         if(macro_less(style, type, cmp, r_lo, r_mid)) {                       \
-            r_mid = r_lo;                                                     \
             goto find_mid;                                                    \
         }                                                                     \
         if(macro_less(style, type, cmp, r_mid, r_hi)) {                       \
-            r_mid = r_hi;                                                     \
             goto find_mid;                                                    \
         }                                                                     \
         if(n < 32) { \
@@ -119,11 +117,9 @@ limitations under the License.
         }                                                                     \
     } else {                                                                  \
         if(macro_less(style, type, cmp, r_hi, r_mid)) {                       \
-            r_mid = r_hi;                                                     \
             goto find_mid;                                                    \
         }                                                                     \
         if(macro_less(style, type, cmp, r_mid, r_lo)) {                       \
-            r_mid = r_lo;                                                     \
             goto find_mid;                                                    \
         }                                                                     \
         if(n < 32) { \
