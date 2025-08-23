@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2019–2025 Andy Curtis <contactandyc@gmail.com>
+// SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef _macro_string_id_map_H
 #define _macro_string_id_map_H
 
@@ -51,10 +55,13 @@ int compare_macro_string_id_map_for_find(const char *a, const macro_string_id_ma
     return strcmp(a, b);
 }
 
-static macro_map_insert(_macro_string_id_insert, macro_string_id_map_t, compare_macro_string_id_map_for_insert);
+static inline
+macro_map_insert(_macro_string_id_insert, macro_string_id_map_t, compare_macro_string_id_map_for_insert);
+
 // void _macro_string_id_insert(macro_map_t **root, macro_string_id_map_t *item);
-static macro_map_find_kv(_macro_string_id_find, char,  macro_string_id_map_t, compare_macro_string_id_map_for_find);
-// macro_string_id_map_t* _macro_string_id_find(const macro_map_t *root, const char *str);
+static inline
+macro_map_find_kv(macro_string_id_find_node, char,  macro_string_id_map_t, compare_macro_string_id_map_for_find);
+// macro_string_id_map_t* macro_string_id_find_node(const macro_map_t *root, const char *str);
 
 static inline size_t macro_string_id_find(const macro_map_t *root, const char *str) {
     if(!str)

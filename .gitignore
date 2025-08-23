@@ -3,3 +3,6 @@ build
 .idea
 *~
 *.dSYM
+build-unix_makefiles
+build-cov
+build-coverage

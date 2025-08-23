@@ -1,8 +1,6 @@
-/*
-Copyright 2023 Andy Curtis
-
-Public domain
-*/
+// SPDX-FileCopyrightText: 2019–2025 Andy Curtis <contactandyc@gmail.com>
+// SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef _macro_test_H
 #define _macro_test_H
@@ -103,7 +101,7 @@ Public domain
                 i -= gap;                                                           \
                 p++;                                                                \
             }                                                                       \
-            p = arr + (r*n);                                                       \
+            p = arr + (r*n);                                                        \
             int swaps = n * pct / 100;                                              \
             for( i=0; i<swaps; i++ ) {                                              \
                 int a=rand() % n;                                                   \
@@ -425,21 +423,21 @@ static inline void __macro_sort_write_plot_csv( size_t n, size_t elem_size, int 
     fclose(out);
 }
 
-#define macro_test_alloc_c(type, rep, size) \
-    type *arr = (type*)malloc(sizeof(type) * size * rep);                                      \
-    type *new_arr = (type*)malloc(sizeof(type) * size * rep);                                  \
+#define macro_test_alloc_c(type, rep, size)                      \
+    type *arr = (type*)malloc(sizeof(type) * size * rep);        \
+    type *new_arr = (type*)malloc(sizeof(type) * size * rep);    \
 
-#define macro_test_alloc_cc(type, rep, size) \
-    type *arr = new type[size * rep];                                      \
-    type *new_arr = new type[size * rep];                                  \
+#define macro_test_alloc_cc(type, rep, size)    \
+    type *arr = new type[size * rep];           \
+    type *new_arr = new type[size * rep];       \
 
-#define macro_test_free_c() \
-    free(arr); \
-    free(new_arr);                                  \
+#define macro_test_free_c()    \
+    free(arr);                 \
+    free(new_arr);             \
 
-#define macro_test_free_cc() \
-    delete[] arr;                                      \
-    delete[] new_arr;                                  \
+#define macro_test_free_cc()    \
+    delete[] arr;               \
+    delete[] new_arr;           \
 
 
 #define macro_test_sort_driver(size, rep, set_value,                                               \
@@ -458,7 +456,7 @@ static inline void __macro_sort_write_plot_csv( size_t n, size_t elem_size, int 
         __macro_test_sort_result_t *results =                                                      \
             (__macro_test_sort_result_t*)malloc(sizeof(__macro_test_sort_result_t)*num_tests);     \
         int num_results = 0;                                                                       \
-        macro_test_alloc_ ## language(type, rep, size) \
+        macro_test_alloc_ ## language(type, rep, size)                                             \
         for( int t=-2; t<num_tests; t++ ) {                                                        \
             const char *test_name;                                                                 \
             if(t < 0) test_name = "*descending";                                                   \
@@ -466,8 +464,8 @@ static inline void __macro_sort_write_plot_csv( size_t n, size_t elem_size, int 
             if(test_name[0] == '-') { printf( "%s\n", test_name+1); continue; }                    \
             const char *match_name = test_name;                                                    \
             if(match_name[0] == '*') match_name++;                                                 \
-            if(!strncmp(match_name, "mixed", sizeof("mixed")-1) ||   \
-               !strncmp(match_name, "ascending_random", sizeof("ascending_random")-1)) {      \
+            if(!strncmp(match_name, "mixed", sizeof("mixed")-1) ||                                 \
+               !strncmp(match_name, "ascending_random", sizeof("ascending_random")-1)) {           \
                 int seed = 12345;                                                                  \
                 int pct = 25;                                                                      \
                 int gap = 5;                                                                       \
@@ -493,7 +491,7 @@ static inline void __macro_sort_write_plot_csv( size_t n, size_t elem_size, int 
                                 style, type, cmp,                                                  \
                                 set_value, size, results[num_results]);                            \
             }                                                                                      \
-            else if(!strncmp(match_name, "ascending", sizeof("ascending")-1)) {                         \
+            else if(!strncmp(match_name, "ascending", sizeof("ascending")-1)) {                    \
                 int gap = 5;                                                                       \
                 get_param_from_test_name(test_name, "gap", &gap);                                  \
                 macro_test_sort(ascending, gap, 0, 0, rep,                                         \
@@ -580,7 +578,7 @@ static inline void __macro_sort_write_plot_csv( size_t n, size_t elem_size, int 
             }                                                                                      \
             if(test_name[0] != '*') num_results++;                                                 \
         }                                                                                          \
-        macro_test_free_ ## language() \
+        macro_test_free_ ## language()                                                             \
         free(fmt);                                                                                 \
         __macro_sort_write_plot_csv( size, elem_size, rep, sort1_name, sort2_name, sort3_name,     \
                                      results, num_results );                                       \

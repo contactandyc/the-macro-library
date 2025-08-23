@@ -1,18 +1,6 @@
-/*
-Copyright (c) 2023 Andy Curtis
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: 2019–2025 Andy Curtis <contactandyc@gmail.com>
+// SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef _macro_cmp_H
 #define _macro_cmp_H
@@ -127,5 +115,12 @@ limitations under the License.
     param, bool (*cmp)(const type *, const type *, void *), void *arg
 
 #define macro_cmp_signature(param, style, type) macro_cmp_signature_ ## style(param, type)
+
+/* “compare” signature helpers */
+#define macro_compare_signature(param, style, type)    \
+    macro_cmp_signature(param, compare_ ## style, type)
+
+#define macro_compare_kv_signature(param, style, key_type, value_type)    \
+    macro_cmp_kv_signature(param, compare_ ## style, key_type, value_type)
 
 #endif /* _macro_cmp_H */

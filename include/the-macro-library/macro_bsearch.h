@@ -1,24 +1,14 @@
-/*
-Copyright (c) 2023 Andy Curtis
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: 2019–2025 Andy Curtis <contactandyc@gmail.com>
+// SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
+// SPDX-License-Identifier: Apache-2.0
 
 /*
     See README for more details
 
     All headers are the same for the different bsearch flavors, simply use macro_bsearch..._h_...
 */
+#ifndef _macro_bsearch_H
+#define _macro_bsearch_H
 
 #include "the-macro-library/src/macro_bsearch_code.h"
 
@@ -42,7 +32,7 @@ limitations under the License.
 
 #define _macro_bsearch_compare_h(name, style, value_type)              \
     value_type *name(const value_type *key, const value_type *base,    \
-                     macro_cmp_signature(size_t n, compare_ ## style, value_type))
+                     macro_compare_signature(size_t n, style, value_type))
 
 #define _macro_bsearch_compare(name, bsearch_style, style, value_type)                       \
     _macro_bsearch_compare_h(name, style, value_type) {                                      \
@@ -51,7 +41,7 @@ limitations under the License.
 
 #define _macro_bsearch_kv_compare_h(name, style, key_type, value_type)    \
     value_type *name(const key_type *key, const value_type *base,         \
-                     macro_cmp_kv_signature(size_t n, compare_ ## style, key_type, value_type))
+                     macro_compare_kv_signature(size_t n, style, key_type, value_type))
 
 #define _macro_bsearch_kv_compare(name, bsearch_style, style, key_type, value_type)                       \
     _macro_bsearch_kv_compare_h(name, style, key_type, value_type) {                                      \
@@ -93,8 +83,8 @@ limitations under the License.
 #define macro_bsearch_ceiling(name, value_type, cmp)    \
     _macro_bsearch(name, ceiling, macro_bsearch_default(), value_type, cmp)
 
-#define macro_bsearch_last_compare(name, value_type)    \
-    _macro_bsearch_compare(name, last, macro_bsearch_default(), value_type )
+#define macro_bsearch_ceiling_compare(name, value_type)    \
+    _macro_bsearch_compare(name, ceiling, macro_bsearch_default(), value_type)
 
 #define macro_bsearch_lower_bound(name, value_type, cmp)    \
     _macro_bsearch(name, lower_bound, macro_bsearch_default(), value_type, cmp)
@@ -143,8 +133,8 @@ limitations under the License.
 #define macro_bsearch_ceiling_kv(name, key_type, value_type, cmp)    \
     _macro_bsearch_kv(name, ceiling, macro_bsearch_default(), key_type, value_type, cmp)
 
-#define macro_bsearch_last_kv_compare(name, key_type, value_type)    \
-    _macro_bsearch_kv_compare(name, last, macro_bsearch_default(), key_type, value_type )
+#define macro_bsearch_ceiling_kv_compare(name, key_type, value_type)    \
+    _macro_bsearch_kv_compare(name, ceiling, macro_bsearch_default(), key_type, value_type )
 
 #define macro_bsearch_lower_bound_kv(name, key_type, value_type, cmp)    \
     _macro_bsearch_kv(name, lower_bound, macro_bsearch_default(), key_type, value_type, cmp)
@@ -158,3 +148,4 @@ limitations under the License.
 #define macro_bsearch_upper_bound_kv_compare(name, key_type, value_type)    \
     _macro_bsearch_kv_compare(name, upper_bound, macro_bsearch_default(), key_type, value_type )
 
+#endif

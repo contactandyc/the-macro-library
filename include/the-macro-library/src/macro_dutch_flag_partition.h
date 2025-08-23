@@ -1,27 +1,10 @@
-/*
-Copyright (c) 2023 Andy Curtis
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-Based upon the Dutch national flag problem
-- https://en.wikipedia.org/wiki/Dutch_national_flag_problem
-
-Also consulted
-   Engineering a sort function; Jon Bentley and M. Douglas McIlroy;
-   Software - Practice and Experience; Vol. 23 (11), 1249-1265, 1993
-*/
-
-
+// SPDX-FileCopyrightText: 2019–2025 Andy Curtis <contactandyc@gmail.com>
+// SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
+// SPDX-License-Identifier: Apache-2.0
+//
+// Based on the Dutch national flag problem (https://en.wikipedia.org/wiki/Dutch_national_flag_problem)
+// Consulted: Bentley & McIlroy, “Engineering a sort function,”
+// Software – Practice and Experience 23(11): 1249–1265 (1993)
 
 #ifndef _macro_dutch_flag_partition_H
 #define _macro_dutch_flag_partition_H
@@ -44,32 +27,31 @@ Also consulted
                                    left_eq, left_p, right_p, right_eq,    \
                                    left_n, right_n, tmp_n)                \
     macro_swap(lo, mid);                                                  \
-    left_eq = left_p = lo+1;                                              \
+    left_eq = left_p = lo + 1;                                            \
     right_p = right_eq = hi;                                              \
 label_prefix ## _cmp_first:;                                              \
-    if(left_p <= right_p) {                                               \
-        if(macro_less(style, type, cmp, left_p, lo)) {                    \
+    if (left_p <= right_p) {                                              \
+        if (macro_less(style, type, cmp, left_p, lo)) {                   \
             left_p++;                                                     \
             goto label_prefix ## _cmp_first;                              \
         }                                                                 \
-        if(macro_less(style, type, cmp, lo, left_p))                      \
+        if (macro_less(style, type, cmp, lo, left_p))                     \
             goto label_prefix ## _cmp_second2;                            \
         macro_swap(left_eq, left_p);                                      \
         left_eq++;                                                        \
         left_p++;                                                         \
         goto label_prefix ## _cmp_first;                                  \
-    }                                                                     \
-    else                                                                  \
+    } else                                                                \
         goto label_prefix ## _after_swapping;                             \
 label_prefix ## _cmp_second:;                                             \
-    if(left_p > right_p)                                                  \
+    if (left_p > right_p)                                                 \
         goto label_prefix ## _after_swapping;                             \
 label_prefix ## _cmp_second2:;                                            \
-    if(macro_less(style, type, cmp, lo, right_p)) {                       \
+    if (macro_less(style, type, cmp, lo, right_p)) {                      \
         right_p--;                                                        \
         goto label_prefix ## _cmp_second;                                 \
     }                                                                     \
-    if(macro_less(style, type, cmp, right_p, lo))                         \
+    if (macro_less(style, type, cmp, right_p, lo))                        \
         goto label_prefix ## _swap_and_loop;                              \
     macro_swap(right_p, right_eq);                                        \
     right_eq--;                                                           \
@@ -81,17 +63,17 @@ label_prefix ## _swap_and_loop:;                                          \
     right_p--;                                                            \
     goto label_prefix ## _cmp_first;                                      \
 label_prefix ## _after_swapping:;                                         \
-	left_n = left_p-left_eq;                                                 \
-	right_n = right_eq-right_p;                                              \
-    tmp_n = left_eq-lo;                                                   \
-    if(tmp_n > left_n)                                                    \
+    left_n  = (size_t)(left_p  - left_eq);                                \
+    right_n = (size_t)(right_eq - right_p);                               \
+    tmp_n   = (size_t)(left_eq - lo);                                     \
+    if (tmp_n > left_n)                                                   \
         tmp_n = left_n;                                                   \
-    macro_vecswap(lo, left_p-tmp_n, left_eq, right_p, tmp_n);             \
-    tmp_n = hi-right_eq;                                                  \
-    if(tmp_n > right_n)                                                   \
+    macro_vecswap(lo, left_p - tmp_n, left_eq, right_p, tmp_n);           \
+    tmp_n = (size_t)(hi - right_eq);                                      \
+    if (tmp_n > right_n)                                                  \
         tmp_n = right_n;                                                  \
-    macro_vecswap(left_p, hi+1-tmp_n, left_eq, right_p, tmp_n);           \
+    macro_vecswap(left_p, hi + 1 - tmp_n, left_eq, right_p, tmp_n);       \
     left_p = lo;                                                          \
-    right_p = hi+1-right_n;
+    right_p = hi + 1 - right_n;
 
 #endif /* _macro_dutch_flag_partition_H */
