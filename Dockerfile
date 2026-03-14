@@ -27,13 +27,13 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && apt-get install -y \
     valgrind \
     gdb \
-    python3 \
-    python3-venv \
-    python3-pip \
     perl \
     autoconf \
     automake \
     libtool \
+    python3 \
+    python3-venv \
+    python3-pip \
  && rm -rf /var/lib/apt/lists/*
 
 # --- Install CMake from official binaries (arch-aware) ------------------------

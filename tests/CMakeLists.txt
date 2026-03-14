@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2019–2025 Andy Curtis <contactandyc@gmail.com>
+# SPDX-FileCopyrightText: 2019–2026 Andy Curtis <contactandyc@gmail.com>
 # SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
 # SPDX-License-Identifier: Apache-2.0
 
@@ -18,6 +18,8 @@ find_library(M_LIB m)
 # ---- Test executables ----
 set(TEST_EXECUTABLES "")
 add_executable(test_macro_bsearch  src/test_macro_bsearch.c)
+
+target_include_directories(test_macro_bsearch PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 list(APPEND TEST_EXECUTABLES test_macro_bsearch)
 
@@ -60,6 +62,8 @@ endif()
 add_test(NAME test_macro_bsearch COMMAND $<TARGET_FILE:test_macro_bsearch>)
 add_executable(test_macro_cmp  src/test_macro_cmp.c)
 
+target_include_directories(test_macro_cmp PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 list(APPEND TEST_EXECUTABLES test_macro_cmp)
 
 set_target_properties(test_macro_cmp PROPERTIES
@@ -100,6 +104,8 @@ endif()
 
 add_test(NAME test_macro_cmp COMMAND $<TARGET_FILE:test_macro_cmp>)
 add_executable(test_macro_heap  src/test_macro_heap.c)
+
+target_include_directories(test_macro_heap PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 list(APPEND TEST_EXECUTABLES test_macro_heap)
 
@@ -142,6 +148,8 @@ endif()
 add_test(NAME test_macro_heap COMMAND $<TARGET_FILE:test_macro_heap>)
 add_executable(test_macro_map  src/test_macro_map.c)
 
+target_include_directories(test_macro_map PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 list(APPEND TEST_EXECUTABLES test_macro_map)
 
 set_target_properties(test_macro_map PROPERTIES
@@ -182,6 +190,8 @@ endif()
 
 add_test(NAME test_macro_map COMMAND $<TARGET_FILE:test_macro_map>)
 add_executable(test_macro_sort  src/test_macro_sort.c)
+
+target_include_directories(test_macro_sort PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 list(APPEND TEST_EXECUTABLES test_macro_sort)
 
@@ -224,6 +234,8 @@ endif()
 add_test(NAME test_macro_sort COMMAND $<TARGET_FILE:test_macro_sort>)
 add_executable(test_macro_time  src/test_macro_time.c)
 
+target_include_directories(test_macro_time PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 list(APPEND TEST_EXECUTABLES test_macro_time)
 
 set_target_properties(test_macro_time PROPERTIES
@@ -264,6 +276,8 @@ endif()
 
 add_test(NAME test_macro_time COMMAND $<TARGET_FILE:test_macro_time>)
 add_executable(test_macro_to  src/test_macro_to.c)
+
+target_include_directories(test_macro_to PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 list(APPEND TEST_EXECUTABLES test_macro_to)
 

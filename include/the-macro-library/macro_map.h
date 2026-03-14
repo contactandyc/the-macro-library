@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2019–2025 Andy Curtis <contactandyc@gmail.com>
+// SPDX-FileCopyrightText: 2019–2026 Andy Curtis <contactandyc@gmail.com>
 // SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
 // SPDX-License-Identifier: Apache-2.0
 
@@ -80,8 +80,10 @@ typedef macro_map_t *(*macro_map_copy_node_cb)(macro_map_t *n, void *arg);
 
 static macro_map_t *macro_map_copy(macro_map_t *root, macro_map_copy_node_cb copy, void *arg);
 
+__attribute__((unused))
 static bool macro_map_erase(macro_map_t **root, macro_map_t *node);
 
+__attribute__((unused))
 static void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t **root);
 
 #define macro_map_color(n)            ((n)->parent_color & (uintptr_t)1)

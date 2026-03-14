@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2019–2025 Andy Curtis <contactandyc@gmail.com>
+# SPDX-FileCopyrightText: 2019–2026 Andy Curtis <contactandyc@gmail.com>
 # SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
 # SPDX-License-Identifier: Apache-2.0
 
@@ -51,29 +51,19 @@ install(FILES
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/the_macro_library
 )
 # Extra project-specific targets
-# Custom command for indent
-add_custom_target(
-    indent
-    COMMAND python3 ${CMAKE_SOURCE_DIR}/bin/indent-macros
-                    ${CMAKE_SOURCE_DIR}/include/*/*.h
-                    ${CMAKE_SOURCE_DIR}/include/*/*/*.h
+add_custom_target(indent
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/bin/indent-macros ${CMAKE_SOURCE_DIR}/include/*/*.h ${CMAKE_SOURCE_DIR}/include/*/*/*.h
     COMMENT "Indenting files..."
 )
-
-# Custom target for building examples
 add_custom_target(examples
     COMMAND ${CMAKE_COMMAND} -E echo "Building examples"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/examples"
-    COMMAND ${CMAKE_COMMAND} -E chdir "${CMAKE_BINARY_DIR}/examples"
-                             ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=$<CONFIG> "${CMAKE_SOURCE_DIR}/examples"
+    COMMAND ${CMAKE_COMMAND} -E chdir "${CMAKE_BINARY_DIR}/examples" ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=$<CONFIG> "${CMAKE_SOURCE_DIR}/examples"
     COMMAND ${CMAKE_COMMAND} --build "${CMAKE_BINARY_DIR}/examples"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Building examples"
 )
-
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code
-                 ${CMAKE_SOURCE_DIR}/bin/indent-macros
-        DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code ${CMAKE_SOURCE_DIR}/bin/indent-macros DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 
 enable_testing()
