@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# --- Discover and source .scaffoldrc ---
+_cur="$PWD"
+while [ "$_cur" != "/" ]; do
+  if [ -f "$_cur/.scaffoldrc" ]; then
+    source "$_cur/.scaffoldrc"
+    break
+  fi
+  _cur="$(dirname "$_cur")"
+done
+[ -z "${WORKSPACE_DIR:-}" ] && [ -f "$HOME/.scaffoldrc" ] && source "$HOME/.scaffoldrc"
+
 # --- parse knobs ---
-VRAW="debug"
+# Use the BUILD_VARIANT from .scaffoldrc as the default!
+VRAW="${BUILD_VARIANT:-debug}"
 COV="off"
 
 for arg in "$@"; do
