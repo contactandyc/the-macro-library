@@ -1,13 +1,25 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# --- Discover and source .scaffoldrc ---
+_cur="$PWD"
+while [ "$_cur" != "/" ]; do
+  if [ -f "$_cur/.scaffoldrc" ]; then
+    source "$_cur/.scaffoldrc"
+    break
+  fi
+  _cur="$(dirname "$_cur")"
+done
+[ -z "${WORKSPACE_DIR:-}" ] && [ -f "$HOME/.scaffoldrc" ] && source "$HOME/.scaffoldrc"
+
 # --- Script Commands ---
 COMMAND="${1:-build}" # Default to 'build' if no command is given
 
-# --- Knobs (can be set as environment variables) ---
+# --- Knobs (Absorbs exports from .scaffoldrc naturally) ---
 PREFIX="${PREFIX:-/usr/local}"
 BUILD_DIR="${BUILD_DIR:-build}"
 BUILD_TYPE="${BUILD_TYPE:-RelWithDebInfo}"
+BUILD_VARIANT="${BUILD_VARIANT:-debug}"
 GENERATOR="${GENERATOR:-}" # Auto-detects if empty
 
 # --- Helper: auto-detect CMake generator ---
@@ -22,11 +34,12 @@ pick_generator() {
 case "$COMMAND" in
   build|install)
     pick_generator
-    echo "--- Building Project (Generator: $GENERATOR) ---"
+    echo "--- Building Project (Generator: $GENERATOR, Variant: $BUILD_VARIANT) ---"
 
     cmake -S . -B "$BUILD_DIR" -G "$GENERATOR" \
       -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-      -DCMAKE_INSTALL_PREFIX="$PREFIX"
+      -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+      -DA_BUILD_VARIANT="$BUILD_VARIANT"
 
     cmake --build "$BUILD_DIR" -j
 
