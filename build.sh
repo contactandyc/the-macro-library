@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2019–2026 Andy Curtis <contactandyc@gmail.com>
+# SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
+# SPDX-License-Identifier: Apache-2.0
+
 set -Eeuo pipefail
 
-# --- Discover and source .scaffoldrc ---
+# --- Discover and source scoped environment ---
 _cur="$PWD"
 while [ "$_cur" != "/" ]; do
-  if [ -f "$_cur/.scaffoldrc" ]; then
-    source "$_cur/.scaffoldrc"
+  if [ -f "$_cur/.scaffoldrc.yaml" ]; then
+    [ -f "$_cur/.scaffoldrc_c_cmake" ] && source "$_cur/.scaffoldrc_c_cmake"
     break
   fi
   _cur="$(dirname "$_cur")"
 done
-[ -z "${WORKSPACE_DIR:-}" ] && [ -f "$HOME/.scaffoldrc" ] && source "$HOME/.scaffoldrc"
+[ -z "${WORKSPACE_DIR:-}" ] && [ -f "$HOME/.scaffoldrc_c_cmake" ] && source "$HOME/.scaffoldrc_c_cmake"
 
 # --- Script Commands ---
 COMMAND="${1:-build}" # Default to 'build' if no command is given

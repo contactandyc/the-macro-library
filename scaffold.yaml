@@ -4,8 +4,10 @@ version: 0.0.1
 profile: andy-curtis/andy-curtis-knode
 template: cmake-c-git
 
-cmake:
+
+deps:
   kind: header_only
+
 sources: []
 
 license_extras:
