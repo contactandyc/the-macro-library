@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019–2026 Andy Curtis <contactandyc@gmail.com>
+# SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
+# SPDX-License-Identifier: Apache-2.0
+
 ./speed_test_final $1 $2
 macro-plot.py -o ../../../images/speed_test_final_bar.png
 macro-plot2.py 1 -o ../../../images/speed_test_final_1.png
