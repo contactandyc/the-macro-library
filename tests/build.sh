@@ -1,25 +1,28 @@
 #!/usr/bin/env bash
 # SPDX-FileCopyrightText: 2019–2026 Andy Curtis <contactandyc@gmail.com>
-# SPDX-FileCopyrightText: 2024–2025 Knode.ai — technical questions: contact Andy (above)
+# SPDX-FileCopyrightText: 2024–2025 Knode.ai
 # SPDX-License-Identifier: Apache-2.0
+#
+# Maintainer: Andy Curtis <contactandyc@gmail.com>
 
 set -euo pipefail
 
-# --- Discover and source .scaffoldrc ---
+# --- Discover and source scoped environment ---
 _cur="$PWD"
 while [ "$_cur" != "/" ]; do
-  if [ -f "$_cur/.scaffoldrc" ]; then
-    source "$_cur/.scaffoldrc"
+  if [ -f "$_cur/.scaffoldrc.yaml" ]; then
+    [ -f "$_cur/.scaffoldrc_c_cmake" ] && source "$_cur/.scaffoldrc_c_cmake"
     break
   fi
   _cur="$(dirname "$_cur")"
 done
-[ -z "${WORKSPACE_DIR:-}" ] && [ -f "$HOME/.scaffoldrc" ] && source "$HOME/.scaffoldrc"
+[ -z "${WORKSPACE_DIR:-}" ] && [ -f "$HOME/.scaffoldrc_c_cmake" ] && source "$HOME/.scaffoldrc_c_cmake"
 
 # --- parse knobs ---
-# Use the BUILD_VARIANT from .scaffoldrc as the default!
+# Use the BUILD_VARIANT and PREFIX from .scaffoldrc as the default!
 VRAW="${BUILD_VARIANT:-debug}"
 COV="off"
+PREFIX="${PREFIX:-/usr/local}"
 
 for arg in "$@"; do
   case "$arg" in
@@ -50,6 +53,7 @@ cat <<EOF
 ▶ Building tests with:
   A_BUILD_VARIANT=${VAR_CMAKE}
   A_ENABLE_COVERAGE=${COV}
+  PREFIX=${PREFIX}
 EOF
 
 # --- choose -j ---
@@ -68,8 +72,10 @@ rm -rf build
 mkdir -p build
 cd build
 
+# Pass CMAKE_PREFIX_PATH so find_package knows where to look!
 cmake .. \
   -DA_BUILD_VARIANT="${VAR_CMAKE}" \
+  -DCMAKE_PREFIX_PATH="${PREFIX}" \
   -DA_ENABLE_COVERAGE=$([ "$COV" = "on" ] && echo ON || echo OFF) \
   "$@"
 
