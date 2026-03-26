@@ -1,17 +1,36 @@
 project_title: The Macro Library
 version: 0.0.1
+date_created: 2019-08-01
+stack: c/cmake
+profile: default-knode
 
-profile: andy-curtis/andy-curtis-knode
-template: cmake-c-git
+base_templates:
+  repo: https://github.com/contactandyc/scaffold-templates.git
+  ref: main
 
+dev_packages:
+  python3: true
+  python3-venv: true
+  python3-pip: true
 
-deps:
-  kind: header_only
+kind: header_only
+
+licenses:
+  dutch-national-flag:
+    spdx: |
+      Based on the Dutch national flag problem (https://en.wikipedia.org/wiki/Dutch_national_flag_problem)
+      Consulted: Bentley & McIlroy, “Engineering a sort function,”
+      Software – Practice and Experience 23(11): 1249–1265 (1993)
+    notice: |
+      Based on the Dutch national flag problem (https://en.wikipedia.org/wiki/Dutch_national_flag_problem)
+      Consulted: Bentley & McIlroy, “Engineering a sort function,”
+      Software – Practice and Experience 23(11): 1249–1265 (1993)
+
+license_extras:
+  "include/the-macro-library/src/macro_dutch_flag_partition.h": dutch-national-flag
 
 sources: []
 
-license_extras:
-  "include/the-macro-library/src/macro_dutch_flag_partition.h": andy-curtis/dutch-national-flag
 extra_targets: |
   add_custom_target(indent
       COMMAND python3 ${CMAKE_SOURCE_DIR}/bin/indent-macros ${CMAKE_SOURCE_DIR}/include/*/*.h ${CMAKE_SOURCE_DIR}/include/*/*/*.h
