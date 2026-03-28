@@ -1,5 +1,5 @@
 project_title: The Macro Library
-version: 0.0.1
+version: 0.1.0
 date_created: 2019-08-01
 stack: c/cmake
 profile: default-knode
