@@ -8,7 +8,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(the_macro_library
-  VERSION 0.0.1
+  VERSION 0.1.0
   LANGUAGES C
 )
 # ── Header-only target ─────────────────────────────────────────────────────────
@@ -65,6 +65,7 @@ add_custom_target(examples
     COMMENT "Building examples"
 )
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code ${CMAKE_SOURCE_DIR}/bin/indent-macros DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 
 enable_testing()
 
