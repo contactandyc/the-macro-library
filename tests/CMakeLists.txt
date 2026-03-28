@@ -17,11 +17,22 @@ option(A_ENABLE_COVERAGE "Enable code coverage instrumentation" OFF)
 
 find_library(M_LIB m)
 
-# ---- Test executables ----
-set(TEST_EXECUTABLES "")
-add_executable(test_macro_bsearch  src/test_macro_bsearch.c)
 
-target_include_directories(test_macro_bsearch PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+# Fallback for standalone test builds (when not included via add_subdirectory)
+if(NOT TARGET the_macro_library::the_macro_library)
+  find_package(the_macro_library CONFIG REQUIRED)
+endif()
+
+set(TEST_EXECUTABLES "")
+
+# ---- Targets ----
+add_executable(test_macro_bsearch
+  src/test_macro_bsearch.c
+)
+
+target_include_directories(test_macro_bsearch PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
 
 list(APPEND TEST_EXECUTABLES test_macro_bsearch)
 
@@ -36,9 +47,6 @@ if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
   )
 endif()
 
-if(NOT TARGET the_macro_library::the_macro_library)
-  find_package(the_macro_library CONFIG REQUIRED)
-endif()
 target_link_libraries(test_macro_bsearch PRIVATE the_macro_library::the_macro_library)
 
 if(M_LIB)
@@ -62,9 +70,13 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_bsearch COMMAND $<TARGET_FILE:test_macro_bsearch>)
-add_executable(test_macro_cmp  src/test_macro_cmp.c)
+add_executable(test_macro_cmp
+  src/test_macro_cmp.c
+)
 
-target_include_directories(test_macro_cmp PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(test_macro_cmp PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
 
 list(APPEND TEST_EXECUTABLES test_macro_cmp)
 
@@ -79,9 +91,6 @@ if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
   )
 endif()
 
-if(NOT TARGET the_macro_library::the_macro_library)
-  find_package(the_macro_library CONFIG REQUIRED)
-endif()
 target_link_libraries(test_macro_cmp PRIVATE the_macro_library::the_macro_library)
 
 if(M_LIB)
@@ -105,9 +114,13 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_cmp COMMAND $<TARGET_FILE:test_macro_cmp>)
-add_executable(test_macro_heap  src/test_macro_heap.c)
+add_executable(test_macro_heap
+  src/test_macro_heap.c
+)
 
-target_include_directories(test_macro_heap PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(test_macro_heap PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
 
 list(APPEND TEST_EXECUTABLES test_macro_heap)
 
@@ -122,9 +135,6 @@ if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
   )
 endif()
 
-if(NOT TARGET the_macro_library::the_macro_library)
-  find_package(the_macro_library CONFIG REQUIRED)
-endif()
 target_link_libraries(test_macro_heap PRIVATE the_macro_library::the_macro_library)
 
 if(M_LIB)
@@ -148,9 +158,13 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_heap COMMAND $<TARGET_FILE:test_macro_heap>)
-add_executable(test_macro_map  src/test_macro_map.c)
+add_executable(test_macro_map
+  src/test_macro_map.c
+)
 
-target_include_directories(test_macro_map PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(test_macro_map PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
 
 list(APPEND TEST_EXECUTABLES test_macro_map)
 
@@ -165,9 +179,6 @@ if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
   )
 endif()
 
-if(NOT TARGET the_macro_library::the_macro_library)
-  find_package(the_macro_library CONFIG REQUIRED)
-endif()
 target_link_libraries(test_macro_map PRIVATE the_macro_library::the_macro_library)
 
 if(M_LIB)
@@ -191,9 +202,13 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_map COMMAND $<TARGET_FILE:test_macro_map>)
-add_executable(test_macro_sort  src/test_macro_sort.c)
+add_executable(test_macro_sort
+  src/test_macro_sort.c
+)
 
-target_include_directories(test_macro_sort PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(test_macro_sort PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
 
 list(APPEND TEST_EXECUTABLES test_macro_sort)
 
@@ -208,9 +223,6 @@ if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
   )
 endif()
 
-if(NOT TARGET the_macro_library::the_macro_library)
-  find_package(the_macro_library CONFIG REQUIRED)
-endif()
 target_link_libraries(test_macro_sort PRIVATE the_macro_library::the_macro_library)
 
 if(M_LIB)
@@ -234,9 +246,13 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_sort COMMAND $<TARGET_FILE:test_macro_sort>)
-add_executable(test_macro_time  src/test_macro_time.c)
+add_executable(test_macro_time
+  src/test_macro_time.c
+)
 
-target_include_directories(test_macro_time PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(test_macro_time PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
 
 list(APPEND TEST_EXECUTABLES test_macro_time)
 
@@ -251,9 +267,6 @@ if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
   )
 endif()
 
-if(NOT TARGET the_macro_library::the_macro_library)
-  find_package(the_macro_library CONFIG REQUIRED)
-endif()
 target_link_libraries(test_macro_time PRIVATE the_macro_library::the_macro_library)
 
 if(M_LIB)
@@ -277,9 +290,13 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_time COMMAND $<TARGET_FILE:test_macro_time>)
-add_executable(test_macro_to  src/test_macro_to.c)
+add_executable(test_macro_to
+  src/test_macro_to.c
+)
 
-target_include_directories(test_macro_to PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(test_macro_to PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
 
 list(APPEND TEST_EXECUTABLES test_macro_to)
 
@@ -294,9 +311,6 @@ if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
   )
 endif()
 
-if(NOT TARGET the_macro_library::the_macro_library)
-  find_package(the_macro_library CONFIG REQUIRED)
-endif()
 target_link_libraries(test_macro_to PRIVATE the_macro_library::the_macro_library)
 
 if(M_LIB)
@@ -348,7 +362,7 @@ if(A_ENABLE_COVERAGE AND CMAKE_C_COMPILER_ID MATCHES "Clang")
       COMMENT "Merging coverage data"
     )
 
-    # For header-only, report coverage from all test executables
+    # For header-only or app stacks, report coverage from all test executables
     foreach(tgt IN LISTS TEST_EXECUTABLES)
       add_custom_command(TARGET coverage_report POST_BUILD
         COMMAND ${LLVM_COV_EXECUTABLE} show

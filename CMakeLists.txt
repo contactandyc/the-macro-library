@@ -26,8 +26,7 @@ target_compile_features(the_macro_library INTERFACE
 )
 
 include(GNUInstallDirs)
-install(DIRECTORY include/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Export + install targets
 install(TARGETS the_macro_library EXPORT the_macro_libraryTargets)
@@ -67,6 +66,7 @@ add_custom_target(examples
 )
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code ${CMAKE_SOURCE_DIR}/bin/indent-macros DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-
 enable_testing()
+
+# Dynamically mount all subprojects (apps, examples, tests, etc.)
 add_subdirectory(tests)
