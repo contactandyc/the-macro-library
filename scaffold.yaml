@@ -1,5 +1,5 @@
 project_title: The Macro Library
-version: 0.1.0
+version: 0.0.1
 date_created: 2019-08-01
 stack: c/cmake
 profile: default-knode
@@ -28,8 +28,6 @@ licenses:
 
 license_extras:
   "include/the-macro-library/src/macro_dutch_flag_partition.h": dutch-national-flag
-
-sources: []
 
 extra_targets: |
   add_custom_target(indent
