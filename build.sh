@@ -63,6 +63,58 @@ case "$COMMAND" in
     fi
     ;;
 
+  semver-check)
+    OLD_REF="${2:-}"
+
+    if [ -z "$OLD_REF" ]; then
+      # Fallback if this is the very first release and no previous tags exist
+      echo "PATCH"
+      exit 0
+    fi
+
+    if ! command -v abidiff &> /dev/null; then
+      echo "Error: abidiff not found. Are you running this inside the dev container?" >&2
+      exit 1
+    fi
+
+    # 1. Build the old reference in a temporary worktree
+    OLD_DIR=$(mktemp -d)
+    git worktree add "$OLD_DIR" "$OLD_REF" >/dev/null 2>&1
+
+    # Force 'shared' variant so abidiff can easily analyze the exported symbols
+    cmake -S "$OLD_DIR" -B "$OLD_DIR/build" -DA_BUILD_VARIANT=shared -DCMAKE_BUILD_TYPE=Debug >/dev/null 2>&1
+    cmake --build "$OLD_DIR/build" -j >/dev/null 2>&1
+
+    # 2. Build the current tree
+    cmake -S . -B build -DA_BUILD_VARIANT=shared -DCMAKE_BUILD_TYPE=Debug >/dev/null 2>&1
+    cmake --build build -j >/dev/null 2>&1
+
+    # 3. Compare the shared libraries
+    OLD_SO="$OLD_DIR/build/libthe_macro_library_shared.so"
+    NEW_SO="build/libthe_macro_library_shared.so"
+
+    # Temporarily disable 'set -e' because abidiff returns non-zero if it finds differences
+    set +e
+    abidiff "$OLD_SO" "$NEW_SO" > /dev/null
+    ABI_STATUS=$?
+    set -e
+
+    # Clean up the temporary git worktree
+    git worktree remove "$OLD_DIR" --force >/dev/null 2>&1
+
+    # 4. Parse libabigail exit codes (it uses bitmasks)
+    # Bit 2 (4): ABI breaking change (e.g., changed struct size, removed function) -> MAJOR
+    # Bit 3 (8): ABI compatible change (e.g., added a new function) -> MINOR
+
+    if [ $((ABI_STATUS & 4)) -ne 0 ]; then
+      echo "MAJOR"
+    elif [ $((ABI_STATUS & 8)) -ne 0 ]; then
+      echo "MINOR"
+    else
+      echo "PATCH"
+    fi
+    ;;
+
   coverage)
     echo "--- Cleaning Build Directories ---"
     rm -rf "$BUILD_DIR" "build-coverage"
