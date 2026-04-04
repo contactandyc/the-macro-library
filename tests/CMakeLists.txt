@@ -39,13 +39,9 @@ list(APPEND TEST_EXECUTABLES test_macro_bsearch)
 set_target_properties(test_macro_bsearch PROPERTIES
   C_STANDARD 23
   C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
 )
-if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
-  set_target_properties(test_macro_bsearch PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-  )
-endif()
 
 target_link_libraries(test_macro_bsearch PRIVATE the_macro_library::the_macro_library)
 
@@ -83,13 +79,9 @@ list(APPEND TEST_EXECUTABLES test_macro_cmp)
 set_target_properties(test_macro_cmp PROPERTIES
   C_STANDARD 23
   C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
 )
-if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
-  set_target_properties(test_macro_cmp PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-  )
-endif()
 
 target_link_libraries(test_macro_cmp PRIVATE the_macro_library::the_macro_library)
 
@@ -127,13 +119,9 @@ list(APPEND TEST_EXECUTABLES test_macro_heap)
 set_target_properties(test_macro_heap PROPERTIES
   C_STANDARD 23
   C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
 )
-if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
-  set_target_properties(test_macro_heap PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-  )
-endif()
 
 target_link_libraries(test_macro_heap PRIVATE the_macro_library::the_macro_library)
 
@@ -171,13 +159,9 @@ list(APPEND TEST_EXECUTABLES test_macro_map)
 set_target_properties(test_macro_map PROPERTIES
   C_STANDARD 23
   C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
 )
-if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
-  set_target_properties(test_macro_map PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-  )
-endif()
 
 target_link_libraries(test_macro_map PRIVATE the_macro_library::the_macro_library)
 
@@ -215,13 +199,9 @@ list(APPEND TEST_EXECUTABLES test_macro_sort)
 set_target_properties(test_macro_sort PROPERTIES
   C_STANDARD 23
   C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
 )
-if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
-  set_target_properties(test_macro_sort PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-  )
-endif()
 
 target_link_libraries(test_macro_sort PRIVATE the_macro_library::the_macro_library)
 
@@ -259,13 +239,9 @@ list(APPEND TEST_EXECUTABLES test_macro_time)
 set_target_properties(test_macro_time PROPERTIES
   C_STANDARD 23
   C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
 )
-if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
-  set_target_properties(test_macro_time PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-  )
-endif()
 
 target_link_libraries(test_macro_time PRIVATE the_macro_library::the_macro_library)
 
@@ -303,13 +279,9 @@ list(APPEND TEST_EXECUTABLES test_macro_to)
 set_target_properties(test_macro_to PROPERTIES
   C_STANDARD 23
   C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
 )
-if("CXX" IN_LIST CMAKE_PROJECT_LANGUAGES)
-  set_target_properties(test_macro_to PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-  )
-endif()
 
 target_link_libraries(test_macro_to PRIVATE the_macro_library::the_macro_library)
 
