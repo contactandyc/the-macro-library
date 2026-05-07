@@ -9,6 +9,11 @@ cmake_minimum_required(VERSION 3.20)
 
 project(the_macro_library_tests LANGUAGES C)
 
+if(CMAKE_PREFIX_PATH)
+  include_directories("${CMAKE_PREFIX_PATH}/include")
+  link_directories("${CMAKE_PREFIX_PATH}/lib")
+endif()
+
 set(A_BUILD_VARIANT "debug" CACHE STRING
     "Variant to link via the_macro_library::the_macro_library (debug|memory|static|shared)")
 set_property(CACHE A_BUILD_VARIANT PROPERTY STRINGS debug memory static shared)
@@ -26,12 +31,16 @@ endif()
 set(TEST_EXECUTABLES "")
 
 # ---- Targets ----
+# ==============================================================================
+# test_macro_bsearch Target (Standard Test)
+# ==============================================================================
 add_executable(test_macro_bsearch
   src/test_macro_bsearch.c
 )
 
 target_include_directories(test_macro_bsearch PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
 list(APPEND TEST_EXECUTABLES test_macro_bsearch)
@@ -66,12 +75,16 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_bsearch COMMAND $<TARGET_FILE:test_macro_bsearch>)
+# ==============================================================================
+# test_macro_cmp Target (Standard Test)
+# ==============================================================================
 add_executable(test_macro_cmp
   src/test_macro_cmp.c
 )
 
 target_include_directories(test_macro_cmp PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
 list(APPEND TEST_EXECUTABLES test_macro_cmp)
@@ -106,12 +119,16 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_cmp COMMAND $<TARGET_FILE:test_macro_cmp>)
+# ==============================================================================
+# test_macro_heap Target (Standard Test)
+# ==============================================================================
 add_executable(test_macro_heap
   src/test_macro_heap.c
 )
 
 target_include_directories(test_macro_heap PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
 list(APPEND TEST_EXECUTABLES test_macro_heap)
@@ -146,12 +163,16 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_heap COMMAND $<TARGET_FILE:test_macro_heap>)
+# ==============================================================================
+# test_macro_map Target (Standard Test)
+# ==============================================================================
 add_executable(test_macro_map
   src/test_macro_map.c
 )
 
 target_include_directories(test_macro_map PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
 list(APPEND TEST_EXECUTABLES test_macro_map)
@@ -186,12 +207,16 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_map COMMAND $<TARGET_FILE:test_macro_map>)
+# ==============================================================================
+# test_macro_sort Target (Standard Test)
+# ==============================================================================
 add_executable(test_macro_sort
   src/test_macro_sort.c
 )
 
 target_include_directories(test_macro_sort PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
 list(APPEND TEST_EXECUTABLES test_macro_sort)
@@ -226,12 +251,16 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_sort COMMAND $<TARGET_FILE:test_macro_sort>)
+# ==============================================================================
+# test_macro_time Target (Standard Test)
+# ==============================================================================
 add_executable(test_macro_time
   src/test_macro_time.c
 )
 
 target_include_directories(test_macro_time PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
 list(APPEND TEST_EXECUTABLES test_macro_time)
@@ -266,12 +295,16 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_time COMMAND $<TARGET_FILE:test_macro_time>)
+# ==============================================================================
+# test_macro_to Target (Standard Test)
+# ==============================================================================
 add_executable(test_macro_to
   src/test_macro_to.c
 )
 
 target_include_directories(test_macro_to PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
 list(APPEND TEST_EXECUTABLES test_macro_to)

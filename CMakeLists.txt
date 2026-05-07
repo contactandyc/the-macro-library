@@ -8,9 +8,14 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(the_macro_library
-  VERSION 0.2.2
+  VERSION 0.2.3
   LANGUAGES C
 )
+
+if(CMAKE_PREFIX_PATH)
+  include_directories("${CMAKE_PREFIX_PATH}/include")
+  link_directories("${CMAKE_PREFIX_PATH}/lib")
+endif()
 # ── Header-only target ─────────────────────────────────────────────────────────
 add_library(the_macro_library INTERFACE)
 add_library(the_macro_library::the_macro_library ALIAS the_macro_library)
@@ -67,7 +72,11 @@ add_custom_target(examples
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/bin/convert-macros-to-code ${CMAKE_SOURCE_DIR}/bin/indent-macros DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 
-enable_testing()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests")
+  enable_testing()
+  add_subdirectory("tests")
+endif()
 
 # Dynamically mount all subprojects (apps, examples, tests, etc.)
-add_subdirectory(tests)
+# # add_subdirectory(tests)
+# 
