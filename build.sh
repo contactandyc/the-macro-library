@@ -41,52 +41,46 @@ case "$COMMAND" in
   bootstrap)
     echo "--- Bootstrapping Hermetic Workspace ---"
 
-    # 1. Isolate the Python scaffolding engine
+    # --- FAILSAFE: Shield against leaky parent environments ---
+    export PREFIX="$PWD/repos/install"
+    export WORKSPACE_DIR="$PWD/repos"
+
+    # 1. Fetch the scaffolding engine to disk so it is visible and editable
+    mkdir -p repos
+    if [ ! -d "repos/scaffold-repo" ]; then
+        echo "📦 Fetching scaffold engine into repos/scaffold-repo..."
+        git clone --branch "main" \
+            "https://github.com/contactandyc/scaffold-repo.git" \
+            "repos/scaffold-repo"
+    else
+        echo "📦 Scaffold engine already exists at repos/scaffold-repo. Leaving untouched."
+    fi
+
+    # 2. Isolate the Python scaffolding environment (The Sandbox)
     if [ ! -d ".scaffold/venv" ]; then
-        echo "Creating isolated Python environment..."
+        echo "Creating isolated Python sandbox..."
         python3 -m venv .scaffold/venv
-    fi
-    source .scaffold/venv/bin/activate
-    pip install --upgrade pip -q
-
-    echo "Installing scaffold-repo CLI..."
-    # Jinja safely checks if the block exists before accessing its properties
-    pip install -q "git+https://github.com/contactandyc/scaffold-repo.git@main"
-
-    # 2. Workspace Initialization
-    if [ ! -f ".scaffoldrc.yaml" ]; then
-        echo "⚙️  Seeding workspace defaults..."
-
-        # Safely fetch the base_templates block
-        cat <<EOF > .scaffoldrc.yaml
-workspace_dir: "repos"
-template_registry_url: "https://github.com/contactandyc/scaffold-templates.git"
-template_registry_ref: "main"
-EOF
-
-        # Check if we have a real human terminal AND we are not in a CI runner
-        if [ -t 0 ] && [ -z "${CI:-}" ]; then
-            echo "⚙️  Launching interactive workspace setup..."
-            scaffold-init
-        else
-            echo "⚙️  Headless environment detected. Auto-configuring hermetic defaults..."
-            # Since the wizard won't run, manually write the scoped bash variables
-            cat <<EOF > .scaffoldrc_c_cmake
-export WORKSPACE_DIR="\$PWD/repos"
-export PREFIX="\$PWD/repos/install"
-export BUILD_TYPE="RelWithDebInfo"
-export BUILD_VARIANT="static"
-EOF
-        fi
+        source .scaffold/venv/bin/activate
+        pip install --upgrade pip -q
+    else
+        source .scaffold/venv/bin/activate
     fi
 
-    # 3. Trigger the Engine
-    echo "🏗️  Resolving dependency graph..."
+    # ALWAYS sync the engine's entry points into the sandbox
+    echo "Installing scaffold engine into sandbox..."
+    pip install -q -e repos/scaffold-repo
+
+    # 3. Generate local hermetic configs & clone dependencies recursively
+    scaffold-bootstrap
+
+    # 4. Compile the newly cloned dependencies
     scaffold-repo --build-deps
 
     echo ""
     echo "✅ Bootstrap complete! All dependencies are isolated in your workspace."
-    echo "   Run './build.sh build' to compile this project."
+
+    # Automatically cascade into a first-party build!
+    "$0" build
     ;;
 
   build|install)
