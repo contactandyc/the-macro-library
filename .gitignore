@@ -1,4 +1,6 @@
 venv
+repos
+.scaffoldrc*
 build
 .idea
 *~

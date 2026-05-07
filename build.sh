@@ -38,6 +38,57 @@ pick_generator() {
 
 # --- Main Logic ---
 case "$COMMAND" in
+  bootstrap)
+    echo "--- Bootstrapping Hermetic Workspace ---"
+
+    # 1. Isolate the Python scaffolding engine
+    if [ ! -d ".scaffold/venv" ]; then
+        echo "Creating isolated Python environment..."
+        python3 -m venv .scaffold/venv
+    fi
+    source .scaffold/venv/bin/activate
+    pip install --upgrade pip -q
+
+    echo "Installing scaffold-repo CLI..."
+    # Jinja safely checks if the block exists before accessing its properties
+    pip install -q "git+https://github.com/contactandyc/scaffold-repo.git@main"
+
+    # 2. Workspace Initialization
+    if [ ! -f ".scaffoldrc.yaml" ]; then
+        echo "⚙️  Seeding workspace defaults..."
+
+        # Safely fetch the base_templates block
+        cat <<EOF > .scaffoldrc.yaml
+workspace_dir: "repos"
+template_registry_url: "https://github.com/contactandyc/scaffold-templates.git"
+template_registry_ref: "main"
+EOF
+
+        # Check if we have a real human terminal AND we are not in a CI runner
+        if [ -t 0 ] && [ -z "${CI:-}" ]; then
+            echo "⚙️  Launching interactive workspace setup..."
+            scaffold-init
+        else
+            echo "⚙️  Headless environment detected. Auto-configuring hermetic defaults..."
+            # Since the wizard won't run, manually write the scoped bash variables
+            cat <<EOF > .scaffoldrc_c_cmake
+export WORKSPACE_DIR="\$PWD/repos"
+export PREFIX="\$PWD/repos/install"
+export BUILD_TYPE="RelWithDebInfo"
+export BUILD_VARIANT="static"
+EOF
+        fi
+    fi
+
+    # 3. Trigger the Engine
+    echo "🏗️  Resolving dependency graph..."
+    scaffold-repo --build-deps
+
+    echo ""
+    echo "✅ Bootstrap complete! All dependencies are isolated in your workspace."
+    echo "   Run './build.sh build' to compile this project."
+    ;;
+
   build|install)
     pick_generator
     echo "--- Building Project (Generator: $GENERATOR, Variant: $BUILD_VARIANT) ---"
@@ -156,7 +207,7 @@ case "$COMMAND" in
     ;;
 
   *)
-    echo "Usage: $0 [build|install|coverage|clean]" >&2
+    echo "Usage: $0 [bootstrap|build|install|coverage|clean]" >&2
     exit 1
     ;;
 esac
