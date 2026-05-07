@@ -8,7 +8,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(the_macro_library
-  VERSION 0.2.3
+  VERSION 0.2.4
   LANGUAGES C
 )
 
