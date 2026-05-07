@@ -1,7 +1,7 @@
 # BUILDING
 
 This project: **The Macro Library**
-Version: **0.2.2**
+Version: **0.2.3**
 
 ## Local build
 
