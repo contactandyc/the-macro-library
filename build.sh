@@ -43,7 +43,7 @@ case "$COMMAND" in
     rm -rf repos .scaffold*
     rm -rf "$BUILD_DIR"
     echo "✅ Unboot complete."
-    ;;;
+    ;;
   bootstrap)
     echo "--- Bootstrapping Hermetic Workspace ---"
 
