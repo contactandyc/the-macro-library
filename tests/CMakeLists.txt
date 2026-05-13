@@ -53,7 +53,7 @@ add_executable(test_macro_bsearch
   src/test_macro_bsearch.c
 )
 
-target_include_directories(test_macro_bsearch PRIVATE
+target_include_directories(test_macro_bsearch BEFORE PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
@@ -97,7 +97,7 @@ add_executable(test_macro_cmp
   src/test_macro_cmp.c
 )
 
-target_include_directories(test_macro_cmp PRIVATE
+target_include_directories(test_macro_cmp BEFORE PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
@@ -141,7 +141,7 @@ add_executable(test_macro_heap
   src/test_macro_heap.c
 )
 
-target_include_directories(test_macro_heap PRIVATE
+target_include_directories(test_macro_heap BEFORE PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
@@ -185,7 +185,7 @@ add_executable(test_macro_map
   src/test_macro_map.c
 )
 
-target_include_directories(test_macro_map PRIVATE
+target_include_directories(test_macro_map BEFORE PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
@@ -229,7 +229,7 @@ add_executable(test_macro_skiplist
   src/test_macro_skiplist.c
 )
 
-target_include_directories(test_macro_skiplist PRIVATE
+target_include_directories(test_macro_skiplist BEFORE PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
@@ -273,7 +273,7 @@ add_executable(test_macro_sort
   src/test_macro_sort.c
 )
 
-target_include_directories(test_macro_sort PRIVATE
+target_include_directories(test_macro_sort BEFORE PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
@@ -317,7 +317,7 @@ add_executable(test_macro_time
   src/test_macro_time.c
 )
 
-target_include_directories(test_macro_time PRIVATE
+target_include_directories(test_macro_time BEFORE PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
@@ -361,7 +361,7 @@ add_executable(test_macro_to
   src/test_macro_to.c
 )
 
-target_include_directories(test_macro_to PRIVATE
+target_include_directories(test_macro_to BEFORE PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../src
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
