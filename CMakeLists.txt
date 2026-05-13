@@ -40,12 +40,32 @@ install(EXPORT the_macro_libraryTargets
   NAMESPACE the_macro_library::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/the_macro_library)
 
+# ---- Package config with dynamic generation ----------------------------------
+set(_CFG_IN "${CMAKE_CURRENT_BINARY_DIR}/config.cmake.in")
+file(WRITE "${_CFG_IN}" [=[
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+
+set(_deps "@A_BUILD_DEPS@")
+foreach(_dep IN LISTS _deps)
+  if(_dep)
+    find_dependency("${_dep}" REQUIRED)
+  endif()
+endforeach()
+
+include("${CMAKE_CURRENT_LIST_DIR}/the_macro_libraryTargets.cmake")
+check_required_components(the_macro_library)
+]=])
+
+set(A_BUILD_DEPS "")
+
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/the_macro_libraryConfig.cmake
+  "${_CFG_IN}"
+  "${CMAKE_CURRENT_BINARY_DIR}/the_macro_libraryConfig.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/the_macro_library
 )
+
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/the_macro_libraryConfigVersion.cmake
   VERSION ${PROJECT_VERSION}

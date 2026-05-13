@@ -20,6 +20,21 @@ set_property(CACHE A_BUILD_VARIANT PROPERTY STRINGS debug memory static shared)
 
 option(A_ENABLE_COVERAGE "Enable code coverage instrumentation" OFF)
 
+# ---- Determine compiler flags based on the variant ----
+if(MSVC)
+  set(_A_DEBUG_OPTS /Zi /Od)
+  set(_A_RELEASE_OPTS /O2 /DNDEBUG)
+else()
+  set(_A_DEBUG_OPTS -O0 -g)
+  set(_A_RELEASE_OPTS -O3 -DNDEBUG)
+endif()
+
+if(A_BUILD_VARIANT STREQUAL "debug" OR A_BUILD_VARIANT STREQUAL "memory")
+  set(TEST_COMPILER_OPTS ${_A_DEBUG_OPTS})
+else()
+  set(TEST_COMPILER_OPTS ${_A_RELEASE_OPTS})
+endif()
+
 find_library(M_LIB m)
 
 
@@ -59,9 +74,9 @@ if(M_LIB)
 endif()
 
 if(MSVC)
-  target_compile_options(test_macro_bsearch PRIVATE /W4)
+  target_compile_options(test_macro_bsearch PRIVATE /W4 ${TEST_COMPILER_OPTS})
 else()
-  target_compile_options(test_macro_bsearch PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(test_macro_bsearch PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
 endif()
 
 if(A_ENABLE_COVERAGE)
@@ -103,9 +118,9 @@ if(M_LIB)
 endif()
 
 if(MSVC)
-  target_compile_options(test_macro_cmp PRIVATE /W4)
+  target_compile_options(test_macro_cmp PRIVATE /W4 ${TEST_COMPILER_OPTS})
 else()
-  target_compile_options(test_macro_cmp PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(test_macro_cmp PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
 endif()
 
 if(A_ENABLE_COVERAGE)
@@ -147,9 +162,9 @@ if(M_LIB)
 endif()
 
 if(MSVC)
-  target_compile_options(test_macro_heap PRIVATE /W4)
+  target_compile_options(test_macro_heap PRIVATE /W4 ${TEST_COMPILER_OPTS})
 else()
-  target_compile_options(test_macro_heap PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(test_macro_heap PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
 endif()
 
 if(A_ENABLE_COVERAGE)
@@ -191,9 +206,9 @@ if(M_LIB)
 endif()
 
 if(MSVC)
-  target_compile_options(test_macro_map PRIVATE /W4)
+  target_compile_options(test_macro_map PRIVATE /W4 ${TEST_COMPILER_OPTS})
 else()
-  target_compile_options(test_macro_map PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(test_macro_map PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
 endif()
 
 if(A_ENABLE_COVERAGE)
@@ -207,6 +222,50 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_map COMMAND $<TARGET_FILE:test_macro_map>)
+# ==============================================================================
+# test_macro_skiplist Target (Standard Test)
+# ==============================================================================
+add_executable(test_macro_skiplist
+  src/test_macro_skiplist.c
+)
+
+target_include_directories(test_macro_skiplist PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
+
+list(APPEND TEST_EXECUTABLES test_macro_skiplist)
+
+set_target_properties(test_macro_skiplist PROPERTIES
+  C_STANDARD 23
+  C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
+)
+
+target_link_libraries(test_macro_skiplist PRIVATE the_macro_library::the_macro_library)
+
+if(M_LIB)
+  target_link_libraries(test_macro_skiplist PRIVATE ${M_LIB})
+endif()
+
+if(MSVC)
+  target_compile_options(test_macro_skiplist PRIVATE /W4 ${TEST_COMPILER_OPTS})
+else()
+  target_compile_options(test_macro_skiplist PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
+endif()
+
+if(A_ENABLE_COVERAGE)
+  if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+    target_compile_options(test_macro_skiplist PRIVATE -O0 -g -fprofile-instr-generate -fcoverage-mapping)
+    target_link_options(test_macro_skiplist PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+  elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(test_macro_skiplist PRIVATE -O0 -g --coverage)
+    target_link_options(test_macro_skiplist PRIVATE --coverage)
+  endif()
+endif()
+
+add_test(NAME test_macro_skiplist COMMAND $<TARGET_FILE:test_macro_skiplist>)
 # ==============================================================================
 # test_macro_sort Target (Standard Test)
 # ==============================================================================
@@ -235,9 +294,9 @@ if(M_LIB)
 endif()
 
 if(MSVC)
-  target_compile_options(test_macro_sort PRIVATE /W4)
+  target_compile_options(test_macro_sort PRIVATE /W4 ${TEST_COMPILER_OPTS})
 else()
-  target_compile_options(test_macro_sort PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(test_macro_sort PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
 endif()
 
 if(A_ENABLE_COVERAGE)
@@ -279,9 +338,9 @@ if(M_LIB)
 endif()
 
 if(MSVC)
-  target_compile_options(test_macro_time PRIVATE /W4)
+  target_compile_options(test_macro_time PRIVATE /W4 ${TEST_COMPILER_OPTS})
 else()
-  target_compile_options(test_macro_time PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(test_macro_time PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
 endif()
 
 if(A_ENABLE_COVERAGE)
@@ -323,9 +382,9 @@ if(M_LIB)
 endif()
 
 if(MSVC)
-  target_compile_options(test_macro_to PRIVATE /W4)
+  target_compile_options(test_macro_to PRIVATE /W4 ${TEST_COMPILER_OPTS})
 else()
-  target_compile_options(test_macro_to PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(test_macro_to PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
 endif()
 
 if(A_ENABLE_COVERAGE)
