@@ -41,15 +41,18 @@ case "$COMMAND" in
   unboot)
     echo "-- Removing bootstrap artifacts --"
     rm -rf repos .scaffold*
-    rm -rf "$BUILD_DIR"
+    rm -rf "$BUILD_DIR" "build-coverage"
     echo "✅ Unboot complete."
     ;;
-  bootstrap)
+
+  bootstrap|bootstrap-test)
     echo "--- Bootstrapping Hermetic Workspace ---"
 
     # --- FAILSAFE: Shield against leaky parent environments ---
     export PREFIX="$PWD/repos/install"
     export WORKSPACE_DIR="$PWD/repos"
+    export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+    export CMAKE_PREFIX_PATH="$PREFIX"
 
     # 1. Fetch the scaffolding engine to disk so it is visible and editable
     mkdir -p repos
@@ -85,13 +88,41 @@ case "$COMMAND" in
     echo ""
     echo "✅ Bootstrap complete! All dependencies are isolated in your workspace."
 
-    # Automatically cascade into a first-party build!
-    "$0" build
+    # Automatically cascade into the correct first-party build or test
+    if [ "$COMMAND" = "bootstrap-test" ]; then
+      "$0" test
+    else
+      "$0" build
+    fi
+    ;;
+
+  test)
+    pick_generator
+    echo "--- Building and Running Tests (Generator: $GENERATOR, Variant: $BUILD_VARIANT) ---"
+
+    export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+    export CMAKE_PREFIX_PATH="$PREFIX"
+
+    cmake -S . -B "$BUILD_DIR" -G "$GENERATOR" \
+      -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
+      -DCMAKE_PREFIX_PATH="$PREFIX" \
+      -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+      -DA_BUILD_VARIANT="$BUILD_VARIANT"
+
+    cmake --build "$BUILD_DIR" -j
+
+    echo "--- Executing Test Suite ---"
+    cd "$BUILD_DIR"
+    ctest --output-on-failure
+    echo "✅ All tests passed."
     ;;
 
   build|install)
     pick_generator
     echo "--- Building Project (Generator: $GENERATOR, Variant: $BUILD_VARIANT) ---"
+
+    export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+    export CMAKE_PREFIX_PATH="$PREFIX"
 
     cmake -S . -B "$BUILD_DIR" -G "$GENERATOR" \
       -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
@@ -127,6 +158,9 @@ case "$COMMAND" in
       echo "Error: abidiff not found. Are you running this inside the dev container?" >&2
       exit 1
     fi
+
+    export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+    export CMAKE_PREFIX_PATH="$PREFIX"
 
     # 1. Build the old reference in a temporary worktree
     OLD_DIR=$(mktemp -d)
@@ -175,6 +209,9 @@ case "$COMMAND" in
     COV_BUILD_DIR="build-coverage"
     echo "--- Running Coverage (Generator: $GENERATOR) ---"
 
+    export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+    export CMAKE_PREFIX_PATH="$PREFIX"
+
     cmake -S . -B "$COV_BUILD_DIR" -G "$GENERATOR" \
       -DA_ENABLE_COVERAGE=ON \
       -DCMAKE_BUILD_TYPE=Debug \
@@ -207,7 +244,7 @@ case "$COMMAND" in
     ;;
 
   *)
-    echo "Usage: $0 [bootstrap|unboot|build|install|coverage|clean]" >&2
+    echo "Usage: $0 [bootstrap|bootstrap-test|unboot|build|install|test|coverage|clean]" >&2
     exit 1
     ;;
 esac

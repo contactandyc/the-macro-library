@@ -135,6 +135,50 @@ endif()
 
 add_test(NAME test_macro_cmp COMMAND $<TARGET_FILE:test_macro_cmp>)
 # ==============================================================================
+# test_macro_codec Target (Standard Test)
+# ==============================================================================
+add_executable(test_macro_codec
+  src/test_macro_codec.c
+)
+
+target_include_directories(test_macro_codec BEFORE PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
+
+list(APPEND TEST_EXECUTABLES test_macro_codec)
+
+set_target_properties(test_macro_codec PROPERTIES
+  C_STANDARD 23
+  C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
+)
+
+target_link_libraries(test_macro_codec PRIVATE the_macro_library::the_macro_library)
+
+if(M_LIB)
+  target_link_libraries(test_macro_codec PRIVATE ${M_LIB})
+endif()
+
+if(MSVC)
+  target_compile_options(test_macro_codec PRIVATE /W4 ${TEST_COMPILER_OPTS})
+else()
+  target_compile_options(test_macro_codec PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
+endif()
+
+if(A_ENABLE_COVERAGE)
+  if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+    target_compile_options(test_macro_codec PRIVATE -O0 -g -fprofile-instr-generate -fcoverage-mapping)
+    target_link_options(test_macro_codec PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+  elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(test_macro_codec PRIVATE -O0 -g --coverage)
+    target_link_options(test_macro_codec PRIVATE --coverage)
+  endif()
+endif()
+
+add_test(NAME test_macro_codec COMMAND $<TARGET_FILE:test_macro_codec>)
+# ==============================================================================
 # test_macro_heap Target (Standard Test)
 # ==============================================================================
 add_executable(test_macro_heap
@@ -178,6 +222,94 @@ if(A_ENABLE_COVERAGE)
 endif()
 
 add_test(NAME test_macro_heap COMMAND $<TARGET_FILE:test_macro_heap>)
+# ==============================================================================
+# test_macro_kway_merge Target (Standard Test)
+# ==============================================================================
+add_executable(test_macro_kway_merge
+  src/test_macro_kway_merge.c
+)
+
+target_include_directories(test_macro_kway_merge BEFORE PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
+
+list(APPEND TEST_EXECUTABLES test_macro_kway_merge)
+
+set_target_properties(test_macro_kway_merge PROPERTIES
+  C_STANDARD 23
+  C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
+)
+
+target_link_libraries(test_macro_kway_merge PRIVATE the_macro_library::the_macro_library)
+
+if(M_LIB)
+  target_link_libraries(test_macro_kway_merge PRIVATE ${M_LIB})
+endif()
+
+if(MSVC)
+  target_compile_options(test_macro_kway_merge PRIVATE /W4 ${TEST_COMPILER_OPTS})
+else()
+  target_compile_options(test_macro_kway_merge PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
+endif()
+
+if(A_ENABLE_COVERAGE)
+  if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+    target_compile_options(test_macro_kway_merge PRIVATE -O0 -g -fprofile-instr-generate -fcoverage-mapping)
+    target_link_options(test_macro_kway_merge PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+  elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(test_macro_kway_merge PRIVATE -O0 -g --coverage)
+    target_link_options(test_macro_kway_merge PRIVATE --coverage)
+  endif()
+endif()
+
+add_test(NAME test_macro_kway_merge COMMAND $<TARGET_FILE:test_macro_kway_merge>)
+# ==============================================================================
+# test_macro_lru Target (Standard Test)
+# ==============================================================================
+add_executable(test_macro_lru
+  src/test_macro_lru.c
+)
+
+target_include_directories(test_macro_lru BEFORE PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
+
+list(APPEND TEST_EXECUTABLES test_macro_lru)
+
+set_target_properties(test_macro_lru PROPERTIES
+  C_STANDARD 23
+  C_STANDARD_REQUIRED YES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
+)
+
+target_link_libraries(test_macro_lru PRIVATE the_macro_library::the_macro_library)
+
+if(M_LIB)
+  target_link_libraries(test_macro_lru PRIVATE ${M_LIB})
+endif()
+
+if(MSVC)
+  target_compile_options(test_macro_lru PRIVATE /W4 ${TEST_COMPILER_OPTS})
+else()
+  target_compile_options(test_macro_lru PRIVATE -Wall -Wextra -Wpedantic ${TEST_COMPILER_OPTS})
+endif()
+
+if(A_ENABLE_COVERAGE)
+  if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+    target_compile_options(test_macro_lru PRIVATE -O0 -g -fprofile-instr-generate -fcoverage-mapping)
+    target_link_options(test_macro_lru PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+  elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(test_macro_lru PRIVATE -O0 -g --coverage)
+    target_link_options(test_macro_lru PRIVATE --coverage)
+  endif()
+endif()
+
+add_test(NAME test_macro_lru COMMAND $<TARGET_FILE:test_macro_lru>)
 # ==============================================================================
 # test_macro_map Target (Standard Test)
 # ==============================================================================
