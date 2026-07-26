@@ -69,7 +69,7 @@ static inline size_t macro_string_id_find(const macro_map_t *root, const char *s
     if(!str)
         return 0;
 
-    macro_string_id_map_t* r = _macro_string_id_find(root, str);
+    macro_string_id_map_t* r = macro_string_id_find_node(root, str);
     if(r) return r->id;
     return 0;
 }
