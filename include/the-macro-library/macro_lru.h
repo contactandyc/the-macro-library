@@ -4,8 +4,8 @@
 //
 // Maintainer: Andy Curtis <contactandyc@gmail.com>
 
-#ifndef _MACRO_LRU_H
-#define _MACRO_LRU_H
+#ifndef _macro_lru_H
+#define _macro_lru_H
 
 /* Intrusive Doubly-Linked List macros for LRU tracking. */
 

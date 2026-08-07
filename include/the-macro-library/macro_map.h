@@ -16,6 +16,7 @@
 // Important: These APIs assume macro_map_t is the first member of your value type. If it is not, use the
 // _with_field variants.
 
+#include "the-macro-library/macro_parent_object.h"
 #include "the-macro-library/macro_cmp.h"
 
 #ifndef STATIC_ASSERT
@@ -80,13 +81,11 @@ static inline macro_map_t *macro_map_postorder_next(macro_map_t *n);
 */
 typedef macro_map_t *(*macro_map_copy_node_cb)(macro_map_t *n, void *arg);
 
-static macro_map_t *macro_map_copy(macro_map_t *root, macro_map_copy_node_cb copy, void *arg);
+static inline macro_map_t *macro_map_copy(macro_map_t *root, macro_map_copy_node_cb copy, void *arg);
 
-__attribute__((unused))
-static bool macro_map_erase(macro_map_t **root, macro_map_t *node);
+static inline bool macro_map_erase(macro_map_t **root, macro_map_t *node);
 
-__attribute__((unused))
-static void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t **root);
+static inline void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t **root);
 
 #define macro_map_color(n)            ((n)->parent_color & (uintptr_t)1)
 #define _macro_map_is_red(n)          ((((n)->parent_color & (uintptr_t)1) == 0))
@@ -173,7 +172,7 @@ static inline macro_map_t *macro_map_postorder_next(macro_map_t *n) {
 }
 
 /* copy */
-static void _macro_map_tree_copy(macro_map_t *n, macro_map_t **res, macro_map_t *parent,
+static inline void _macro_map_tree_copy(macro_map_t *n, macro_map_t **res, macro_map_t *parent,
                                         macro_map_copy_node_cb copy, void *arg) {
     macro_map_t *c = copy(n, arg);
     *res = c;
@@ -240,7 +239,7 @@ static inline void _macro_map_rotate_right(macro_map_t *A, macro_map_t **root) {
 }
 
 
-static void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t **root) {
+static inline void _macro_map_fix_insert(macro_map_t *node, macro_map_t *parent, macro_map_t **root) {
     _macro_map_set_red(node);
     _macro_map_set_parent(node, parent);
     node->left = node->right = NULL;
@@ -349,7 +348,7 @@ static inline void _replace_node_with_child(macro_map_t *child, macro_map_t *nod
     child->parent_color = node->parent_color;
 }
 
-static bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
+static inline bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     macro_map_t *parent = _macro_map_parent(node);
     if (!node->left) {
         if (node->right)
@@ -404,14 +403,6 @@ static bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     }
     return true;
 }
-
-/*
-  Given an address of a member of a structure, the base object type, and the
-  field name, return the address of the base structure.
-*/
-#define macro_parent_object(addr, base_type, field)    \
-  ((base_type *)((char *)(addr) - offsetof(base_type, field)))
-
 
 
 #define _macro_map_find_code_head(value_type)
@@ -788,5 +779,474 @@ static bool macro_map_erase(macro_map_t **root, macro_map_t *node) {
     _macro_multimap_insert_compare_with_field(name, field, macro_map_default(), type)
 
 #define macro_multimap_insert_compare(name, type) _macro_multimap_insert_compare(name, macro_map_default(), type)
+
+/* --------------------------------------------------------------------------
+ * REMOVE WRAPPERS (Node-based unlinking)
+ * -------------------------------------------------------------------------- */
+#define macro_map_remove_h(name, type) \
+    static inline type * name(macro_map_t **root, type *node)
+
+#define macro_map_remove_with_field(name, field, type) \
+    macro_map_remove_h(name, type) { \
+        if (node && macro_map_erase(root, &node->field)) return node; \
+        return NULL; \
+    }
+
+#define macro_map_remove(name, type) \
+    macro_map_remove_h(name, type) { \
+        if (node && macro_map_erase(root, (macro_map_t *)node)) return node; \
+        return NULL; \
+    }
+/* ==========================================================================
+ * INTERNAL GENERATOR ENGINE (Linkage Parameterized)
+ * ========================================================================== */
+
+/* Standard Maps */
+#define __macro_map_api_h(MOD, prefix, type) \
+    MOD _macro_map_h(prefix##_find, macro_map_default(), type); \
+    MOD _macro_map_insert_h(prefix##_insert, macro_map_default(), type); \
+    MOD macro_map_remove_h(prefix##_remove, type); \
+    MOD type * prefix##_erase(macro_map_t **root, const type *key)
+
+#define __macro_map_api_h_with_field(MOD, prefix, field, type) \
+    MOD _macro_map_h(prefix##_find, macro_map_default(), type); \
+    MOD _macro_map_insert_h(prefix##_insert, macro_map_default(), type); \
+    MOD macro_map_remove_h(prefix##_remove, type); \
+    MOD type * prefix##_erase(macro_map_t **root, const type *key)
+
+#define __macro_map_api(MOD, prefix, type, cmp) \
+    MOD macro_map_find(prefix##_find, type, cmp) \
+    MOD macro_map_insert(prefix##_insert, type, cmp) \
+    MOD macro_map_remove(prefix##_remove, type) \
+    MOD type * prefix##_erase(macro_map_t **root, const type *key) { \
+        type *node = prefix##_find(*root, key); \
+        if (node) prefix##_remove(root, node); \
+        return node; \
+    }
+
+#define __macro_map_api_with_field(MOD, prefix, field, type, cmp) \
+    MOD macro_map_find_with_field(prefix##_find, field, type, cmp) \
+    MOD macro_map_insert_with_field(prefix##_insert, field, type, cmp) \
+    MOD macro_map_remove_with_field(prefix##_remove, field, type) \
+    MOD type * prefix##_erase(macro_map_t **root, const type *key) { \
+        type *node = prefix##_find(*root, key); \
+        if (node) prefix##_remove(root, node); \
+        return node; \
+    }
+
+/* KV Maps */
+#define __macro_map_kv_api_h(MOD, prefix, key_type, value_type) \
+    MOD _macro_map_kv_h(prefix##_find, macro_map_default(), key_type, value_type); \
+    MOD _macro_map_insert_h(prefix##_insert, macro_map_default(), value_type); \
+    MOD macro_map_remove_h(prefix##_remove, value_type); \
+    MOD value_type * prefix##_erase(macro_map_t **root, const key_type *key)
+
+#define __macro_map_kv_api_h_with_field(MOD, prefix, field, key_type, value_type) \
+    MOD _macro_map_kv_h(prefix##_find, macro_map_default(), key_type, value_type); \
+    MOD _macro_map_insert_h(prefix##_insert, macro_map_default(), value_type); \
+    MOD macro_map_remove_h(prefix##_remove, value_type); \
+    MOD value_type * prefix##_erase(macro_map_t **root, const key_type *key)
+
+#define __macro_map_kv_api(MOD, prefix, key_type, value_type, cmp) \
+    MOD macro_map_find_kv(prefix##_find, key_type, value_type, cmp) \
+    MOD macro_map_insert(prefix##_insert, value_type, cmp) \
+    MOD macro_map_remove(prefix##_remove, value_type) \
+    MOD value_type * prefix##_erase(macro_map_t **root, const key_type *key) { \
+        value_type *node = prefix##_find(*root, key); \
+        if (node) prefix##_remove(root, node); \
+        return node; \
+    }
+
+#define __macro_map_kv_api_with_field(MOD, prefix, field, key_type, value_type, cmp) \
+    MOD macro_map_find_kv_with_field(prefix##_find, field, key_type, value_type, cmp) \
+    MOD macro_map_insert_with_field(prefix##_insert, field, value_type, cmp) \
+    MOD macro_map_remove_with_field(prefix##_remove, field, value_type) \
+    MOD value_type * prefix##_erase(macro_map_t **root, const key_type *key) { \
+        value_type *node = prefix##_find(*root, key); \
+        if (node) prefix##_remove(root, node); \
+        return node; \
+    }
+
+/* Multimaps */
+#define __macro_multimap_api_h(MOD, prefix, type) \
+    MOD _macro_map_h(prefix##_lower_bound, macro_map_default(), type); \
+    MOD type * prefix##_find(const macro_map_t *root, const type *key); \
+    MOD _macro_map_insert_h(prefix##_insert, macro_map_default(), type); \
+    MOD macro_map_remove_h(prefix##_remove, type)
+
+#define __macro_multimap_api_h_with_field(MOD, prefix, field, type) \
+    MOD _macro_map_h(prefix##_lower_bound, macro_map_default(), type); \
+    MOD type * prefix##_find(const macro_map_t *root, const type *key); \
+    MOD _macro_map_insert_h(prefix##_insert, macro_map_default(), type); \
+    MOD macro_map_remove_h(prefix##_remove, type)
+
+#define __macro_multimap_api(MOD, prefix, type, cmp) \
+    MOD _macro_map(prefix##_lower_bound, lower_bound, macro_map_default(), type, cmp) \
+    MOD type * prefix##_find(const macro_map_t *root, const type *key) { \
+        type *node = prefix##_lower_bound(root, key); \
+        if (node && macro_equal(macro_map_default(), type, cmp, key, node)) return node; \
+        return NULL; \
+    } \
+    MOD macro_multimap_insert(prefix##_insert, type, cmp) \
+    MOD macro_map_remove(prefix##_remove, type)
+
+#define __macro_multimap_api_with_field(MOD, prefix, field, type, cmp) \
+    MOD _macro_map_with_field(prefix##_lower_bound, field, lower_bound, macro_map_default(), type, cmp) \
+    MOD type * prefix##_find(const macro_map_t *root, const type *key) { \
+        type *node = prefix##_lower_bound(root, key); \
+        if (node && macro_equal(macro_map_default(), type, cmp, key, node)) return node; \
+        return NULL; \
+    } \
+    MOD macro_multimap_insert_with_field(prefix##_insert, field, type, cmp) \
+    MOD macro_map_remove_with_field(prefix##_remove, field, type)
+
+/* KV Multimaps */
+#define __macro_multimap_kv_api_h(MOD, prefix, key_type, value_type) \
+    MOD _macro_map_kv_h(prefix##_lower_bound, macro_map_default(), key_type, value_type); \
+    MOD value_type * prefix##_find(const macro_map_t *root, const key_type *key); \
+    MOD _macro_map_insert_h(prefix##_insert, macro_map_default(), value_type); \
+    MOD macro_map_remove_h(prefix##_remove, value_type)
+
+#define __macro_multimap_kv_api_h_with_field(MOD, prefix, field, key_type, value_type) \
+    MOD _macro_map_kv_h(prefix##_lower_bound, macro_map_default(), key_type, value_type); \
+    MOD value_type * prefix##_find(const macro_map_t *root, const key_type *key); \
+    MOD _macro_map_insert_h(prefix##_insert, macro_map_default(), value_type); \
+    MOD macro_map_remove_h(prefix##_remove, value_type)
+
+#define __macro_multimap_kv_api(MOD, prefix, key_type, value_type, cmp) \
+    MOD _macro_map_kv(prefix##_lower_bound, lower_bound, macro_map_default(), key_type, value_type, cmp) \
+    MOD value_type * prefix##_find(const macro_map_t *root, const key_type *key) { \
+        value_type *node = prefix##_lower_bound(root, key); \
+        if (node && macro_equal_kv(macro_map_default(), key_type, value_type, cmp, key, node)) return node; \
+        return NULL; \
+    } \
+    MOD macro_multimap_insert(prefix##_insert, value_type, cmp) \
+    MOD macro_map_remove(prefix##_remove, value_type)
+
+#define __macro_multimap_kv_api_with_field(MOD, prefix, field, key_type, value_type, cmp) \
+    MOD _macro_map_kv_with_field(prefix##_lower_bound, field, lower_bound, macro_map_default(), key_type, value_type, cmp) \
+    MOD value_type * prefix##_find(const macro_map_t *root, const key_type *key) { \
+        value_type *node = prefix##_lower_bound(root, key); \
+        if (node && macro_equal_kv(macro_map_default(), key_type, value_type, cmp, key, node)) return node; \
+        return NULL; \
+    } \
+    MOD macro_multimap_insert_with_field(prefix##_insert, field, value_type, cmp) \
+    MOD macro_map_remove_with_field(prefix##_remove, field, value_type)
+
+/* ==========================================================================
+ * INTERNAL COMPARE API GENERATORS
+ * ========================================================================== */
+
+/* Standard Maps Compare */
+#define __macro_map_compare_api_h(MOD, prefix, type) \
+    MOD _macro_map_compare_h(prefix##_find, macro_map_default(), type); \
+    MOD _macro_map_insert_compare_h(prefix##_insert, macro_map_default(), type); \
+    MOD macro_map_remove_h(prefix##_remove, type); \
+    MOD type * prefix##_erase(macro_map_t **root, macro_compare_signature(const type *key, cmp_no_arg, type))
+
+#define __macro_map_compare_api_h_with_field(MOD, prefix, field, type) \
+    MOD _macro_map_compare_h(prefix##_find, macro_map_default(), type); \
+    MOD _macro_map_insert_compare_h(prefix##_insert, macro_map_default(), type); \
+    MOD macro_map_remove_h(prefix##_remove, type); \
+    MOD type * prefix##_erase(macro_map_t **root, macro_compare_signature(const type *key, cmp_no_arg, type))
+
+#define __macro_map_compare_api(MOD, prefix, type) \
+    MOD macro_map_find_compare(prefix##_find, type) \
+    MOD macro_map_insert_compare(prefix##_insert, type) \
+    MOD macro_map_remove(prefix##_remove, type) \
+    MOD type * prefix##_erase(macro_map_t **root, macro_compare_signature(const type *key, cmp_no_arg, type)) { \
+        type *node = prefix##_find(*root, key, cmp); \
+        if (node) prefix##_remove(root, node); \
+        return node; \
+    }
+
+#define __macro_map_compare_api_with_field(MOD, prefix, field, type) \
+    MOD macro_map_find_compare_with_field(prefix##_find, field, type) \
+    MOD macro_map_insert_compare_with_field(prefix##_insert, field, type) \
+    MOD macro_map_remove_with_field(prefix##_remove, field, type) \
+    MOD type * prefix##_erase(macro_map_t **root, macro_compare_signature(const type *key, cmp_no_arg, type)) { \
+        type *node = prefix##_find(*root, key, cmp); \
+        if (node) prefix##_remove(root, node); \
+        return node; \
+    }
+
+/* KV Maps Compare */
+#define __macro_map_kv_compare_api_h(MOD, prefix, key_type, value_type) \
+    MOD _macro_map_kv_compare_h(prefix##_find, macro_map_default(), key_type, value_type); \
+    MOD _macro_map_insert_compare_h(prefix##_insert, macro_map_default(), value_type); \
+    MOD macro_map_remove_h(prefix##_remove, value_type); \
+    MOD value_type * prefix##_erase(macro_map_t **root, macro_compare_kv_signature(const key_type *key, cmp_no_arg, key_type, value_type))
+
+#define __macro_map_kv_compare_api_h_with_field(MOD, prefix, field, key_type, value_type) \
+    MOD _macro_map_kv_compare_h(prefix##_find, macro_map_default(), key_type, value_type); \
+    MOD _macro_map_insert_compare_h(prefix##_insert, macro_map_default(), value_type); \
+    MOD macro_map_remove_h(prefix##_remove, value_type); \
+    MOD value_type * prefix##_erase(macro_map_t **root, macro_compare_kv_signature(const key_type *key, cmp_no_arg, key_type, value_type))
+
+#define __macro_map_kv_compare_api(MOD, prefix, key_type, value_type) \
+    MOD macro_map_find_kv_compare(prefix##_find, key_type, value_type) \
+    MOD macro_map_insert_compare(prefix##_insert, value_type) \
+    MOD macro_map_remove(prefix##_remove, value_type) \
+    MOD value_type * prefix##_erase(macro_map_t **root, macro_compare_kv_signature(const key_type *key, cmp_no_arg, key_type, value_type)) { \
+        value_type *node = prefix##_find(*root, key, cmp); \
+        if (node) prefix##_remove(root, node); \
+        return node; \
+    }
+
+#define __macro_map_kv_compare_api_with_field(MOD, prefix, field, key_type, value_type) \
+    MOD macro_map_find_kv_compare_with_field(prefix##_find, field, key_type, value_type) \
+    MOD macro_map_insert_compare_with_field(prefix##_insert, field, value_type) \
+    MOD macro_map_remove_with_field(prefix##_remove, field, value_type) \
+    MOD value_type * prefix##_erase(macro_map_t **root, macro_compare_kv_signature(const key_type *key, cmp_no_arg, key_type, value_type)) { \
+        value_type *node = prefix##_find(*root, key, cmp); \
+        if (node) prefix##_remove(root, node); \
+        return node; \
+    }
+
+/* Multimaps Compare */
+#define __macro_multimap_compare_api_h(MOD, prefix, type) \
+    MOD _macro_map_compare_h(prefix##_lower_bound, macro_map_default(), type); \
+    MOD type * prefix##_find(const macro_map_t *root, macro_compare_signature(const type *key, cmp_no_arg, type)); \
+    MOD _macro_map_insert_compare_h(prefix##_insert, macro_map_default(), type); \
+    MOD macro_map_remove_h(prefix##_remove, type)
+
+#define __macro_multimap_compare_api_h_with_field(MOD, prefix, field, type) \
+    MOD _macro_map_compare_h(prefix##_lower_bound, macro_map_default(), type); \
+    MOD type * prefix##_find(const macro_map_t *root, macro_compare_signature(const type *key, cmp_no_arg, type)); \
+    MOD _macro_map_insert_compare_h(prefix##_insert, macro_map_default(), type); \
+    MOD macro_map_remove_h(prefix##_remove, type)
+
+#define __macro_multimap_compare_api(MOD, prefix, type) \
+    MOD _macro_map_compare(prefix##_lower_bound, lower_bound, macro_map_default(), type) \
+    MOD type * prefix##_find(const macro_map_t *root, macro_compare_signature(const type *key, cmp_no_arg, type)) { \
+        type *node = prefix##_lower_bound(root, key, cmp); \
+        if (node && macro_equal_cmp_no_arg(type, cmp, key, node)) return node; \
+        return NULL; \
+    } \
+    MOD macro_multimap_insert_compare(prefix##_insert, type) \
+    MOD macro_map_remove(prefix##_remove, type)
+
+#define __macro_multimap_compare_api_with_field(MOD, prefix, field, type) \
+    MOD _macro_map_compare_with_field(prefix##_lower_bound, field, lower_bound, macro_map_default(), type) \
+    MOD type * prefix##_find(const macro_map_t *root, macro_compare_signature(const type *key, cmp_no_arg, type)) { \
+        type *node = prefix##_lower_bound(root, key, cmp); \
+        if (node && macro_equal_cmp_no_arg(type, cmp, key, node)) return node; \
+        return NULL; \
+    } \
+    MOD macro_multimap_insert_compare_with_field(prefix##_insert, field, type) \
+    MOD macro_map_remove_with_field(prefix##_remove, field, type)
+
+/* KV Multimaps Compare */
+#define __macro_multimap_kv_compare_api_h(MOD, prefix, key_type, value_type) \
+    MOD _macro_map_kv_compare_h(prefix##_lower_bound, macro_map_default(), key_type, value_type); \
+    MOD value_type * prefix##_find(const macro_map_t *root, macro_compare_kv_signature(const key_type *key, cmp_no_arg, key_type, value_type)); \
+    MOD _macro_map_insert_compare_h(prefix##_insert, macro_map_default(), value_type); \
+    MOD macro_map_remove_h(prefix##_remove, value_type)
+
+#define __macro_multimap_kv_compare_api_h_with_field(MOD, prefix, field, key_type, value_type) \
+    MOD _macro_map_kv_compare_h(prefix##_lower_bound, macro_map_default(), key_type, value_type); \
+    MOD value_type * prefix##_find(const macro_map_t *root, macro_compare_kv_signature(const key_type *key, cmp_no_arg, key_type, value_type)); \
+    MOD _macro_map_insert_compare_h(prefix##_insert, macro_map_default(), value_type); \
+    MOD macro_map_remove_h(prefix##_remove, value_type)
+
+#define __macro_multimap_kv_compare_api(MOD, prefix, key_type, value_type) \
+    MOD _macro_map_kv_compare(prefix##_lower_bound, lower_bound, macro_map_default(), key_type, value_type) \
+    MOD value_type * prefix##_find(const macro_map_t *root, macro_compare_kv_signature(const key_type *key, cmp_no_arg, key_type, value_type)) { \
+        value_type *node = prefix##_lower_bound(root, key, cmp); \
+        if (node && macro_cmp_kv_cmp_no_arg(key_type, value_type, cmp, key, node) == 0) return node; \
+        return NULL; \
+    } \
+    MOD macro_multimap_insert_compare(prefix##_insert, value_type) \
+    MOD macro_map_remove(prefix##_remove, value_type)
+
+#define __macro_multimap_kv_compare_api_with_field(MOD, prefix, field, key_type, value_type) \
+    MOD _macro_map_kv_compare_with_field(prefix##_lower_bound, field, lower_bound, macro_map_default(), key_type, value_type) \
+    MOD value_type * prefix##_find(const macro_map_t *root, macro_compare_kv_signature(const key_type *key, cmp_no_arg, key_type, value_type)) { \
+        value_type *node = prefix##_lower_bound(root, key, cmp); \
+        if (node && macro_cmp_kv_cmp_no_arg(key_type, value_type, cmp, key, node) == 0) return node; \
+        return NULL; \
+    } \
+    MOD macro_multimap_insert_compare_with_field(prefix##_insert, field, value_type) \
+    MOD macro_map_remove_with_field(prefix##_remove, field, value_type)
+
+/* ==========================================================================
+ * PUBLIC GENERATORS
+ * ========================================================================== */
+
+/* Standard Map APIs */
+#define macro_map_api_h(prefix, type)                            __macro_map_api_h(, prefix, type)
+#define macro_map_static_api_h(prefix, type)                     __macro_map_api_h(static, prefix, type)
+#define macro_map_static_inline_api_h(prefix, type)              __macro_map_api_h(static inline, prefix, type)
+
+#define macro_map_api_h_with_field(prefix, field, type)               __macro_map_api_h_with_field(, prefix, field, type)
+#define macro_map_static_api_h_with_field(prefix, field, type)        __macro_map_api_h_with_field(static, prefix, field, type)
+#define macro_map_static_inline_api_h_with_field(prefix, field, type) __macro_map_api_h_with_field(static inline, prefix, field, type)
+
+#define macro_map_api(prefix, type, cmp)                         __macro_map_api(, prefix, type, cmp)
+#define macro_map_static_api(prefix, type, cmp)                  __macro_map_api(static, prefix, type, cmp)
+#define macro_map_static_inline_api(prefix, type, cmp)           __macro_map_api(static inline, prefix, type, cmp)
+
+#define macro_map_api_with_field(prefix, field, type, cmp)               __macro_map_api_with_field(, prefix, field, type, cmp)
+#define macro_map_static_api_with_field(prefix, field, type, cmp)        __macro_map_api_with_field(static, prefix, field, type, cmp)
+#define macro_map_static_inline_api_with_field(prefix, field, type, cmp) __macro_map_api_with_field(static inline, prefix, field, type, cmp)
+
+/* KV Map APIs */
+#define macro_map_kv_api_h(prefix, key_t, val_t)                 __macro_map_kv_api_h(, prefix, key_t, val_t)
+#define macro_map_static_kv_api_h(prefix, key_t, val_t)          __macro_map_kv_api_h(static, prefix, key_t, val_t)
+#define macro_map_static_inline_kv_api_h(prefix, key_t, val_t)   __macro_map_kv_api_h(static inline, prefix, key_t, val_t)
+
+#define macro_map_kv_api_h_with_field(prefix, f, key_t, val_t)               __macro_map_kv_api_h_with_field(, prefix, f, key_t, val_t)
+#define macro_map_static_kv_api_h_with_field(prefix, f, key_t, val_t)        __macro_map_kv_api_h_with_field(static, prefix, f, key_t, val_t)
+#define macro_map_static_inline_kv_api_h_with_field(prefix, f, key_t, val_t) __macro_map_kv_api_h_with_field(static inline, prefix, f, key_t, val_t)
+
+#define macro_map_kv_api(prefix, key_t, val_t, cmp)              __macro_map_kv_api(, prefix, key_t, val_t, cmp)
+#define macro_map_static_kv_api(prefix, key_t, val_t, cmp)       __macro_map_kv_api(static, prefix, key_t, val_t, cmp)
+#define macro_map_static_inline_kv_api(prefix, key_t, val_t, cmp) __macro_map_kv_api(static inline, prefix, key_t, val_t, cmp)
+
+#define macro_map_kv_api_with_field(prefix, f, key_t, val_t, cmp)               __macro_map_kv_api_with_field(, prefix, f, key_t, val_t, cmp)
+#define macro_map_static_kv_api_with_field(prefix, f, key_t, val_t, cmp)        __macro_map_kv_api_with_field(static, prefix, f, key_t, val_t, cmp)
+#define macro_map_static_inline_kv_api_with_field(prefix, f, key_t, val_t, cmp) __macro_map_kv_api_with_field(static inline, prefix, f, key_t, val_t, cmp)
+
+/* Multimap APIs */
+#define macro_multimap_api_h(prefix, type)                            __macro_multimap_api_h(, prefix, type)
+#define macro_multimap_static_api_h(prefix, type)                     __macro_multimap_api_h(static, prefix, type)
+#define macro_multimap_static_inline_api_h(prefix, type)              __macro_multimap_api_h(static inline, prefix, type)
+
+#define macro_multimap_api_h_with_field(prefix, field, type)               __macro_multimap_api_h_with_field(, prefix, field, type)
+#define macro_multimap_static_api_h_with_field(prefix, field, type)        __macro_multimap_api_h_with_field(static, prefix, field, type)
+#define macro_multimap_static_inline_api_h_with_field(prefix, field, type) __macro_multimap_api_h_with_field(static inline, prefix, field, type)
+
+#define macro_multimap_api(prefix, type, cmp)                         __macro_multimap_api(, prefix, type, cmp)
+#define macro_multimap_static_api(prefix, type, cmp)                  __macro_multimap_api(static, prefix, type, cmp)
+#define macro_multimap_static_inline_api(prefix, type, cmp)           __macro_multimap_api(static inline, prefix, type, cmp)
+
+#define macro_multimap_api_with_field(prefix, field, type, cmp)               __macro_multimap_api_with_field(, prefix, field, type, cmp)
+#define macro_multimap_static_api_with_field(prefix, field, type, cmp)        __macro_multimap_api_with_field(static, prefix, field, type, cmp)
+#define macro_multimap_static_inline_api_with_field(prefix, field, type, cmp) __macro_multimap_api_with_field(static inline, prefix, field, type, cmp)
+
+/* KV Multimap APIs */
+#define macro_multimap_kv_api_h(prefix, key_t, val_t)                 __macro_multimap_kv_api_h(, prefix, key_t, val_t)
+#define macro_multimap_static_kv_api_h(prefix, key_t, val_t)          __macro_multimap_kv_api_h(static, prefix, key_t, val_t)
+#define macro_multimap_static_inline_kv_api_h(prefix, key_t, val_t)   __macro_multimap_kv_api_h(static inline, prefix, key_t, val_t)
+
+#define macro_multimap_kv_api_h_with_field(prefix, f, key_t, val_t)               __macro_multimap_kv_api_h_with_field(, prefix, f, key_t, val_t)
+#define macro_multimap_static_kv_api_h_with_field(prefix, f, key_t, val_t)        __macro_multimap_kv_api_h_with_field(static, prefix, f, key_t, val_t)
+#define macro_multimap_static_inline_kv_api_h_with_field(prefix, f, key_t, val_t) __macro_multimap_kv_api_h_with_field(static inline, prefix, f, key_t, val_t)
+
+#define macro_multimap_kv_api(prefix, key_t, val_t, cmp)              __macro_multimap_kv_api(, prefix, key_t, val_t, cmp)
+#define macro_multimap_static_kv_api(prefix, key_t, val_t, cmp)       __macro_multimap_kv_api(static, prefix, key_t, val_t, cmp)
+#define macro_multimap_static_inline_kv_api(prefix, key_t, val_t, cmp) __macro_multimap_kv_api(static inline, prefix, key_t, val_t, cmp)
+
+#define macro_multimap_kv_api_with_field(prefix, f, key_t, val_t, cmp)               __macro_multimap_kv_api_with_field(, prefix, f, key_t, val_t, cmp)
+#define macro_multimap_static_kv_api_with_field(prefix, f, key_t, val_t, cmp)        __macro_multimap_kv_api_with_field(static, prefix, f, key_t, val_t, cmp)
+#define macro_multimap_static_inline_kv_api_with_field(prefix, f, key_t, val_t, cmp) __macro_multimap_kv_api_with_field(static inline, prefix, f, key_t, val_t, cmp)
+
+/* ==========================================================================
+ * PUBLIC COMPARE GENERATORS
+ * ========================================================================== */
+
+/* Standard Map Compare APIs */
+#define macro_map_compare_api_h(prefix, type)                            __macro_map_compare_api_h(, prefix, type)
+#define macro_map_static_compare_api_h(prefix, type)                     __macro_map_compare_api_h(static, prefix, type)
+#define macro_map_static_inline_compare_api_h(prefix, type)              __macro_map_compare_api_h(static inline, prefix, type)
+
+#define macro_map_compare_api_h_with_field(prefix, field, type)               __macro_map_compare_api_h_with_field(, prefix, field, type)
+#define macro_map_static_compare_api_h_with_field(prefix, field, type)        __macro_map_compare_api_h_with_field(static, prefix, field, type)
+#define macro_map_static_inline_compare_api_h_with_field(prefix, field, type) __macro_map_compare_api_h_with_field(static inline, prefix, field, type)
+
+#define macro_map_compare_api(prefix, type)                         __macro_map_compare_api(, prefix, type)
+#define macro_map_static_compare_api(prefix, type)                  __macro_map_compare_api(static, prefix, type)
+#define macro_map_static_inline_compare_api(prefix, type)           __macro_map_compare_api(static inline, prefix, type)
+
+#define macro_map_compare_api_with_field(prefix, field, type)               __macro_map_compare_api_with_field(, prefix, field, type)
+#define macro_map_static_compare_api_with_field(prefix, field, type)        __macro_map_compare_api_with_field(static, prefix, field, type)
+#define macro_map_static_inline_compare_api_with_field(prefix, field, type) __macro_map_compare_api_with_field(static inline, prefix, field, type)
+
+/* KV Map Compare APIs */
+#define macro_map_kv_compare_api_h(prefix, key_t, val_t)                 __macro_map_kv_compare_api_h(, prefix, key_t, val_t)
+#define macro_map_static_kv_compare_api_h(prefix, key_t, val_t)          __macro_map_kv_compare_api_h(static, prefix, key_t, val_t)
+#define macro_map_static_inline_kv_compare_api_h(prefix, key_t, val_t)   __macro_map_kv_compare_api_h(static inline, prefix, key_t, val_t)
+
+#define macro_map_kv_compare_api_h_with_field(prefix, f, key_t, val_t)               __macro_map_kv_compare_api_h_with_field(, prefix, f, key_t, val_t)
+#define macro_map_static_kv_compare_api_h_with_field(prefix, f, key_t, val_t)        __macro_map_kv_compare_api_h_with_field(static, prefix, f, key_t, val_t)
+#define macro_map_static_inline_kv_compare_api_h_with_field(prefix, f, key_t, val_t) __macro_map_kv_compare_api_h_with_field(static inline, prefix, f, key_t, val_t)
+
+#define macro_map_kv_compare_api(prefix, key_t, val_t)              __macro_map_kv_compare_api(, prefix, key_t, val_t)
+#define macro_map_static_kv_compare_api(prefix, key_t, val_t)       __macro_map_kv_compare_api(static, prefix, key_t, val_t)
+#define macro_map_static_inline_kv_compare_api(prefix, key_t, val_t) __macro_map_kv_compare_api(static inline, prefix, key_t, val_t)
+
+#define macro_map_kv_compare_api_with_field(prefix, f, key_t, val_t)               __macro_map_kv_compare_api_with_field(, prefix, f, key_t, val_t)
+#define macro_map_static_kv_compare_api_with_field(prefix, f, key_t, val_t)        __macro_map_kv_compare_api_with_field(static, prefix, f, key_t, val_t)
+#define macro_map_static_inline_kv_compare_api_with_field(prefix, f, key_t, val_t) __macro_map_kv_compare_api_with_field(static inline, prefix, f, key_t, val_t)
+
+/* Multimap Compare APIs */
+#define macro_multimap_compare_api_h(prefix, type)                            __macro_multimap_compare_api_h(, prefix, type)
+#define macro_multimap_static_compare_api_h(prefix, type)                     __macro_multimap_compare_api_h(static, prefix, type)
+#define macro_multimap_static_inline_compare_api_h(prefix, type)              __macro_multimap_compare_api_h(static inline, prefix, type)
+
+#define macro_multimap_compare_api_h_with_field(prefix, field, type)               __macro_multimap_compare_api_h_with_field(, prefix, field, type)
+#define macro_multimap_static_compare_api_h_with_field(prefix, field, type)        __macro_multimap_compare_api_h_with_field(static, prefix, field, type)
+#define macro_multimap_static_inline_compare_api_h_with_field(prefix, field, type) __macro_multimap_compare_api_h_with_field(static inline, prefix, field, type)
+
+#define macro_multimap_compare_api(prefix, type)                         __macro_multimap_compare_api(, prefix, type)
+#define macro_multimap_static_compare_api(prefix, type)                  __macro_multimap_compare_api(static, prefix, type)
+#define macro_multimap_static_inline_compare_api(prefix, type)           __macro_multimap_compare_api(static inline, prefix, type)
+
+#define macro_multimap_compare_api_with_field(prefix, field, type)               __macro_multimap_compare_api_with_field(, prefix, field, type)
+#define macro_multimap_static_compare_api_with_field(prefix, field, type)        __macro_multimap_compare_api_with_field(static, prefix, field, type)
+#define macro_multimap_static_inline_compare_api_with_field(prefix, field, type) __macro_multimap_compare_api_with_field(static inline, prefix, field, type)
+
+/* KV Multimap Compare APIs */
+#define macro_multimap_kv_compare_api_h(prefix, key_t, val_t)                 __macro_multimap_kv_compare_api_h(, prefix, key_t, val_t)
+#define macro_multimap_static_kv_compare_api_h(prefix, key_t, val_t)          __macro_multimap_kv_compare_api_h(static, prefix, key_t, val_t)
+#define macro_multimap_static_inline_kv_compare_api_h(prefix, key_t, val_t)   __macro_multimap_kv_compare_api_h(static inline, prefix, key_t, val_t)
+
+#define macro_multimap_kv_compare_api_h_with_field(prefix, f, key_t, val_t)               __macro_multimap_kv_compare_api_h_with_field(, prefix, f, key_t, val_t)
+#define macro_multimap_static_kv_compare_api_h_with_field(prefix, f, key_t, val_t)        __macro_multimap_kv_compare_api_h_with_field(static, prefix, f, key_t, val_t)
+#define macro_multimap_static_inline_kv_compare_api_h_with_field(prefix, f, key_t, val_t) __macro_multimap_kv_compare_api_h_with_field(static inline, prefix, f, key_t, val_t)
+
+#define macro_multimap_kv_compare_api(prefix, key_t, val_t)              __macro_multimap_kv_compare_api(, prefix, key_t, val_t)
+#define macro_multimap_static_kv_compare_api(prefix, key_t, val_t)       __macro_multimap_kv_compare_api(static, prefix, key_t, val_t)
+#define macro_multimap_static_inline_kv_compare_api(prefix, key_t, val_t) __macro_multimap_kv_compare_api(static inline, prefix, key_t, val_t)
+
+#define macro_multimap_kv_compare_api_with_field(prefix, f, key_t, val_t)               __macro_multimap_kv_compare_api_with_field(, prefix, f, key_t, val_t)
+#define macro_multimap_static_kv_compare_api_with_field(prefix, f, key_t, val_t)        __macro_multimap_kv_compare_api_with_field(static, prefix, f, key_t, val_t)
+#define macro_multimap_static_inline_kv_compare_api_with_field(prefix, f, key_t, val_t) __macro_multimap_kv_compare_api_with_field(static inline, prefix, f, key_t, val_t)
+
+/* multimap or iterator removal important notes!!!
+
+// Because of how intrusive structures work, dropping erase and forcing the caller
+// to use remove introduces one classic C trap you should be aware of: you must cache
+// the next node before removing the current one.
+//
+// When macro_map_erase unlinks a node, it scrambles that node's left, right, and
+// parent_color pointers. If you try to call macro_map_next() on a node after you remove
+// it, it will segfault or corrupt the tree.
+//
+// Here is the safe, idiomatic way a user will consume your generated multimap API
+// to delete all duplicates:
+
+// Generate the multimap interface
+macro_multimap_kv_api(alias_index, char, alias_node_t, cmp_alias)
+
+// Safe removal loop
+void remove_all_aliases(macro_map_t **root, const char *search_key) {
+    // 1. Get the FIRST exact match (returns NULL if "search_key" isn't found)
+    alias_node_t *curr = alias_index_find(*root, search_key);
+
+    while (curr && cmp_alias(search_key, curr) == 0) {
+        // 2. CACHE the next node BEFORE removing!
+        macro_map_t *next_link = macro_map_next(&curr->node);
+        alias_node_t *next = next_link ? (alias_node_t *)next_link : NULL; // or macro_parent_object
+
+        // 3. Remove and free the current node safely
+        alias_index_remove(root, curr);
+        free(curr); // or aml_pool_free(...)
+
+        // 4. Advance
+        curr = next;
+    }
+}
+*/
 
 #endif

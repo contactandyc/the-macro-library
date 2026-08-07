@@ -26,11 +26,11 @@ static inline long macro_to_time(void);
 
 /* Converts a timestamp to "YYYY-MM-DD hh:mm:ss".
    Requires a buffer of at least 20 bytes. */
-static char *macro_to_date_time(char *dest, time_t ts);
+static inline char *macro_to_date_time(char *dest, time_t ts);
 
 /* Converts a timestamp to "YYYY-MM-DD".
    Requires a buffer of at least 11 bytes. */
-static char *macro_to_date(char *dest, time_t ts);
+static inline char *macro_to_date(char *dest, time_t ts);
 
 /* --------------------------------------------------------------------------
  * String passthrough

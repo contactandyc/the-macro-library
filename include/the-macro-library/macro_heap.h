@@ -122,4 +122,94 @@ macro_heap_pop_compare_h(name, style, type, heap_type) {                        
 #define macro_max_heap_pop_compare(name, style, type, heap_type)    \
     _macro_heap_pop_compare(name, style, type, heap_type, max)
 
+/* ==========================================================================
+ * INTERNAL GENERATOR ENGINE (Linkage Parameterized)
+ * ========================================================================== */
+
+#define macro_heap_default() less_no_arg
+
+/* Min Heap */
+#define __macro_min_heap_api_h(MOD, prefix, type, heap_type) \
+    MOD macro_heap_push_h(prefix##_push, macro_heap_default(), type, heap_type); \
+    MOD macro_heap_pop_h(prefix##_pop, macro_heap_default(), type, heap_type); \
+    MOD macro_heap_replace_h(prefix##_replace, macro_heap_default(), type, heap_type)
+
+#define __macro_min_heap_api(MOD, prefix, type, cmp, heap_type) \
+    MOD _macro_heap_push(prefix##_push, macro_heap_default(), type, cmp, heap_type, min) \
+    MOD _macro_heap_pop(prefix##_pop, macro_heap_default(), type, cmp, heap_type, min) \
+    MOD _macro_heap_replace(prefix##_replace, macro_heap_default(), type, cmp, heap_type, min)
+
+/* Max Heap */
+#define __macro_max_heap_api_h(MOD, prefix, type, heap_type) \
+    MOD macro_heap_push_h(prefix##_push, macro_heap_default(), type, heap_type); \
+    MOD macro_heap_pop_h(prefix##_pop, macro_heap_default(), type, heap_type); \
+    MOD macro_heap_replace_h(prefix##_replace, macro_heap_default(), type, heap_type)
+
+#define __macro_max_heap_api(MOD, prefix, type, cmp, heap_type) \
+    MOD _macro_heap_push(prefix##_push, macro_heap_default(), type, cmp, heap_type, max) \
+    MOD _macro_heap_pop(prefix##_pop, macro_heap_default(), type, cmp, heap_type, max) \
+    MOD _macro_heap_replace(prefix##_replace, macro_heap_default(), type, cmp, heap_type, max)
+
+/* Min Heap Compare */
+#define __macro_min_heap_compare_api_h(MOD, prefix, type, heap_type) \
+    MOD macro_heap_push_compare_h(prefix##_push, macro_heap_default(), type, heap_type); \
+    MOD macro_heap_pop_compare_h(prefix##_pop, macro_heap_default(), type, heap_type); \
+    MOD macro_heap_replace_compare_h(prefix##_replace, macro_heap_default(), type, heap_type)
+
+#define __macro_min_heap_compare_api(MOD, prefix, type, heap_type) \
+    MOD _macro_heap_push_compare(prefix##_push, macro_heap_default(), type, heap_type, min) \
+    MOD _macro_heap_pop_compare(prefix##_pop, macro_heap_default(), type, heap_type, min) \
+    MOD _macro_heap_replace_compare(prefix##_replace, macro_heap_default(), type, heap_type, min)
+
+/* Max Heap Compare */
+#define __macro_max_heap_compare_api_h(MOD, prefix, type, heap_type) \
+    MOD macro_heap_push_compare_h(prefix##_push, macro_heap_default(), type, heap_type); \
+    MOD macro_heap_pop_compare_h(prefix##_pop, macro_heap_default(), type, heap_type); \
+    MOD macro_heap_replace_compare_h(prefix##_replace, macro_heap_default(), type, heap_type)
+
+#define __macro_max_heap_compare_api(MOD, prefix, type, heap_type) \
+    MOD _macro_heap_push_compare(prefix##_push, macro_heap_default(), type, heap_type, max) \
+    MOD _macro_heap_pop_compare(prefix##_pop, macro_heap_default(), type, heap_type, max) \
+    MOD _macro_heap_replace_compare(prefix##_replace, macro_heap_default(), type, heap_type, max)
+
+/* ==========================================================================
+ * PUBLIC GENERATORS
+ * ========================================================================== */
+
+/* Min Heap APIs */
+#define macro_min_heap_api_h(prefix, type, heap_type)                  __macro_min_heap_api_h(, prefix, type, heap_type)
+#define macro_min_heap_static_api_h(prefix, type, heap_type)           __macro_min_heap_api_h(static, prefix, type, heap_type)
+#define macro_min_heap_static_inline_api_h(prefix, type, heap_type)    __macro_min_heap_api_h(static inline, prefix, type, heap_type)
+
+#define macro_min_heap_api(prefix, type, cmp, heap_type)               __macro_min_heap_api(, prefix, type, cmp, heap_type)
+#define macro_min_heap_static_api(prefix, type, cmp, heap_type)        __macro_min_heap_api(static, prefix, type, cmp, heap_type)
+#define macro_min_heap_static_inline_api(prefix, type, cmp, heap_type) __macro_min_heap_api(static inline, prefix, type, cmp, heap_type)
+
+/* Max Heap APIs */
+#define macro_max_heap_api_h(prefix, type, heap_type)                  __macro_max_heap_api_h(, prefix, type, heap_type)
+#define macro_max_heap_static_api_h(prefix, type, heap_type)           __macro_max_heap_api_h(static, prefix, type, heap_type)
+#define macro_max_heap_static_inline_api_h(prefix, type, heap_type)    __macro_max_heap_api_h(static inline, prefix, type, heap_type)
+
+#define macro_max_heap_api(prefix, type, cmp, heap_type)               __macro_max_heap_api(, prefix, type, cmp, heap_type)
+#define macro_max_heap_static_api(prefix, type, cmp, heap_type)        __macro_max_heap_api(static, prefix, type, cmp, heap_type)
+#define macro_max_heap_static_inline_api(prefix, type, cmp, heap_type) __macro_max_heap_api(static inline, prefix, type, cmp, heap_type)
+
+/* Min Heap Compare APIs */
+#define macro_min_heap_compare_api_h(prefix, type, heap_type)                  __macro_min_heap_compare_api_h(, prefix, type, heap_type)
+#define macro_min_heap_static_compare_api_h(prefix, type, heap_type)           __macro_min_heap_compare_api_h(static, prefix, type, heap_type)
+#define macro_min_heap_static_inline_compare_api_h(prefix, type, heap_type)    __macro_min_heap_compare_api_h(static inline, prefix, type, heap_type)
+
+#define macro_min_heap_compare_api(prefix, type, heap_type)               __macro_min_heap_compare_api(, prefix, type, heap_type)
+#define macro_min_heap_static_compare_api(prefix, type, heap_type)        __macro_min_heap_compare_api(static, prefix, type, heap_type)
+#define macro_min_heap_static_inline_compare_api(prefix, type, heap_type) __macro_min_heap_compare_api(static inline, prefix, type, heap_type)
+
+/* Max Heap Compare APIs */
+#define macro_max_heap_compare_api_h(prefix, type, heap_type)                  __macro_max_heap_compare_api_h(, prefix, type, heap_type)
+#define macro_max_heap_static_compare_api_h(prefix, type, heap_type)           __macro_max_heap_compare_api_h(static, prefix, type, heap_type)
+#define macro_max_heap_static_inline_compare_api_h(prefix, type, heap_type)    __macro_max_heap_compare_api_h(static inline, prefix, type, heap_type)
+
+#define macro_max_heap_compare_api(prefix, type, heap_type)               __macro_max_heap_compare_api(, prefix, type, heap_type)
+#define macro_max_heap_static_compare_api(prefix, type, heap_type)        __macro_max_heap_compare_api(static, prefix, type, heap_type)
+#define macro_max_heap_static_inline_compare_api(prefix, type, heap_type) __macro_max_heap_compare_api(static inline, prefix, type, heap_type)
+
 #endif

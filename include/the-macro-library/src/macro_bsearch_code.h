@@ -20,10 +20,10 @@
     __macro_bsearch_vars(value_type, base, n);                             \
     while(lo < hi) {                                                       \
         mid = lo + ((hi - lo) >> 1);                                       \
-        int n = macro_cmp(style, value_type, cmp, key, mid);               \
-        if (n > 0)                                                         \
+        int c = macro_cmp(style, value_type, cmp, key, mid);               \
+        if (c > 0)                                                         \
             lo = mid + 1;                                                  \
-        else if(n < 0)                                                     \
+        else if(c < 0)                                                     \
             hi = mid;                                                      \
         else                                                               \
             return mid;                                                    \
@@ -34,10 +34,10 @@
     __macro_bsearch_vars(value_type, base, n);                                          \
     while(lo < hi) {                                                                    \
         mid = lo + ((hi - lo) >> 1);                                                    \
-        int n = macro_cmp_kv(style, key_type, value_type, cmp, key, mid);               \
-        if (n > 0)                                                                      \
+        int c = macro_cmp_kv(style, key_type, value_type, cmp, key, mid);               \
+        if (c > 0)                                                                      \
             lo = mid + 1;                                                               \
-        else if(n < 0)                                                                  \
+        else if(c < 0)                                                                  \
             hi = mid;                                                                   \
         else                                                                            \
             return mid;                                                                 \
